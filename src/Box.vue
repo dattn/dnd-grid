@@ -107,8 +107,8 @@
                         y: evt.clientY - y
                     };
 
-                    this.$el.style.left = ((this.x * this.$parent.gridWidth) + offset.x) + 'px';
-                    this.$el.style.top = ((this.y * this.$parent.gridWidth) + offset.y) + 'px';
+                    this.$el.style.left = (((this.x * this.$parent.gridWidth) + ((this.x + 1) * this.$parent.gridMargin)) + offset.x) + 'px';
+                    this.$el.style.top = (((this.y * this.$parent.gridWidth) + ((this.y + 1) * this.$parent.gridMargin)) + offset.y) + 'px';
 
                     this.$emit('dragUpdate', offset);
                 };

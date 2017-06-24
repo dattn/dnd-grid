@@ -109,8 +109,8 @@
                 box.$on('dragEnd', evt => {
                     var data = this.boxData(box.boxId);
                     if (data) {
-                        data.x += Math.round(evt.x / this.gridWidth);
-                        data.y += Math.round(evt.y / this.gridHeight);
+                        data.x += Math.round(evt.x / (this.gridWidth + this.gridMargin));
+                        data.y += Math.round(evt.y / (this.gridHeight + this.gridMargin));
                     }
                 });
             });
