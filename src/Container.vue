@@ -84,6 +84,14 @@
                 return this.layout.find(data => {
                     return data.id === boxId;
                 });
+            },
+            getPixelPosition(x, y, w, h) {
+                return {
+                    w: (w * this.gridWidth) + ((w - 1) * this.gridMargin),
+                    h: (h * this.gridHeight) + ((h - 1) * this.gridMargin),
+                    x: (x * this.gridWidth) + ((x + 1) * this.gridMargin),
+                    y: (y * this.gridHeight) + ((y + 1) * this.gridMargin)
+                };
             }
         },
         mounted() {

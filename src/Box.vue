@@ -57,12 +57,13 @@
         },
         computed: {
             style() {
+                var pixelPosition = this.$parent.getPixelPosition(this.x, this.y, this.w, this.h);
                 return {
                     display: this.hide? 'none' : 'block',
-                    width: (this.w * this.$parent.gridWidth) + ((this.w - 1) * this.$parent.gridMargin) + 'px',
-                    height: (this.h * this.$parent.gridHeight) + ((this.h - 1) * this.$parent.gridMargin) + 'px',
-                    left: ((this.x * this.$parent.gridWidth) + ((this.x + 1) * this.$parent.gridMargin)) + 'px',
-                    top: ((this.y * this.$parent.gridHeight) + ((this.y + 1) * this.$parent.gridMargin)) + 'px'
+                    width: pixelPosition.w + 'px',
+                    height: pixelPosition.h + 'px',
+                    left: pixelPosition.x + 'px',
+                    top: pixelPosition.y + 'px'
                 }
             },
             classes() {
@@ -96,8 +97,9 @@
 
                     // force reposition on next tick
                     this.$nextTick(() => {
-                        this.$el.style.left = ((this.x * this.$parent.gridWidth) + ((this.x + 1) * this.$parent.gridMargin)) + 'px';
-                        this.$el.style.top = ((this.y * this.$parent.gridWidth) + ((this.y + 1) * this.$parent.gridMargin)) + 'px';
+                        var pixelPosition = this.$parent.getPixelPosition(this.x, this.y, this.w, this.h);
+                        this.$el.style.left = pixelPosition.x + 'px';
+                        this.$el.style.top = pixelPosition.y + 'px';
                     });
                 };
 
@@ -107,8 +109,9 @@
                         y: evt.clientY - y
                     };
 
-                    this.$el.style.left = (((this.x * this.$parent.gridWidth) + ((this.x + 1) * this.$parent.gridMargin)) + offset.x) + 'px';
-                    this.$el.style.top = (((this.y * this.$parent.gridWidth) + ((this.y + 1) * this.$parent.gridMargin)) + offset.y) + 'px';
+                    var pixelPosition = this.$parent.getPixelPosition(this.x, this.y, this.w, this.h);
+                    this.$el.style.left = (pixelPosition.x + offset.x) + 'px';
+                    this.$el.style.top = (pixelPosition.y + offset.y) + 'px';
 
                     this.$emit('dragUpdate', offset);
                 };
