@@ -32,6 +32,7 @@
 
 <script>
     import Box from './Box';
+    import utils from './utils';
 
     export default {
         name: 'DndGridContainer',
@@ -80,9 +81,9 @@
             }
         },
         methods: {
-            boxData(boxId) {
-                return this.layout.find(data => {
-                    return data.id === boxId;
+            getBox(boxId) {
+                return this.layout.find(box => {
+                    return box.id === boxId;
                 });
             },
             getPositionInPixel(x, y, w, h) {
@@ -102,32 +103,54 @@
         },
         mounted() {
             this.$children.forEach(box => {
+                var draggingBox;
+                var otherBoxes;
+
                 box.$on('dragStart', evt => {
-                    var data = this.boxData(box.boxId);
-                    if (data) {
-                        this.placeholder = {
-                            ...data
-                        };
-                    }
+                    // find box
+                    draggingBox = this.getBox(box.boxId);
+
+                    // init otherBoxes
+                    otherBoxes = this.layout
+                        .filter(box => box.boxId !== draggingBox.boxId)
+                        .map(box => {
+                            return { ...box };
+                        })
+                        .sort((a, b) => {
+                            if (a.y < b.y) {
+                                return -1;
+                            }
+                            if (a.y > b.y) {
+                                return 1;
+                            }
+                            if (a.x < b.x) {
+                                return -1;
+                            }
+                            if (a.x > b.x) {
+                                return 1;
+                            }
+                            return 0;
+                        })
+
+                    // place placeholder
+                    this.placeholder = {
+                        ...draggingBox
+                    };
                 });
+
                 box.$on('dragUpdate', evt => {
-                    var data = this.boxData(box.boxId);
-                    if (data) {
-                        var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                        this.placeholder = {
-                            ...data,
-                            x: data.x + moveBy.x,
-                            y: data.y + moveBy.y
-                        }
+                    var moveBy = this.getPositionByPixel(evt.x, evt.y);
+                    this.placeholder = {
+                        ...draggingBox,
+                        x: draggingBox.x + moveBy.x,
+                        y: draggingBox.y + moveBy.y
                     }
                 });
+
                 box.$on('dragEnd', evt => {
-                    var data = this.boxData(box.boxId);
-                    if (data) {
-                        var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                        data.x += moveBy.x;
-                        data.y += moveBy.y;
-                    }
+                    var moveBy = this.getPositionByPixel(evt.x, evt.y);
+                    draggingBox.x += moveBy.x;
+                    draggingBox.y += moveBy.y;
                 });
             });
         }
