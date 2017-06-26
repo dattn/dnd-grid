@@ -92,6 +92,12 @@
                     x: (x * this.gridWidth) + ((x + 1) * this.gridMargin),
                     y: (y * this.gridHeight) + ((y + 1) * this.gridMargin)
                 };
+            },
+            getPositionByPixel(x, y) {
+                return {
+                    x: Math.round(x / (this.gridWidth + this.gridMargin)),
+                    y: Math.round(y / (this.gridHeight + this.gridMargin))
+                }
             }
         },
         mounted() {
@@ -107,18 +113,20 @@
                 box.$on('dragUpdate', evt => {
                     var data = this.boxData(box.boxId);
                     if (data) {
+                        var moveBy = this.getPositionByPixel(evt.x, evt.y);
                         this.placeholder = {
                             ...data,
-                            x: data.x + Math.round(evt.x / (this.gridWidth + this.gridMargin)),
-                            y: data.y + Math.round(evt.y / (this.gridHeight + this.gridMargin))
+                            x: data.x + moveBy.x,
+                            y: data.y + moveBy.y
                         }
                     }
                 });
                 box.$on('dragEnd', evt => {
                     var data = this.boxData(box.boxId);
                     if (data) {
-                        data.x += Math.round(evt.x / (this.gridWidth + this.gridMargin));
-                        data.y += Math.round(evt.y / (this.gridHeight + this.gridMargin));
+                        var moveBy = this.getPositionByPixel(evt.x, evt.y);
+                        data.x += moveBy.x;
+                        data.y += moveBy.y;
                     }
                 });
             });
