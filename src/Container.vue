@@ -85,7 +85,7 @@
                     return data.id === boxId;
                 });
             },
-            getPixelPosition(x, y, w, h) {
+            getPositionInPixel(x, y, w, h) {
                 return {
                     w: (w * this.gridWidth) + ((w - 1) * this.gridMargin),
                     h: (h * this.gridHeight) + ((h - 1) * this.gridMargin),

@@ -57,7 +57,7 @@
         },
         computed: {
             style() {
-                var pixelPosition = this.$parent.getPixelPosition(this.x, this.y, this.w, this.h);
+                var pixelPosition = this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
                 return {
                     display: this.hide? 'none' : 'block',
                     width: pixelPosition.w + 'px',
@@ -97,7 +97,7 @@
 
                     // force reposition on next tick
                     this.$nextTick(() => {
-                        var pixelPosition = this.$parent.getPixelPosition(this.x, this.y, this.w, this.h);
+                        var pixelPosition = this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
                         this.$el.style.left = pixelPosition.x + 'px';
                         this.$el.style.top = pixelPosition.y + 'px';
                     });
@@ -109,7 +109,7 @@
                         y: evt.clientY - y
                     };
 
-                    var pixelPosition = this.$parent.getPixelPosition(this.x, this.y, this.w, this.h);
+                    var pixelPosition = this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
                     this.$el.style.left = (pixelPosition.x + offset.x) + 'px';
                     this.$el.style.top = (pixelPosition.y + offset.y) + 'px';
 
