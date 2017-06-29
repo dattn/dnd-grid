@@ -133,8 +133,8 @@
 
                 box.$on('dragUpdate', evt => {
                     var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                    this.placeholder.x = draggingBox.x + moveBy.x;
-                    this.placeholder.y = draggingBox.y + moveBy.y;
+                    this.placeholder.x = Math.max(0, draggingBox.x + moveBy.x);
+                    this.placeholder.y = Math.max(0, draggingBox.y + moveBy.y);
 
                     var newLayout = [ this.placeholder ];
                     initialLayout.forEach((boxPosition) => {
@@ -148,8 +148,8 @@
 
                 box.$on('dragEnd', evt => {
                     var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                    draggingBox.x += moveBy.x;
-                    draggingBox.y += moveBy.y;
+                    draggingBox.x = Math.max(0, draggingBox.x + moveBy.x);
+                    draggingBox.y = Math.max(0, draggingBox.y + moveBy.y);
 
                     var newLayout = [ draggingBox ];
                     initialLayout.forEach((boxPosition) => {
