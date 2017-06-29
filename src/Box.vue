@@ -52,18 +52,28 @@
         },
         data() {
             return {
-                dragging: false
+                dragging: false,
+                draggingPixelOffset: {
+                    x: 0,
+                    y: 0
+                },
+                draggingStartPosition: {
+                    x: 0,
+                    y: 0
+                }
             }
         },
         computed: {
             style() {
-                var pixelPosition = this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
+                var pixelPosition = this.dragging
+                    ? this.$parent.getPositionInPixel(this.draggingStartPosition.x, this.draggingStartPosition.y, this.w, this.h)
+                    : this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
                 return {
                     display: this.hide? 'none' : 'block',
                     width: pixelPosition.w + 'px',
                     height: pixelPosition.h + 'px',
-                    left: pixelPosition.x + 'px',
-                    top: pixelPosition.y + 'px'
+                    left: pixelPosition.x + this.draggingPixelOffset.x + 'px',
+                    top: pixelPosition.y + this.draggingPixelOffset.y + 'px'
                 }
             },
             classes() {
@@ -80,40 +90,33 @@
                 var transition = this.$el.style.transition;
                 this.dragging = true;
                 this.$emit('dragStart');
-                let x = evt.clientX;
-                let y = evt.clientY;
+                let mouseX = evt.clientX;
+                let mouseY = evt.clientY;
+                this.draggingStartPosition.x = this.x;
+                this.draggingStartPosition.y = this.y;
 
                 const handleMouseUp = evt => {
                     window.removeEventListener('mouseup', handleMouseUp, true);
                     window.removeEventListener('mousemove', handleMouseMove, true);
 
-                    let offset = {
-                        x: evt.clientX - x,
-                        y: evt.clientY - y
-                    };
-
+                    this.draggingPixelOffset.x = 0;
+                    this.draggingPixelOffset.y = 0;
+                    this.draggingStartPosition.x = 0;
+                    this.draggingStartPosition.y = 0;
                     this.dragging = false;
-                    this.$emit('dragEnd', offset);
 
-                    // force reposition on next tick
-                    this.$nextTick(() => {
-                        var pixelPosition = this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
-                        this.$el.style.left = pixelPosition.x + 'px';
-                        this.$el.style.top = pixelPosition.y + 'px';
-                    });
+                    var offset = {
+                        x: evt.clientX - mouseX,
+                        y: evt.clientY - mouseY
+                    };
+                    this.$emit('dragEnd', offset);
                 };
 
                 const handleMouseMove = evt => {
-                    let offset = {
-                        x: evt.clientX - x,
-                        y: evt.clientY - y
-                    };
+                    this.draggingPixelOffset.x = evt.clientX - mouseX;
+                    this.draggingPixelOffset.y = evt.clientY - mouseY;
 
-                    var pixelPosition = this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
-                    this.$el.style.left = (pixelPosition.x + offset.x) + 'px';
-                    this.$el.style.top = (pixelPosition.y + offset.y) + 'px';
-
-                    this.$emit('dragUpdate', offset);
+                    this.$emit('dragUpdate', this.draggingPixelOffset);
                 };
 
                 window.addEventListener('mouseup', handleMouseUp, true);

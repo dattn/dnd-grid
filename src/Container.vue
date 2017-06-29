@@ -32,7 +32,7 @@
 
 <script>
     import Box from './Box';
-    import utils from './utils';
+    import * as utils from './utils';
 
     export default {
         name: 'DndGridContainer',
@@ -103,19 +103,17 @@
         },
         mounted() {
             this.$children.forEach(box => {
-                var draggingBox;
                 var otherBoxes;
+                var initialLayout;
+                var draggingBox;
 
                 box.$on('dragStart', evt => {
                     // find box
                     draggingBox = this.getBox(box.boxId);
+                    this.placeholder = { ...draggingBox };
 
-                    // init otherBoxes
-                    otherBoxes = this.layout
-                        .filter(box => box.boxId !== draggingBox.boxId)
-                        .map(box => {
-                            return { ...box };
-                        })
+                    // clone layout
+                    initialLayout = utils.cloneLayout(this.layout)
                         .sort((a, b) => {
                             if (a.y < b.y) {
                                 return -1;
@@ -130,27 +128,37 @@
                                 return 1;
                             }
                             return 0;
-                        })
-
-                    // place placeholder
-                    this.placeholder = {
-                        ...draggingBox
-                    };
+                        });
                 });
 
                 box.$on('dragUpdate', evt => {
                     var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                    this.placeholder = {
-                        ...draggingBox,
-                        x: draggingBox.x + moveBy.x,
-                        y: draggingBox.y + moveBy.y
-                    }
+                    this.placeholder.x = draggingBox.x + moveBy.x;
+                    this.placeholder.y = draggingBox.y + moveBy.y;
+
+                    var newLayout = [ this.placeholder ];
+                    initialLayout.forEach((boxPosition) => {
+                        if (boxPosition.id === draggingBox.id) {
+                            return;
+                        }
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
+                    });
+                    this.layout.splice(0, this.layout.length, ...newLayout);
                 });
 
                 box.$on('dragEnd', evt => {
                     var moveBy = this.getPositionByPixel(evt.x, evt.y);
                     draggingBox.x += moveBy.x;
                     draggingBox.y += moveBy.y;
+
+                    var newLayout = [ draggingBox ];
+                    initialLayout.forEach((boxPosition) => {
+                        if (boxPosition.id === draggingBox.id) {
+                            return;
+                        }
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
+                    });
+                    this.layout.splice(0, this.layout.length, ...newLayout);
                 });
             });
         }
