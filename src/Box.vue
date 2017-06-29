@@ -17,6 +17,10 @@
         background-color: #FFF;
     }
 
+    .dnd-grid-box.dragging {
+        z-index: 2;
+    }
+
     .dnd-grid-box:not(.dragging) {
         transition: top ease-out 0.1s, left ease-out 0.1s;
     }
