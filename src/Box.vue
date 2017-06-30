@@ -12,9 +12,7 @@
     .dnd-grid-box {
         position: absolute;
         z-index: 1;
-        border: 1px solid #999;
         box-sizing: border-box;
-        background-color: #FFF;
     }
 
     .dnd-grid-box.dragging {
@@ -27,6 +25,8 @@
 </style>
 
 <script>
+    import * as utils from './utils';
+
     export default {
         name: 'DndGridBox',
         props: {
@@ -37,6 +37,10 @@
             },
             boxId: {
                 required: true
+            },
+            dragSelector: {
+                type: String,
+                default: '*'
             }
         },
         data() {
@@ -65,6 +69,10 @@
         mounted() {
             this.$dragHandle = this.$el || this.$refs.dragHandle;
             this.$dragHandle.addEventListener('mousedown', evt => {
+                if (!utils.matchesSelector(evt.target, this.dragSelector)) {
+                    return;
+                }
+
                 evt.preventDefault();
                 var transition = this.$el.style.transition;
                 this.dragging = true;

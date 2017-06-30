@@ -14,7 +14,6 @@
 <style>
     .dnd-grid-container {
         position: relative;
-        background-color: #F99;
         transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
     }
 

@@ -1,21 +1,63 @@
 <template>
-    <div>
+    <div class="container-fluid">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
         <h1>DEMO dnd-grid Vue.js Component</h1>
 
-        <dnd-grid-container
-            :layout="layout"
-            @layoutUpdate="onLayoutUpdate"
-        >
-            <dnd-grid-box
-                v-for="box in layout"
-                :boxId="box.id"
-                :key="box.id"
-            >
-                Box {{ box.id }}
-            </dnd-grid-box>
-        </dnd-grid-container>
+                <dnd-grid-container
+                    :layout="layout"
+                    :gridSize="gridSize"
+                    :margin="margin"
+                    @layoutUpdate="onLayoutUpdate"
+                >
+                    <dnd-grid-box
+                        boxId="settings"
+                        dragSelector="div.card-header"
+                    >
+                        <div class="card demo-box">
+                            <div class="card-header">
+                                Settings
+                            </div>
+                            <div class="card-block">
+                                <div class="form-group row">
+                                    <label for="settings-margin-input" class="col-sm-4 col-form-label">Margin</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="number" v-model.number="margin" id="settings-margin-input">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Grid Size</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" type="number" v-model.number="gridSize.w" id="settings-grid-size-w-input">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" type="number" v-model.number="gridSize.h">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </dnd-grid-box>
+                    <dnd-grid-box
+                        v-for="box in layoutWithoutSettings"
+                        :boxId="box.id"
+                        :key="box.id"
+                        dragSelector="div.card-header"
+                    >
+                        <div class="card demo-box">
+                            <div class="card-header">
+                                Box {{ box.id }}
+                            </div>
+                        </div>
+                    </dnd-grid-box>
+                </dnd-grid-container>
     </div>
 </template>
+
+<style>
+    .demo-box {
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 <script>
     import components from '../src/components';
@@ -28,36 +70,56 @@
 
         data() {
             return {
+                gridSize: {
+                    w: 100,
+                    h: 100
+                },
+                margin: 5,
                 layout: [
                     {
                         x: 0,
+                        y: 0,
+                        w: 4,
+                        h: 2,
+                        id: 'settings'
+                    },
+                    {
+                        x: 4,
                         y: 0,
                         w: 2,
                         h: 1,
                         id: 'a'
                     },
                     {
-                        x: 2,
+                        x: 6,
                         y: 0,
                         w: 1,
                         h: 2,
                         id: 'b'
                     },
                     {
-                        x: 0,
+                        x: 4,
                         y: 1,
                         w: 2,
                         h: 3,
                         id: 'c'
                     },
                     {
-                        x: 2,
+                        x: 6,
                         y: 2,
                         w: 3,
                         h: 1,
                         id: 'd'
                     }
                 ]
+            }
+        },
+
+        computed: {
+            layoutWithoutSettings() {
+                return this.layout.filter((box) => {
+                    return box.id !== 'settings';
+                });
             }
         },
 
