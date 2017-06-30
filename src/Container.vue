@@ -50,6 +50,10 @@
             margin: {
                 type: Number,
                 default: 5
+            },
+            outerMargin: {
+                type: Number,
+                default: 0
             }
         },
         data() {
@@ -76,8 +80,16 @@
             style() {
                 var layoutSize = utils.getLayoutSize(this.layout);
                 return {
-                    minWidth: ((layoutSize.w * (this.gridSize.w + this.margin)) + this.margin) + 'px',
-                    minHeight: ((layoutSize.h * (this.gridSize.h + this.margin)) + this.margin) + 'px'
+                    minWidth: (
+                        (layoutSize.w * this.gridSize.w)
+                        + ((layoutSize.w - 1) * this.margin)
+                        + (2 * this.outerMargin)
+                    ) + 'px',
+                    minHeight: (
+                        (layoutSize.h * this.gridSize.h)
+                        + ((layoutSize.h - 1) * this.margin)
+                        + (2 * this.outerMargin)
+                    ) + 'px'
                 }
             }
         },
@@ -92,14 +104,14 @@
             },
             getPixelPositionById(id) {
                 if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
-                    var pixels = utils.positionToPixels(this.dragging.boxLayout.position, this.gridSize, this.margin);
+                    var pixels = utils.positionToPixels(this.dragging.boxLayout.position, this.gridSize, this.margin, this.outerMargin);
                     pixels.x += this.dragging.offset.x;
                     pixels.y += this.dragging.offset.y;
                     return pixels;
                 }
 
                 var boxLayout = this.getBoxLayoutById(id);
-                return utils.positionToPixels(boxLayout.position, this.gridSize, this.margin);
+                return utils.positionToPixels(boxLayout.position, this.gridSize, this.margin, this.outerMargin);
             },
             getPositionByPixel(x, y) {
                 return {

@@ -29,10 +29,10 @@ export const cloneLayout = (layout) => {
     });
 };
 
-export const positionToPixels = (position, gridSize, margin = 0) => {
+export const positionToPixels = (position, gridSize, margin = 0, outerMargin = 0) => {
     return {
-        x: (position.x * gridSize.w) + ((position.x + 1) * margin),
-        y: (position.y * gridSize.h) + ((position.y + 1) * margin),
+        x: (position.x * gridSize.w) + ((position.x) * margin) + outerMargin,
+        y: (position.y * gridSize.h) + ((position.y) * margin) + outerMargin,
         w: (position.w * gridSize.w) + ((position.w - 1) * margin),
         h: (position.h * gridSize.h) + ((position.h - 1) * margin)
     };
