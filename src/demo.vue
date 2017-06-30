@@ -77,38 +77,48 @@
                 margin: 5,
                 layout: [
                     {
-                        x: 0,
-                        y: 0,
-                        w: 4,
-                        h: 2,
+                        position: {
+                            x: 0,
+                            y: 0,
+                            w: 4,
+                            h: 2
+                        },
                         id: 'settings'
                     },
                     {
-                        x: 4,
-                        y: 0,
-                        w: 2,
-                        h: 1,
+                        position: {
+                            x: 4,
+                            y: 0,
+                            w: 2,
+                            h: 1
+                        },
                         id: 'a'
                     },
                     {
-                        x: 6,
-                        y: 0,
-                        w: 1,
-                        h: 2,
+                        position: {
+                            x: 6,
+                            y: 0,
+                            w: 1,
+                            h: 2
+                        },
                         id: 'b'
                     },
                     {
-                        x: 4,
-                        y: 1,
-                        w: 2,
-                        h: 3,
+                        position: {
+                            x: 4,
+                            y: 1,
+                            w: 2,
+                            h: 3
+                        },
                         id: 'c'
                     },
                     {
-                        x: 6,
-                        y: 2,
-                        w: 3,
-                        h: 1,
+                        position: {
+                            x: 6,
+                            y: 2,
+                            w: 3,
+                            h: 1
+                        },
                         id: 'd'
                     }
                 ]

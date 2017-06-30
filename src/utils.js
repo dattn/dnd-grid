@@ -1,26 +1,31 @@
 export const isFree = (layout, position) => {
     for (let i = 0; i < layout.length; i++) {
-        if (layout[i].x < (position.x + position.w) &&
-            (layout[i].x + layout[i].w) > position.x &&
-            layout[i].y < (position.y + position.h) &&
-            (layout[i].y + layout[i].h) > position.y) {
+        if (layout[i].position.x < (position.x + position.w) &&
+            (layout[i].position.x + layout[i].position.w) > position.x &&
+            layout[i].position.y < (position.y + position.h) &&
+            (layout[i].position.y + layout[i].position.h) > position.y) {
             return false;
         }
     }
     return true;
 };
 
-export const moveToFreePlace = (layout, position) => {
-    var newPosition = Object.assign({}, position);
-    while (!isFree(layout, newPosition)) {
-        newPosition.y++;
+export const moveToFreePlace = (layout, boxLayout) => {
+    var newBoxLayout = cloneBoxLayout(boxLayout);
+    while (!isFree(layout, newBoxLayout.position)) {
+        newBoxLayout.position.y++;
     }
-    return newPosition;
+    return newBoxLayout;
+};
+
+export const cloneBoxLayout = (boxLayout) => {
+    var position = Object.assign({}, boxLayout.position);
+    return Object.assign({}, boxLayout, { position });
 };
 
 export const cloneLayout = (layout) => {
-    return layout.map((position) => {
-        return Object.assign({}, position);
+    return layout.map((boxLayout) => {
+        return cloneBoxLayout(boxLayout);
     });
 };
 
@@ -36,10 +41,10 @@ export const positionToPixels = (position, gridSize, margin = 0) => {
 export const getLayoutSize = (layout) => {
     return {
         w: layout.reduce((acc, val) => {
-            return Math.max(acc, val.x + val.w);
+            return Math.max(acc, val.position.x + val.position.w);
         }, 0),
         h: layout.reduce((acc, val) => {
-            return Math.max(acc, val.y + val.h);
+            return Math.max(acc, val.position.y + val.position.h);
         }, 0)
     };
 };

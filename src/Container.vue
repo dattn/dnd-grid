@@ -56,10 +56,12 @@
             return {
                 placeholder: {
                     hide: true,
-                    x: 0,
-                    y: 0,
-                    w: 1,
-                    h: 1
+                    position: {
+                        x: 0,
+                        y: 0,
+                        w: 1,
+                        h: 1
+                    }
                 },
                 dragging: {
                     box: null,
@@ -80,7 +82,7 @@
             }
         },
         methods: {
-            getPositionById(id) {
+            getBoxLayoutById(id) {
                 if (id === 'placeholder') {
                     return this.placeholder;
                 }
@@ -89,15 +91,15 @@
                 });
             },
             getPixelPositionById(id) {
-                if (this.dragging.box && this.dragging.box.id === id) {
-                    var pixels = utils.positionToPixels(this.dragging.box, this.gridSize, this.margin);
+                if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
+                    var pixels = utils.positionToPixels(this.dragging.boxLayout.position, this.gridSize, this.margin);
                     pixels.x += this.dragging.offset.x;
                     pixels.y += this.dragging.offset.y;
                     return pixels;
                 }
 
-                var position = this.getPositionById(id);
-                return utils.positionToPixels(position, this.gridSize, this.margin);
+                var boxLayout = this.getBoxLayoutById(id);
+                return utils.positionToPixels(boxLayout.position, this.gridSize, this.margin);
             },
             getPositionByPixel(x, y) {
                 return {
@@ -110,27 +112,25 @@
             this.$children.forEach(box => {
                 var otherBoxes;
                 var initialLayout;
-                var startPosition;
 
                 box.$on('dragStart', evt => {
                     // find box
-                    this.dragging.box = this.getPositionById(box.boxId);
-                    startPosition = { ...this.dragging.box };
-                    this.placeholder = { ...this.dragging.box };
+                    this.dragging.boxLayout = this.getBoxLayoutById(box.boxId);
+                    this.placeholder = utils.cloneBoxLayout(this.dragging.boxLayout);
 
                     // clone layout
                     initialLayout = utils.cloneLayout(this.layout)
                         .sort((a, b) => {
-                            if (a.y < b.y) {
+                            if (a.position.y < b.position.y) {
                                 return -1;
                             }
-                            if (a.y > b.y) {
+                            if (a.position.y > b.position.y) {
                                 return 1;
                             }
-                            if (a.x < b.x) {
+                            if (a.position.x < b.position.x) {
                                 return -1;
                             }
-                            if (a.x > b.x) {
+                            if (a.position.x > b.position.x) {
                                 return 1;
                             }
                             return 0;
@@ -142,34 +142,34 @@
                     this.dragging.offset.y = evt.offset.y;
 
                     var moveBy = this.getPositionByPixel(evt.offset.x, evt.offset.y);
-                    this.placeholder.x = Math.max(0, this.dragging.box.x + moveBy.x);
-                    this.placeholder.y = Math.max(0, this.dragging.box.y + moveBy.y);
+                    this.placeholder.position.x = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
+                    this.placeholder.position.y = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
 
                     var newLayout = [ this.placeholder ];
-                    initialLayout.forEach((boxPosition) => {
-                        if (boxPosition.id === this.dragging.box.id) {
+                    initialLayout.forEach((boxLayout) => {
+                        if (boxLayout.id === this.dragging.boxLayout.id) {
                             return;
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout));
                     });
                     this.layout.splice(0, this.layout.length, ...newLayout);
                 });
 
                 box.$on('dragEnd', evt => {
                     var moveBy = this.getPositionByPixel(evt.offset.x, evt.offset.y);
-                    this.dragging.box.x = Math.max(0, this.dragging.box.x + moveBy.x);
-                    this.dragging.box.y = Math.max(0, this.dragging.box.y + moveBy.y);
+                    this.dragging.boxLayout.position.x = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
+                    this.dragging.boxLayout.position.y = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
 
-                    var newLayout = [ this.dragging.box ];
+                    var newLayout = [ this.dragging.boxLayout ];
                     initialLayout.forEach((boxPosition) => {
-                        if (boxPosition.id === this.dragging.box.id) {
+                        if (boxPosition.id === this.dragging.boxLayout.id) {
                             return;
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
                     });
                     this.layout.splice(0, this.layout.length, ...newLayout);
 
-                    this.dragging.box = null;
+                    this.dragging.boxLayout = null;
                     this.dragging.offset.x = 0;
                     this.dragging.offset.y = 0;
                 });
