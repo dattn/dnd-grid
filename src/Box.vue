@@ -30,24 +30,9 @@
     export default {
         name: 'DndGridBox',
         props: {
-            x: {
-                type: Number,
-                required: true
-            },
-            y: {
-                type: Number,
-                required: true
-            },
-            w: {
-                type: Number,
-                required: true
-            },
-            h: {
-                type: Number,
-                required: true
-            },
-            hide: {
+            hidden: {
                 type: Boolean,
+                required: false,
                 default: false
             },
             boxId: {
@@ -56,28 +41,18 @@
         },
         data() {
             return {
-                dragging: false,
-                draggingPixelOffset: {
-                    x: 0,
-                    y: 0
-                },
-                draggingStartPosition: {
-                    x: 0,
-                    y: 0
-                }
+                dragging: false
             }
         },
         computed: {
             style() {
-                var pixelPosition = this.dragging
-                    ? this.$parent.getPositionInPixel(this.draggingStartPosition.x, this.draggingStartPosition.y, this.w, this.h)
-                    : this.$parent.getPositionInPixel(this.x, this.y, this.w, this.h);
+                var pixelPosition = this.$parent.getPixelPositionById(this.boxId);
                 return {
-                    display: this.hide? 'none' : 'block',
+                    display: this.hidden? 'none' : 'block',
                     width: pixelPosition.w + 'px',
                     height: pixelPosition.h + 'px',
-                    left: pixelPosition.x + this.draggingPixelOffset.x + 'px',
-                    top: pixelPosition.y + this.draggingPixelOffset.y + 'px'
+                    left: pixelPosition.x + 'px',
+                    top: pixelPosition.y + 'px'
                 }
             },
             classes() {
@@ -96,31 +71,26 @@
                 this.$emit('dragStart');
                 let mouseX = evt.clientX;
                 let mouseY = evt.clientY;
-                this.draggingStartPosition.x = this.x;
-                this.draggingStartPosition.y = this.y;
 
                 const handleMouseUp = evt => {
                     window.removeEventListener('mouseup', handleMouseUp, true);
                     window.removeEventListener('mousemove', handleMouseMove, true);
 
-                    this.draggingPixelOffset.x = 0;
-                    this.draggingPixelOffset.y = 0;
-                    this.draggingStartPosition.x = 0;
-                    this.draggingStartPosition.y = 0;
                     this.dragging = false;
 
                     var offset = {
                         x: evt.clientX - mouseX,
                         y: evt.clientY - mouseY
                     };
-                    this.$emit('dragEnd', offset);
+                    this.$emit('dragEnd', { offset });
                 };
 
                 const handleMouseMove = evt => {
-                    this.draggingPixelOffset.x = evt.clientX - mouseX;
-                    this.draggingPixelOffset.y = evt.clientY - mouseY;
-
-                    this.$emit('dragUpdate', this.draggingPixelOffset);
+                    var offset = {
+                        x: evt.clientX - mouseX,
+                        y: evt.clientY - mouseY
+                    };
+                    this.$emit('dragUpdate', { offset });
                 };
 
                 window.addEventListener('mouseup', handleMouseUp, true);

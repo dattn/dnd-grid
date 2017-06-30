@@ -8,11 +8,6 @@
         >
             <dnd-grid-box
                 v-for="box in layout"
-                :x="box.x"
-                :y="box.y"
-                :w="box.w"
-                :h="box.h"
-                :hide="box.hide"
                 :boxId="box.id"
                 :key="box.id"
             >

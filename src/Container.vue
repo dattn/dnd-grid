@@ -6,12 +6,7 @@
         <slot></slot>
         <box
             class="placeholder"
-            :x="placeholder.x"
-            :y="placeholder.y"
-            :w="placeholder.w"
-            :h="placeholder.h"
-            :show="placeholder.show"
-            :boxId="placeholder"
+            boxId="placeholder"
         ></box>
     </div>
 </template>
@@ -66,6 +61,13 @@
                     y: 0,
                     w: 1,
                     h: 1
+                },
+                dragging: {
+                    box: null,
+                    offset: {
+                        x: 0,
+                        y: 0
+                    }
                 }
             }
         },
@@ -79,13 +81,24 @@
             }
         },
         methods: {
-            getBox(boxId) {
+            getPositionById(id) {
+                if (id === 'placeholder') {
+                    return this.placeholder;
+                }
                 return this.layout.find(box => {
-                    return box.id === boxId;
+                    return box.id === id;
                 });
             },
-            getPositionInPixel(x, y, w, h) {
-                return utils.positionToPixels({ x, y, w, h }, this.gridSize, this.margin);
+            getPixelPositionById(id) {
+                if (this.dragging.box && this.dragging.box.id === id) {
+                    var pixels = utils.positionToPixels(this.dragging.box, this.gridSize, this.margin);
+                    pixels.x += this.dragging.offset.x;
+                    pixels.y += this.dragging.offset.y;
+                    return pixels;
+                }
+
+                var position = this.getPositionById(id);
+                return utils.positionToPixels(position, this.gridSize, this.margin);
             },
             getPositionByPixel(x, y) {
                 return {
@@ -98,12 +111,13 @@
             this.$children.forEach(box => {
                 var otherBoxes;
                 var initialLayout;
-                var draggingBox;
+                var startPosition;
 
                 box.$on('dragStart', evt => {
                     // find box
-                    draggingBox = this.getBox(box.boxId);
-                    this.placeholder = { ...draggingBox };
+                    this.dragging.box = this.getPositionById(box.boxId);
+                    startPosition = { ...this.dragging.box };
+                    this.placeholder = { ...this.dragging.box };
 
                     // clone layout
                     initialLayout = utils.cloneLayout(this.layout)
@@ -125,13 +139,16 @@
                 });
 
                 box.$on('dragUpdate', evt => {
-                    var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                    this.placeholder.x = Math.max(0, draggingBox.x + moveBy.x);
-                    this.placeholder.y = Math.max(0, draggingBox.y + moveBy.y);
+                    this.dragging.offset.x = evt.offset.x;
+                    this.dragging.offset.y = evt.offset.y;
+
+                    var moveBy = this.getPositionByPixel(evt.offset.x, evt.offset.y);
+                    this.placeholder.x = Math.max(0, this.dragging.box.x + moveBy.x);
+                    this.placeholder.y = Math.max(0, this.dragging.box.y + moveBy.y);
 
                     var newLayout = [ this.placeholder ];
                     initialLayout.forEach((boxPosition) => {
-                        if (boxPosition.id === draggingBox.id) {
+                        if (boxPosition.id === this.dragging.box.id) {
                             return;
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
@@ -140,18 +157,22 @@
                 });
 
                 box.$on('dragEnd', evt => {
-                    var moveBy = this.getPositionByPixel(evt.x, evt.y);
-                    draggingBox.x = Math.max(0, draggingBox.x + moveBy.x);
-                    draggingBox.y = Math.max(0, draggingBox.y + moveBy.y);
+                    var moveBy = this.getPositionByPixel(evt.offset.x, evt.offset.y);
+                    this.dragging.box.x = Math.max(0, this.dragging.box.x + moveBy.x);
+                    this.dragging.box.y = Math.max(0, this.dragging.box.y + moveBy.y);
 
-                    var newLayout = [ draggingBox ];
+                    var newLayout = [ this.dragging.box ];
                     initialLayout.forEach((boxPosition) => {
-                        if (boxPosition.id === draggingBox.id) {
+                        if (boxPosition.id === this.dragging.box.id) {
                             return;
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
                     });
                     this.layout.splice(0, this.layout.length, ...newLayout);
+
+                    this.dragging.box = null;
+                    this.dragging.offset.x = 0;
+                    this.dragging.offset.y = 0;
                 });
             });
         }
