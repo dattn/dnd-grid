@@ -24,7 +24,7 @@
     }
 
     .dnd-grid-container .dnd-grid-box.placeholder {
-        transition: none;
+        transition: none !important;
     }
 </style>
 
@@ -72,7 +72,14 @@
                     }
                 },
                 dragging: {
-                    box: null,
+                    boxLayout: null,
+                    offset: {
+                        x: 0,
+                        y: 0
+                    }
+                },
+                resizing: {
+                    boxLayout: null,
                     offset: {
                         x: 0,
                         y: 0
@@ -114,14 +121,17 @@
                     return pixels;
                 }
 
+                if (this.resizing.boxLayout && this.resizing.boxLayout.id === id) {
+                    var pixels = utils.positionToPixels(this.resizing.boxLayout.position, this.gridSize, this.margin, this.outerMargin);
+                    pixels.w += this.resizing.offset.x;
+                    pixels.h += this.resizing.offset.y;
+                    return pixels;
+                }
+
                 var boxLayout = this.getBoxLayoutById(id);
                 return utils.positionToPixels(boxLayout.position, this.gridSize, this.margin, this.outerMargin);
             },
             isBoxVisible(id) {
-                if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
-                    return !this.dragging.boxLayout.hidden;
-                }
-
                 var boxLayout = this.getBoxLayoutById(id);
                 return !boxLayout.hidden;
             },
@@ -181,6 +191,54 @@
                     this.dragging.boxLayout = null;
                     this.dragging.offset.x = 0;
                     this.dragging.offset.y = 0;
+
+                    this.placeholder.hidden = true;
+                });
+
+                box.$on('resizeStart', evt => {
+                    // find box
+                    this.resizing.boxLayout = this.getBoxLayoutById(box.boxId);
+                    this.placeholder = utils.cloneBoxLayout(this.resizing.boxLayout);
+
+                    // clone layout
+                    initialLayout = utils.sortLayout(utils.cloneLayout(this.layout));
+                });
+
+                box.$on('resizeUpdate', evt => {
+                    this.resizing.offset.x = evt.offset.x;
+                    this.resizing.offset.y = evt.offset.y;
+
+                    var resizeBy = this.getPositionByPixel(evt.offset.x, evt.offset.y);
+                    this.placeholder.position.w = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x);
+                    this.placeholder.position.h = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y);
+
+                    var newLayout = [ this.placeholder ];
+                    initialLayout.forEach((boxLayout) => {
+                        if (boxLayout.id === this.resizing.boxLayout.id) {
+                            return;
+                        }
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout));
+                    });
+                    this.layout.splice(0, this.layout.length, ...newLayout);
+                });
+
+                box.$on('resizeEnd', evt => {
+                    var resizeBy = this.getPositionByPixel(evt.offset.x, evt.offset.y);
+                    this.resizing.boxLayout.position.w = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x);
+                    this.resizing.boxLayout.position.h = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y);
+
+                    var newLayout = [ this.resizing.boxLayout ];
+                    initialLayout.forEach((boxPosition) => {
+                        if (boxPosition.id === this.resizing.boxLayout.id) {
+                            return;
+                        }
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
+                    });
+                    this.layout.splice(0, this.layout.length, ...newLayout);
+
+                    this.resizing.boxLayout = null;
+                    this.resizing.offset.x = 0;
+                    this.resizing.offset.y = 0;
 
                     this.placeholder.hidden = true;
                 });

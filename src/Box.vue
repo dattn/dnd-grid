@@ -5,6 +5,10 @@
         ref="dragHandle"
     >
         <slot></slot>
+        <div
+            class="resize-handle"
+            ref="resizeHandle"
+        ></div>
     </div>
 </template>
 
@@ -15,12 +19,22 @@
         box-sizing: border-box;
     }
 
-    .dnd-grid-box.dragging {
+    .dnd-grid-box.dragging,
+    .dnd-grid-box.resizing {
         z-index: 2;
     }
 
-    .dnd-grid-box:not(.dragging) {
-        transition: top ease-out 0.1s, left ease-out 0.1s;
+    .dnd-grid-box:not(.dragging):not(.resizing) {
+        transition: top ease-out 0.1s, left ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
+    }
+
+    .dnd-grid-box .resize-handle {
+        position: absolute;
+        right: -5px;
+        bottom: -5px;
+        width: 15px;
+        height: 15px;
+        cursor: se-resize;
     }
 </style>
 
@@ -40,7 +54,8 @@
         },
         data() {
             return {
-                dragging: false
+                dragging: false,
+                resizing: false,
             }
         },
         computed: {
@@ -58,11 +73,13 @@
             classes() {
                 return {
                     'dnd-grid-box': true,
-                    'dragging': this.dragging
+                    'dragging': this.dragging,
+                    'resizing': this.resizing
                 }
             }
         },
         mounted() {
+            // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle;
             this.$dragHandle.addEventListener('mousedown', evt => {
                 if (!utils.matchesSelector(evt.target, this.dragSelector)) {
@@ -70,7 +87,6 @@
                 }
 
                 evt.preventDefault();
-                var transition = this.$el.style.transition;
                 this.dragging = true;
                 this.$emit('dragStart');
                 let mouseX = evt.clientX;
@@ -100,6 +116,42 @@
                 window.addEventListener('mouseup', handleMouseUp, true);
                 window.addEventListener('mousemove', handleMouseMove, true);
             });
+
+            // resizing
+            this.$resizeHandle = this.$refs.resizeHandle;
+            if (this.$resizeHandle) {
+                this.$resizeHandle.addEventListener('mousedown', evt => {
+                    evt.preventDefault();
+                    this.resizing = true;
+                    this.$emit('resizeStart');
+                    let mouseX = evt.clientX;
+                    let mouseY = evt.clientY;
+
+                    const handleMouseUp = evt => {
+                        window.removeEventListener('mouseup', handleMouseUp, true);
+                        window.removeEventListener('mousemove', handleMouseMove, true);
+
+                        this.resizing = false;
+
+                        var offset = {
+                            x: evt.clientX - mouseX,
+                            y: evt.clientY - mouseY
+                        };
+                        this.$emit('resizeEnd', { offset });
+                    };
+
+                    const handleMouseMove = evt => {
+                        var offset = {
+                            x: evt.clientX - mouseX,
+                            y: evt.clientY - mouseY
+                        };
+                        this.$emit('resizeUpdate', { offset });
+                    };
+
+                    window.addEventListener('mouseup', handleMouseUp, true);
+                    window.addEventListener('mousemove', handleMouseMove, true);
+                });
+            }
         }
     }
 </script>
