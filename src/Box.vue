@@ -30,11 +30,6 @@
     export default {
         name: 'DndGridBox',
         props: {
-            hidden: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
             boxId: {
                 required: true
             },
@@ -51,8 +46,9 @@
         computed: {
             style() {
                 var pixelPosition = this.$parent.getPixelPositionById(this.boxId);
+                var visible = this.$parent.isBoxVisible(this.boxId);
                 return {
-                    display: this.hidden? 'none' : 'block',
+                    display: visible? 'block' : 'none',
                     width: pixelPosition.w + 'px',
                     height: pixelPosition.h + 'px',
                     left: pixelPosition.x + 'px',

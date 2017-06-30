@@ -59,7 +59,7 @@
         data() {
             return {
                 placeholder: {
-                    hide: true,
+                    hidden: true,
                     position: {
                         x: 0,
                         y: 0,
@@ -113,6 +113,14 @@
                 var boxLayout = this.getBoxLayoutById(id);
                 return utils.positionToPixels(boxLayout.position, this.gridSize, this.margin, this.outerMargin);
             },
+            isBoxVisible(id) {
+                if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
+                    return !this.dragging.boxLayout.hidden;
+                }
+
+                var boxLayout = this.getBoxLayoutById(id);
+                return !boxLayout.hidden;
+            },
             getPositionByPixel(x, y) {
                 return {
                     x: Math.round(x / (this.gridSize.w + this.margin)),
@@ -131,22 +139,7 @@
                     this.placeholder = utils.cloneBoxLayout(this.dragging.boxLayout);
 
                     // clone layout
-                    initialLayout = utils.cloneLayout(this.layout)
-                        .sort((a, b) => {
-                            if (a.position.y < b.position.y) {
-                                return -1;
-                            }
-                            if (a.position.y > b.position.y) {
-                                return 1;
-                            }
-                            if (a.position.x < b.position.x) {
-                                return -1;
-                            }
-                            if (a.position.x > b.position.x) {
-                                return 1;
-                            }
-                            return 0;
-                        });
+                    initialLayout = utils.sortLayout(utils.cloneLayout(this.layout));
                 });
 
                 box.$on('dragUpdate', evt => {

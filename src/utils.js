@@ -40,13 +40,41 @@ export const positionToPixels = (position, gridSize, margin = 0, outerMargin = 0
 
 export const getLayoutSize = (layout) => {
     return {
-        w: layout.reduce((acc, val) => {
-            return Math.max(acc, val.position.x + val.position.w);
+        w: layout.reduce((width, boxLayout) => {
+            return boxLayout.hidden
+                ? width
+                : Math.max(width, boxLayout.position.x + boxLayout.position.w);
         }, 0),
-        h: layout.reduce((acc, val) => {
-            return Math.max(acc, val.position.y + val.position.h);
+        h: layout.reduce((height, boxLayout) => {
+            return boxLayout.hidden
+                ? height
+                : Math.max(height, boxLayout.position.y + boxLayout.position.h);
         }, 0)
     };
+};
+
+export const sortLayout = (layout) => {
+    return layout.sort((a, b) => {
+        if (a.hidden && !b.hidden) {
+            return 1;
+        }
+        if (!a.hidden && b.hidden) {
+            return -1;
+        }
+        if (a.position.y < b.position.y) {
+            return -1;
+        }
+        if (a.position.y > b.position.y) {
+            return 1;
+        }
+        if (a.position.x < b.position.x) {
+            return -1;
+        }
+        if (a.position.x > b.position.x) {
+            return 1;
+        }
+        return 0;
+    });
 };
 
 // check if element matches a selector
