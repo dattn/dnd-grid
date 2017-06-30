@@ -6,7 +6,7 @@
         <slot></slot>
         <box
             class="placeholder"
-            boxId="placeholder"
+            boxId="::placeholder::"
         ></box>
     </div>
 </template>
@@ -17,10 +17,14 @@
         transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
     }
 
-    .dnd-grid-container .placeholder {
+    .dnd-grid-container .dnd-grid-box.placeholder {
         border: 1px dashed #000;
         background: none;
         z-index: 0;
+    }
+
+    .dnd-grid-container .dnd-grid-box.placeholder {
+        transition: none;
     }
 </style>
 
@@ -95,7 +99,7 @@
         },
         methods: {
             getBoxLayoutById(id) {
-                if (id === 'placeholder') {
+                if (id === '::placeholder::') {
                     return this.placeholder;
                 }
                 return this.layout.find(box => {
@@ -177,6 +181,8 @@
                     this.dragging.boxLayout = null;
                     this.dragging.offset.x = 0;
                     this.dragging.offset.y = 0;
+
+                    this.placeholder.hidden = true;
                 });
             });
         }

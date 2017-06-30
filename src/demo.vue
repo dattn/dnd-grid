@@ -83,6 +83,7 @@
                             w: 4,
                             h: 2
                         },
+                        hidden: false,
                         id: 'settings'
                     },
                     {
@@ -92,6 +93,7 @@
                             w: 2,
                             h: 1
                         },
+                        hidden: false,
                         id: 'a'
                     },
                     {
@@ -101,6 +103,7 @@
                             w: 1,
                             h: 2
                         },
+                        hidden: false,
                         id: 'b'
                     },
                     {
@@ -110,6 +113,7 @@
                             w: 2,
                             h: 3
                         },
+                        hidden: false,
                         id: 'c'
                     },
                     {
@@ -119,6 +123,7 @@
                             w: 3,
                             h: 1
                         },
+                        hidden: false,
                         id: 'd'
                     }
                 ]
