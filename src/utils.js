@@ -1,27 +1,36 @@
-export const isFree = (layout, boxPosition) => {
+export const isFree = (layout, position) => {
     for (let i = 0; i < layout.length; i++) {
-        if (layout[i].x < (boxPosition.x + boxPosition.w) &&
-            (layout[i].x + layout[i].w) > boxPosition.x &&
-            layout[i].y < (boxPosition.y + boxPosition.h) &&
-            (layout[i].y + layout[i].h) > boxPosition.y) {
+        if (layout[i].x < (position.x + position.w) &&
+            (layout[i].x + layout[i].w) > position.x &&
+            layout[i].y < (position.y + position.h) &&
+            (layout[i].y + layout[i].h) > position.y) {
             return false;
         }
     }
     return true;
 };
 
-export const moveToFreePlace = (layout, boxPosition) => {
-    var newBoxPosition = Object.assign({}, boxPosition);
-    while (!isFree(layout, newBoxPosition)) {
-        newBoxPosition.y++;
+export const moveToFreePlace = (layout, position) => {
+    var newPosition = Object.assign({}, position);
+    while (!isFree(layout, newPosition)) {
+        newPosition.y++;
     }
-    return newBoxPosition;
+    return newPosition;
 };
 
 export const cloneLayout = (layout) => {
-    return layout.map((boxPosition) => {
-        return Object.assign({}, boxPosition);
+    return layout.map((position) => {
+        return Object.assign({}, position);
     });
+};
+
+export const positionToPixels = (position, gridSize, margin = 0) => {
+    return {
+        x: (position.x * gridSize.w) + ((position.x + 1) * margin),
+        y: (position.y * gridSize.h) + ((position.y + 1) * margin),
+        w: (position.w * gridSize.w) + ((position.w - 1) * margin),
+        h: (position.h * gridSize.h) + ((position.h - 1) * margin)
+    };
 };
 
 export const getLayoutSize = (layout) => {

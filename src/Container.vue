@@ -44,15 +44,16 @@
                 type: Array,
                 required: true
             },
-            gridHeight: {
-                type: Number,
-                default: 100
+            gridSize: {
+                type: Object,
+                default: () => {
+                    return {
+                        w: 100,
+                        h: 100
+                    }
+                }
             },
-            gridWidth: {
-                type: Number,
-                default: 100
-            },
-            gridMargin: {
+            margin: {
                 type: Number,
                 default: 5
             }
@@ -72,8 +73,8 @@
             style() {
                 var layoutSize = utils.getLayoutSize(this.layout);
                 return {
-                    minWidth: ((layoutSize.w * (this.gridWidth + this.gridMargin)) + this.gridMargin) + 'px',
-                    minHeight: ((layoutSize.h * (this.gridHeight + this.gridMargin)) + this.gridMargin) + 'px'
+                    minWidth: ((layoutSize.w * (this.gridSize.w + this.margin)) + this.margin) + 'px',
+                    minHeight: ((layoutSize.h * (this.gridSize.h + this.margin)) + this.margin) + 'px'
                 }
             }
         },
@@ -84,17 +85,12 @@
                 });
             },
             getPositionInPixel(x, y, w, h) {
-                return {
-                    w: (w * this.gridWidth) + ((w - 1) * this.gridMargin),
-                    h: (h * this.gridHeight) + ((h - 1) * this.gridMargin),
-                    x: (x * this.gridWidth) + ((x + 1) * this.gridMargin),
-                    y: (y * this.gridHeight) + ((y + 1) * this.gridMargin)
-                };
+                return utils.positionToPixels({ x, y, w, h }, this.gridSize, this.margin);
             },
             getPositionByPixel(x, y) {
                 return {
-                    x: Math.round(x / (this.gridWidth + this.gridMargin)),
-                    y: Math.round(y / (this.gridHeight + this.gridMargin))
+                    x: Math.round(x / (this.gridSize.w + this.margin)),
+                    y: Math.round(y / (this.gridSize.h + this.margin))
                 }
             }
         },
