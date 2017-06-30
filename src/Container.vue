@@ -70,13 +70,10 @@
         },
         computed: {
             style() {
+                var layoutSize = utils.getLayoutSize(this.layout);
                 return {
-                    minWidth: ((this.layout.reduce((acc, val) => {
-                        return Math.max(acc, val.x + val.w);
-                    }, this.placeholder.x + this.placeholder.w) * (this.gridWidth + this.gridMargin)) + this.gridMargin) + 'px',
-                    minHeight: ((this.layout.reduce((acc, val) => {
-                        return Math.max(acc, val.y + val.h);
-                    }, this.placeholder.y + this.placeholder.h) * (this.gridHeight + this.gridMargin)) + this.gridMargin) + 'px'
+                    minWidth: ((layoutSize.w * (this.gridWidth + this.gridMargin)) + this.gridMargin) + 'px',
+                    minHeight: ((layoutSize.h * (this.gridHeight + this.gridMargin)) + this.gridMargin) + 'px'
                 }
             }
         },

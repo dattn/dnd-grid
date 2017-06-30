@@ -23,3 +23,14 @@ export const cloneLayout = (layout) => {
         return Object.assign({}, boxPosition);
     });
 };
+
+export const getLayoutSize = (layout) => {
+    return {
+        w: layout.reduce((acc, val) => {
+            return Math.max(acc, val.x + val.w);
+        }, 0),
+        h: layout.reduce((acc, val) => {
+            return Math.max(acc, val.y + val.h);
+        }, 0)
+    };
+};
