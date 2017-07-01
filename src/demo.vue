@@ -79,7 +79,7 @@
                     {
                         id: 'settings',
                         hidden: false,
-                        pinned: true,
+                        pinned: false,
                         position: {
                             x: 0,
                             y: 0,
