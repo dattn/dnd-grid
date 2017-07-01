@@ -2,13 +2,62 @@
 
 > A vuejs grid with draggable and resizable boxes
 
+[Demo page](https://dnd-grid.duton.lu/)
+
 # Usage
 
+## Example
+
+```html
+<dnd-grid-container :layout="layoutJson">
+    <dnd-grid-box :boxId="box1Id">
+        <h1>Box 1</h1>
+    </dnd-grid-box>
+    <dnd-grid-box :boxId="box2Id">
+        <h1>Box 2</h1>
+    </dnd-grid-box>
+    ...
+</dnd-grid-container>
+```
+
+## Layout JSON
+
+```javascript
+[
+    {
+        id: 'box-a',
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 0,
+            y: 0,
+            w: 4,
+            h: 2
+        }
+    },
+    {
+        id: 'box-b',
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 4,
+            y: 0,
+            w: 2,
+            h: 1
+        }
+    },
+    ...
+]
+```
+
+| Property        | Description                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| id              | The id of the box linked with this box layout (must be unique)          |
+| hidden          | hide or show the box                                                    |
+| pinned          | If pinned, the box can not be dragged/resized and always stays in place |
+| position        | The position/size in the grid                                           |
+
 ## Installation
-
-### Using yarn
-
-`yarn add dnd-grid`
 
 ### Using npm
 
