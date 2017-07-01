@@ -77,54 +77,59 @@
                 margin: 5,
                 layout: [
                     {
+                        id: 'settings',
+                        hidden: false,
+                        pinned: true,
                         position: {
                             x: 0,
                             y: 0,
                             w: 4,
                             h: 2
-                        },
-                        hidden: false,
-                        id: 'settings'
+                        }
                     },
                     {
+                        id: 'a',
+                        hidden: false,
+                        pinned: false,
                         position: {
                             x: 4,
                             y: 0,
                             w: 2,
                             h: 1
-                        },
-                        hidden: false,
-                        id: 'a'
+                        }
                     },
                     {
+                        id: 'b',
+                        hidden: false,
+                        pinned: false,
                         position: {
                             x: 6,
                             y: 0,
                             w: 1,
                             h: 2
-                        },
-                        hidden: false,
-                        id: 'b'
+                        }
                     },
                     {
+                        id: 'c',
+                        hidden: false,
+                        pinned: false,
                         position: {
                             x: 4,
                             y: 1,
                             w: 2,
                             h: 3
-                        },
-                        hidden: false,
-                        id: 'c'
+                        }
                     },
                     {
+                        id: 'd',
+                        hidden: false,
+                        pinned: false,
                         position: {
                             x: 6,
                             y: 2,
                             w: 3,
                             h: 1
-                        },
-                        hidden: false,
-                        id: 'd'
+                        }
                     }
                 ]
             }

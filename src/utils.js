@@ -61,6 +61,12 @@ export const sortLayout = (layout) => {
         if (!a.hidden && b.hidden) {
             return -1;
         }
+        if (a.pinned && !b.pinned) {
+            return -1;
+        }
+        if (!a.pinned && b.pinned) {
+            return 1;
+        }
         if (a.position.y < b.position.y) {
             return -1;
         }
