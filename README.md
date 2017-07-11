@@ -4,6 +4,10 @@
 
 [Demo page](https://dnd-grid.duton.lu/)
 
+The **demo** requires **Vue >= 2.3.0** because of the ":layout.sync" feature
+
+The **components** require **Vue >= 2.0.0**
+
 # Usage
 
 ## Example

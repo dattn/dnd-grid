@@ -22,6 +22,7 @@
     .dnd-grid-box.dragging,
     .dnd-grid-box.resizing {
         z-index: 2;
+        opacity: 0.7;
     }
 
     .dnd-grid-box:not(.dragging):not(.resizing) {
