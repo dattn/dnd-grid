@@ -13,7 +13,7 @@ The **components** require **Vue >= 2.0.0**
 ## Example
 
 ```html
-<dnd-grid-container :layout="layoutJson">
+<dnd-grid-container :layout.sync="layoutJson">
     <dnd-grid-box :boxId="box1Id">
         <h1>Box 1</h1>
     </dnd-grid-box>
