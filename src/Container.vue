@@ -145,6 +145,9 @@
                     x: Math.round(x / (this.gridSize.w + this.margin)),
                     y: Math.round(y / (this.gridSize.h + this.margin))
                 }
+            },
+            updateLayout(layout) {
+                this.$emit('update:layout', layout);
             }
         },
         mounted() {
@@ -194,7 +197,7 @@
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxLayout));
                     });
-                    this.layout.splice(0, this.layout.length, ...newLayout);
+                    this.updateLayout(newLayout);
                 });
 
                 box.$on('dragEnd', evt => {
@@ -221,7 +224,7 @@
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
                     });
-                    this.layout.splice(0, this.layout.length, ...newLayout);
+                    this.updateLayout(newLayout);
 
                     this.dragging.boxLayout = null;
                     this.dragging.offset.x = 0;
@@ -271,7 +274,7 @@
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxLayout));
                     });
-                    this.layout.splice(0, this.layout.length, ...newLayout);
+                    this.updateLayout(newLayout);
                 });
 
                 box.$on('resizeEnd', evt => {
@@ -298,7 +301,7 @@
                         }
                         newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
                     });
-                    this.layout.splice(0, this.layout.length, ...newLayout);
+                    this.updateLayout(newLayout);
 
                     this.resizing.boxLayout = null;
                     this.resizing.offset.x = 0;

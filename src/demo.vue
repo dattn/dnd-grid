@@ -4,10 +4,9 @@
         <h1>DEMO dnd-grid Vue.js Component</h1>
 
                 <dnd-grid-container
-                    :layout="layout"
+                    :layout.sync="layout"
                     :gridSize="gridSize"
                     :margin="margin"
-                    @layoutUpdate="onLayoutUpdate"
                 >
                     <dnd-grid-box
                         boxId="settings"
