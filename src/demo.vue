@@ -7,6 +7,7 @@
                     :layout.sync="layout"
                     :gridSize="gridSize"
                     :margin="margin"
+                    :bubbleUp="bubbleUp"
                 >
                     <dnd-grid-box
                         boxId="settings"
@@ -30,6 +31,12 @@
                                     </div>
                                     <div class="col-sm-4">
                                         <input class="form-control" type="number" v-model.number="gridSize.h">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="settings-bubble-up-input" class="col-sm-4 col-form-label">Bubble Up</label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" v-model="bubbleUp" id="settings-bubble-up-input">
                                     </div>
                                 </div>
                             </div>
@@ -73,6 +80,7 @@
                     w: 100,
                     h: 100
                 },
+                bubbleUp: false,
                 margin: 5,
                 layout: [
                     {
@@ -83,7 +91,7 @@
                             x: 0,
                             y: 0,
                             w: 4,
-                            h: 2
+                            h: 3
                         }
                     },
                     {
