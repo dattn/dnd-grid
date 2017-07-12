@@ -10,13 +10,12 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "dist": "vue build ./src/index.js --dist ./dist/ --prod --lib",
-    "dist:demo": "vue build ./src/demo.vue --dist ./demo/ --prod",
+    "dist": "./node_modules/vue-cli/bin/vue-build ./src/index.js --dist ./dist/ --prod --lib",
+    "dist:demo": "./node_modules/vue-cli/bin/vue-build ./src/demo.vue --dist ./demo/ --prod",
     "build": "npm run dist -- --disable-compress",
     "start": "npm run dev",
-    "dev": "vue build ./src/demo.vue --config ./build.config.js",
-    "demo:open": "open 'http://localhost:3000/'; serve ./demo/",
-    "lint": "eslint --ext .js,.vue src"
+    "dev": "./node_modules/vue-cli/bin/vue-build ./src/demo.vue",
+    "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.vue src"
   },
   "files": [
     "dist/"
@@ -33,6 +32,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-node": "^5.1.0",
     "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "vue-cli": "^2.8.2"
   }
 }
