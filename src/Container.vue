@@ -202,7 +202,7 @@
                     })
 
                     if (this.bubbleUp) {
-                        newLayout = utils.bubbleUp(newLayout)
+                        newLayout = utils.layoutBubbleUp(newLayout)
                     }
                     this.updateLayout(newLayout)
                 })
@@ -233,7 +233,7 @@
                     })
 
                     if (this.bubbleUp) {
-                        newLayout = utils.bubbleUp(newLayout)
+                        newLayout = utils.layoutBubbleUp(newLayout)
                     }
                     this.updateLayout(newLayout)
 
@@ -287,7 +287,7 @@
                     })
 
                     if (this.bubbleUp) {
-                        newLayout = utils.bubbleUp(newLayout)
+                        newLayout = utils.layoutBubbleUp(newLayout)
                     }
                     this.updateLayout(newLayout)
                 })
@@ -318,7 +318,7 @@
                     })
 
                     if (this.bubbleUp) {
-                        newLayout = utils.bubbleUp(newLayout)
+                        newLayout = utils.layoutBubbleUp(newLayout)
                     }
                     this.updateLayout(newLayout)
 

@@ -11,27 +11,31 @@ export const isFree = (layout, position) => {
 }
 
 export const moveToFreePlace = (layout, boxLayout, bubbleUp) => {
-    var newBoxLayout = cloneBoxLayout(boxLayout)
-    if (bubbleUp) {
-        newBoxLayout.position.y = 0
-    }
+    var newBoxLayout = bubbleUp
+        ? bubbleUp(layout, boxLayout)
+        : cloneBoxLayout(boxLayout)
     while (!isFree(layout, newBoxLayout.position)) {
         newBoxLayout.position.y++
     }
     return newBoxLayout
 }
 
-export const bubbleUp = (layout) => {
+export const bubbleUp = (layout, boxLayout) => {
+    var newBoxLayout = cloneBoxLayout(boxLayout)
+    newBoxLayout.position.y--
+    while (isFree(layout, newBoxLayout.position) && newBoxLayout.position.y >= 0) {
+        newBoxLayout.position.y--
+    }
+    newBoxLayout.position.y++
+    return newBoxLayout
+}
+
+export const layoutBubbleUp = (layout) => {
     layout = sortLayout(layout)
     let newLayout = []
     while (layout.length) {
         let boxLayout = layout.shift()
-        boxLayout.position.y--
-        while (isFree(newLayout, boxLayout.position) && boxLayout.position.y >= 0) {
-            boxLayout.position.y--
-        }
-        boxLayout.position.y++
-        newLayout.push(boxLayout)
+        newLayout.push(bubbleUp(newLayout, boxLayout))
     }
     return newLayout
 }
