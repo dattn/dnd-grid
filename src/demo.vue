@@ -66,7 +66,7 @@
 </style>
 
 <script>
-    import components from '../src/components';
+    import components from '../src/components'
 
     export default {
         components: {
@@ -145,15 +145,15 @@
         computed: {
             layoutWithoutSettings() {
                 return this.layout.filter((box) => {
-                    return box.id !== 'settings';
-                });
+                    return box.id !== 'settings'
+                })
             }
         },
 
         methods: {
             onLayoutUpdate(evt) {
-                this.layout = evt.layout;
+                this.layout = evt.layout
             }
         }
-    };
+    }
 </script>

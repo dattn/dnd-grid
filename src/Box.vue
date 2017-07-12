@@ -40,7 +40,7 @@
 </style>
 
 <script>
-    import * as utils from './utils';
+    import * as utils from './utils'
 
     export default {
         name: 'DndGridBox',
@@ -61,8 +61,8 @@
         },
         computed: {
             style() {
-                var pixelPosition = this.$parent.getPixelPositionById(this.boxId);
-                var visible = this.$parent.isBoxVisible(this.boxId);
+                var pixelPosition = this.$parent.getPixelPositionById(this.boxId)
+                var visible = this.$parent.isBoxVisible(this.boxId)
                 return {
                     display: visible? 'block' : 'none',
                     width: pixelPosition.w + 'px',
@@ -81,77 +81,77 @@
         },
         mounted() {
             // moving
-            this.$dragHandle = this.$el || this.$refs.dragHandle;
+            this.$dragHandle = this.$el || this.$refs.dragHandle
             this.$dragHandle.addEventListener('mousedown', evt => {
                 if (!utils.matchesSelector(evt.target, this.dragSelector)) {
-                    return;
+                    return
                 }
 
-                evt.preventDefault();
-                this.dragging = true;
-                this.$emit('dragStart');
-                let mouseX = evt.clientX;
-                let mouseY = evt.clientY;
+                evt.preventDefault()
+                this.dragging = true
+                this.$emit('dragStart')
+                let mouseX = evt.clientX
+                let mouseY = evt.clientY
 
                 const handleMouseUp = evt => {
-                    window.removeEventListener('mouseup', handleMouseUp, true);
-                    window.removeEventListener('mousemove', handleMouseMove, true);
+                    window.removeEventListener('mouseup', handleMouseUp, true)
+                    window.removeEventListener('mousemove', handleMouseMove, true)
 
-                    this.dragging = false;
+                    this.dragging = false
 
                     var offset = {
                         x: evt.clientX - mouseX,
                         y: evt.clientY - mouseY
-                    };
-                    this.$emit('dragEnd', { offset });
-                };
+                    }
+                    this.$emit('dragEnd', { offset })
+                }
 
                 const handleMouseMove = evt => {
                     var offset = {
                         x: evt.clientX - mouseX,
                         y: evt.clientY - mouseY
-                    };
-                    this.$emit('dragUpdate', { offset });
-                };
+                    }
+                    this.$emit('dragUpdate', { offset })
+                }
 
-                window.addEventListener('mouseup', handleMouseUp, true);
-                window.addEventListener('mousemove', handleMouseMove, true);
-            });
+                window.addEventListener('mouseup', handleMouseUp, true)
+                window.addEventListener('mousemove', handleMouseMove, true)
+            })
 
             // resizing
-            this.$resizeHandle = this.$refs.resizeHandle;
+            this.$resizeHandle = this.$refs.resizeHandle
             if (this.$resizeHandle) {
                 this.$resizeHandle.addEventListener('mousedown', evt => {
-                    evt.preventDefault();
-                    this.resizing = true;
-                    this.$emit('resizeStart');
-                    let mouseX = evt.clientX;
-                    let mouseY = evt.clientY;
+                    evt.preventDefault()
+                    this.resizing = true
+                    this.$emit('resizeStart')
+                    let mouseX = evt.clientX
+                    let mouseY = evt.clientY
 
                     const handleMouseUp = evt => {
-                        window.removeEventListener('mouseup', handleMouseUp, true);
-                        window.removeEventListener('mousemove', handleMouseMove, true);
+                        window.removeEventListener('mouseup', handleMouseUp, true)
+                        window.removeEventListener('mousemove', handleMouseMove, true)
 
-                        this.resizing = false;
+                        this.resizing = false
 
                         var offset = {
                             x: evt.clientX - mouseX,
                             y: evt.clientY - mouseY
-                        };
-                        this.$emit('resizeEnd', { offset });
-                    };
+                        }
+                        this.$emit('resizeEnd', { offset })
+                    }
 
                     const handleMouseMove = evt => {
                         var offset = {
                             x: evt.clientX - mouseX,
                             y: evt.clientY - mouseY
-                        };
-                        this.$emit('resizeUpdate', { offset });
-                    };
+                        }
+                        this.$emit('resizeUpdate', { offset })
+                    }
 
-                    window.addEventListener('mouseup', handleMouseUp, true);
-                    window.addEventListener('mousemove', handleMouseMove, true);
-                });
+                    window.addEventListener('mouseup', handleMouseUp, true)
+                    window.addEventListener('mousemove', handleMouseMove, true)
+                })
             }
         }
     }
