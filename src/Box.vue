@@ -123,6 +123,7 @@
             if (this.$resizeHandle) {
                 this.$resizeHandle.addEventListener('mousedown', evt => {
                     evt.preventDefault()
+                    evt.stopPropagation()
                     this.resizing = true
                     this.$emit('resizeStart')
                     let mouseX = evt.clientX
