@@ -53,25 +53,25 @@
                 default: '*'
             }
         },
-        data() {
+        data () {
             return {
                 dragging: false,
-                resizing: false,
+                resizing: false
             }
         },
         computed: {
-            style() {
+            style () {
                 var pixelPosition = this.$parent.getPixelPositionById(this.boxId)
                 var visible = this.$parent.isBoxVisible(this.boxId)
                 return {
-                    display: visible? 'block' : 'none',
+                    display: visible ? 'block' : 'none',
                     width: pixelPosition.w + 'px',
                     height: pixelPosition.h + 'px',
                     left: pixelPosition.x + 'px',
                     top: pixelPosition.y + 'px'
                 }
             },
-            classes() {
+            classes () {
                 return {
                     'dnd-grid-box': true,
                     'dragging': this.dragging,
@@ -79,7 +79,7 @@
                 }
             }
         },
-        mounted() {
+        mounted () {
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
             this.$dragHandle.addEventListener('mousedown', evt => {

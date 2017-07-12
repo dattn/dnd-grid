@@ -74,7 +74,7 @@
             DndGridBox: components.Box
         },
 
-        data() {
+        data () {
             return {
                 gridSize: {
                     w: 100,
@@ -143,7 +143,7 @@
         },
 
         computed: {
-            layoutWithoutSettings() {
+            layoutWithoutSettings () {
                 return this.layout.filter((box) => {
                     return box.id !== 'settings'
                 })
@@ -151,7 +151,7 @@
         },
 
         methods: {
-            onLayoutUpdate(evt) {
+            onLayoutUpdate (evt) {
                 this.layout = evt.layout
             }
         }

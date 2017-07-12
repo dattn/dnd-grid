@@ -15,7 +15,8 @@
     "build": "npm run dist -- --disable-compress",
     "start": "npm run dev",
     "dev": "vue build ./src/demo.vue --config ./build.config.js",
-    "demo:open": "open 'http://localhost:3000/'; serve ./demo/"
+    "demo:open": "open 'http://localhost:3000/'; serve ./demo/",
+    "lint": "eslint --ext .js,.vue src"
   },
   "files": [
     "dist/"
