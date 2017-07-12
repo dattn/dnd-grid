@@ -10,8 +10,8 @@ export const isFree = (layout, position) => {
     return true
 }
 
-export const moveToFreePlace = (layout, boxLayout, bubbleUp) => {
-    var newBoxLayout = bubbleUp
+export const moveToFreePlace = (layout, boxLayout, doBubbleUp) => {
+    var newBoxLayout = doBubbleUp
         ? bubbleUp(layout, boxLayout)
         : cloneBoxLayout(boxLayout)
     while (!isFree(layout, newBoxLayout.position)) {

@@ -203,6 +203,9 @@
 
                     if (this.bubbleUp) {
                         newLayout = utils.layoutBubbleUp(newLayout)
+                        this.placeholder = newLayout.find((boxLayout) => {
+                            return boxLayout.id === this.dragging.boxLayout.id
+                        })
                     }
                     this.updateLayout(newLayout)
                 })
@@ -275,6 +278,8 @@
                     })) {
                         return
                     }
+                    this.placeholder.position.x = this.resizing.boxLayout.position.x
+                    this.placeholder.position.y = this.resizing.boxLayout.position.y
                     this.placeholder.position.w = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
                     this.placeholder.position.h = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
 
@@ -288,6 +293,9 @@
 
                     if (this.bubbleUp) {
                         newLayout = utils.layoutBubbleUp(newLayout)
+                        this.placeholder = newLayout.find((boxLayout) => {
+                            return boxLayout.id === this.resizing.boxLayout.id
+                        })
                     }
                     this.updateLayout(newLayout)
                 })
