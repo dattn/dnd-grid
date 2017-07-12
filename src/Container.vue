@@ -58,6 +58,10 @@
             outerMargin: {
                 type: Number,
                 default: 0
+            },
+            bubbleUp: {
+                type: Boolean,
+                default: false
             }
         },
         data() {
@@ -195,8 +199,12 @@
                         if (boxLayout.id === this.dragging.boxLayout.id) {
                             return;
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout));
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout, this.bubbleUp));
                     });
+
+                    if (this.bubbleUp) {
+                        newLayout = utils.bubbleUp(newLayout);
+                    }
                     this.updateLayout(newLayout);
                 });
 
@@ -222,8 +230,12 @@
                         if (boxPosition.id === this.dragging.boxLayout.id) {
                             return;
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition, this.bubbleUp));
                     });
+
+                    if (this.bubbleUp) {
+                        newLayout = utils.bubbleUp(newLayout);
+                    }
                     this.updateLayout(newLayout);
 
                     this.dragging.boxLayout = null;
@@ -272,8 +284,12 @@
                         if (boxLayout.id === this.resizing.boxLayout.id) {
                             return;
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout));
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout, this.bubbleUp));
                     });
+
+                    if (this.bubbleUp) {
+                        newLayout = utils.bubbleUp(newLayout);
+                    }
                     this.updateLayout(newLayout);
                 });
 
@@ -299,8 +315,12 @@
                         if (boxPosition.id === this.resizing.boxLayout.id) {
                             return;
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition));
+                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition, this.bubbleUp));
                     });
+
+                    if (this.bubbleUp) {
+                        newLayout = utils.bubbleUp(newLayout);
+                    }
                     this.updateLayout(newLayout);
 
                     this.resizing.boxLayout = null;

@@ -10,13 +10,31 @@ export const isFree = (layout, position) => {
     return true;
 };
 
-export const moveToFreePlace = (layout, boxLayout) => {
+export const moveToFreePlace = (layout, boxLayout, bubbleUp) => {
     var newBoxLayout = cloneBoxLayout(boxLayout);
+    if (bubbleUp) {
+        newBoxLayout.position.y = 0;
+    }
     while (!isFree(layout, newBoxLayout.position)) {
         newBoxLayout.position.y++;
     }
     return newBoxLayout;
 };
+
+export const bubbleUp = (layout) => {
+    layout = sortLayout(layout);
+    let newLayout = [];
+    while (layout.length) {
+        let boxLayout = layout.shift()
+        boxLayout.position.y--;
+        while (isFree(newLayout, boxLayout.position) && boxLayout.position.y >= 0) {
+            boxLayout.position.y--;
+        }
+        boxLayout.position.y++;
+        newLayout.push(boxLayout);
+    }
+    return newLayout;
+}
 
 export const cloneBoxLayout = (boxLayout) => {
     var position = Object.assign({}, boxLayout.position);
