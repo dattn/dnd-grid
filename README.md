@@ -67,6 +67,15 @@ The **components** require **Vue >= 2.0.0**
 
 `npm i --save dnd-grid`
 
+### How to import (using ES6 import)
+
+```javascript
+// import Container and Box components
+import { Container, Box } from '@dattn/dnd-grid'
+// minimal css for the components to work properly
+import '@dattn/dnd-grid/dist/index.css'
+```
+
 ## License
 
 This project is licensed under [MIT License](http://en.wikipedia.org/wiki/MIT_License)

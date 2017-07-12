@@ -66,7 +66,7 @@
 </style>
 
 <script>
-    import components from '../src/components';
+    import components from '../src/components'
 
     export default {
         components: {
@@ -74,7 +74,7 @@
             DndGridBox: components.Box
         },
 
-        data() {
+        data () {
             return {
                 gridSize: {
                     w: 100,
@@ -143,17 +143,17 @@
         },
 
         computed: {
-            layoutWithoutSettings() {
+            layoutWithoutSettings () {
                 return this.layout.filter((box) => {
-                    return box.id !== 'settings';
-                });
+                    return box.id !== 'settings'
+                })
             }
         },
 
         methods: {
-            onLayoutUpdate(evt) {
-                this.layout = evt.layout;
+            onLayoutUpdate (evt) {
+                this.layout = evt.layout
             }
         }
-    };
+    }
 </script>

@@ -1,27 +1,38 @@
 {
-    "name": "@dattn/dnd-grid",
-    "version": "0.0.6",
-    "description": "A vuejs grid with draggable and resizable boxes",
-    "author": "Daniel Duton <daniel@duton.lu>",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/dattn/dnd-grid.git"
-    },
-    "main": "dist/dnd-grid.js",
-    "scripts": {
-        "dist": "vue build ./src/index.js --config ./build.config.js --dist ./dist/ --prod --lib",
-        "dist:demo": "vue build ./src/demo.vue --config ./build.config.js --dist ./demo/ --prod",
-        "build": "npm run dist -- --disable-compress",
-        "start": "npm run dev",
-        "dev": "vue build ./src/demo.vue --config ./build.config.js",
-        "demo:open": "open 'http://localhost:3000/'; serve ./demo/"
-    },
-    "files": [
-        "dist/"
-    ],
-    "keywords": [
-        "vue",
-        "component"
-    ]
+  "name": "@dattn/dnd-grid",
+  "version": "0.0.7",
+  "description": "A vuejs grid with draggable and resizable boxes",
+  "author": "Daniel Duton <daniel@duton.lu>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dattn/dnd-grid.git"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "dist": "./node_modules/vue-cli/bin/vue-build ./src/index.js --dist ./dist/ --prod --lib",
+    "dist:demo": "./node_modules/vue-cli/bin/vue-build ./src/demo.vue --dist ./demo/ --prod",
+    "build": "npm run dist -- --disable-compress",
+    "start": "npm run dev",
+    "dev": "./node_modules/vue-cli/bin/vue-build ./src/demo.vue",
+    "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.vue src"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "vue",
+    "component"
+  ],
+  "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^4.2.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-html": "^3.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "vue-cli": "^2.8.2"
+  }
 }
