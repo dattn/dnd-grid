@@ -190,8 +190,15 @@
                     })) {
                         return
                     }
-                    this.placeholder.position.x = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x)
-                    this.placeholder.position.y = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y)
+
+                    let newX = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
+                    let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
+                    // check if box has moved
+                    if (this.placeholder.position.x == newX && this.placeholder.position.y == newY) {
+                        return;
+                    }
+                    this.placeholder.position.x = newX
+                    this.placeholder.position.y = newY
 
                     var newLayout = [ this.placeholder ]
                     initialLayout.forEach((boxLayout) => {
