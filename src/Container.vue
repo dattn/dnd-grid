@@ -285,10 +285,17 @@
                     })) {
                         return
                     }
+
+                    let newW = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
+                    let newH = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+                    // check if box has moved
+                    if (this.placeholder.position.w == newW && this.placeholder.position.h == newH) {
+                        return;
+                    }
                     this.placeholder.position.x = this.resizing.boxLayout.position.x
                     this.placeholder.position.y = this.resizing.boxLayout.position.y
-                    this.placeholder.position.w = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
-                    this.placeholder.position.h = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+                    this.placeholder.position.w = newW
+                    this.placeholder.position.h = newH
 
                     var newLayout = [ this.placeholder ]
                     initialLayout.forEach((boxLayout) => {
