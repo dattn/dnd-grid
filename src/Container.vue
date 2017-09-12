@@ -62,6 +62,21 @@
             bubbleUp: {
                 type: Boolean,
                 default: false
+            },
+            autoAddLayoutForNewBox: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
+            defaultSize: {
+                type: Object,
+                required: false,
+                default() {
+                    return {
+                        w: 1,
+                        h: 1
+                    }
+                }
             }
         },
         data () {
@@ -154,6 +169,22 @@
                 this.$emit('update:layout', layout)
             },
             registerBox (boxId) {
+                if (this.autoAddLayoutForNewBox) {
+                    let boxLayout = this.getBoxLayoutById(boxId)
+                    if (!boxLayout) {
+                        let newLayout = utils.cloneLayout(this.layout)
+                        newLayout.push(utils.moveToFreePlace(newLayout, {
+                            id: boxId,
+                            hidden: false,
+                            position: {
+                                x: 0,
+                                y: 0,
+                                ...this.defaultSize
+                            }
+                        }, this.bubbleUp))
+                        this.updateLayout(newLayout)
+                    }
+                }
             },
             unregisterBox (boxId) {
             }
