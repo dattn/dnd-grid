@@ -44,7 +44,7 @@
             },
             gridSize: {
                 type: Object,
-                default: () => {
+                default() {
                     return {
                         w: 100,
                         h: 100
@@ -62,6 +62,35 @@
             bubbleUp: {
                 type: Boolean,
                 default: false
+            },
+            autoAddLayoutForNewBox: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
+            defaultSize: {
+                type: Object,
+                required: false,
+                default() {
+                    return {
+                        w: 1,
+                        h: 1
+                    }
+                }
+            },
+            fixLayoutOnLoad: {
+                type: Boolean,
+                required: false,
+                default: true
+            }
+        },
+        watch: {
+            layout (newLayout) {
+                if (this.fixLayoutOnLoad) {
+                    if (utils.layoutHasCollisions(newLayout)) {
+                        this.updateLayout(utils.fixLayout(newLayout, this.bubbleUp))
+                    }
+                }
             }
         },
         data () {
@@ -142,7 +171,7 @@
             },
             isBoxVisible (id) {
                 var boxLayout = this.getBoxLayoutById(id)
-                return !boxLayout.hidden
+                return boxLayout && !boxLayout.hidden
             },
             getPositionByPixel (x, y) {
                 return {
@@ -152,6 +181,27 @@
             },
             updateLayout (layout) {
                 this.$emit('update:layout', layout)
+            },
+            registerBox (boxId) {
+                if (this.autoAddLayoutForNewBox) {
+                    let boxLayout = this.getBoxLayoutById(boxId)
+                    if (!boxLayout) {
+                        this.updateLayout([
+                            ...this.layout,
+                            utils.moveBoxToFreePlace(this.layout, {
+                                id: boxId,
+                                hidden: false,
+                                position: {
+                                    x: 0,
+                                    y: 0,
+                                    ...this.defaultSize
+                                }
+                            }, this.bubbleUp)
+                        ])
+                    }
+                }
+            },
+            unregisterBox (boxId) {
             }
         },
         mounted () {
@@ -169,10 +219,12 @@
 
                     // find box
                     this.dragging.boxLayout = boxLayout
-                    this.placeholder = utils.cloneBoxLayout(this.dragging.boxLayout)
+                    this.placeholder = {
+                        ...this.dragging.boxLayout
+                    }
 
                     // clone layout
-                    initialLayout = utils.sortLayout(utils.cloneLayout(this.layout))
+                    initialLayout = utils.sortLayout(this.layout)
                 })
 
                 box.$on('dragUpdate', evt => {
@@ -190,15 +242,24 @@
                     })) {
                         return
                     }
-                    this.placeholder.position.x = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x)
-                    this.placeholder.position.y = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y)
+
+                    let newX = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
+                    let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
+                    // check if box has moved
+                    if (this.placeholder.position.x == newX && this.placeholder.position.y == newY) {
+                        return;
+                    }
+                    this.placeholder = utils.updateBoxPosition(this.placeholder, {
+                        x: newX,
+                        y: newY
+                    })
 
                     var newLayout = [ this.placeholder ]
                     initialLayout.forEach((boxLayout) => {
                         if (boxLayout.id === this.dragging.boxLayout.id) {
                             return
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout, this.bubbleUp))
+                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxLayout, this.bubbleUp))
                     })
 
                     if (this.bubbleUp) {
@@ -220,19 +281,23 @@
                         x: this.dragging.boxLayout.position.x + moveBy.x,
                         y: this.dragging.boxLayout.position.y + moveBy.y
                     })) {
-                        this.placeholder.position.x = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x)
-                        this.placeholder.position.y = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y)
+                        this.placeholder = utils.updateBoxPosition(this.placeholder, {
+                            x: Math.max(0, this.dragging.boxLayout.position.x + moveBy.x),
+                            y: Math.max(0, this.dragging.boxLayout.position.y + moveBy.y)
+                        })
                     }
 
-                    this.dragging.boxLayout.position.x = this.placeholder.position.x
-                    this.dragging.boxLayout.position.y = this.placeholder.position.y
+                    this.dragging.boxLayout = utils.updateBoxPosition(this.dragging.boxLayout, {
+                        x: this.placeholder.position.x,
+                        y: this.placeholder.position.y
+                    })
 
                     var newLayout = [ this.dragging.boxLayout ]
                     initialLayout.forEach((boxPosition) => {
                         if (boxPosition.id === this.dragging.boxLayout.id) {
                             return
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition, this.bubbleUp))
+                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxPosition, this.bubbleUp))
                     })
 
                     if (this.bubbleUp) {
@@ -257,10 +322,12 @@
 
                     // find box
                     this.resizing.boxLayout = boxLayout
-                    this.placeholder = utils.cloneBoxLayout(this.resizing.boxLayout)
+                    this.placeholder = {
+                        ...this.resizing.boxLayout
+                    }
 
                     // clone layout
-                    initialLayout = utils.sortLayout(utils.cloneLayout(this.layout))
+                    initialLayout = utils.sortLayout(this.layout)
                 })
 
                 box.$on('resizeUpdate', evt => {
@@ -278,17 +345,26 @@
                     })) {
                         return
                     }
-                    this.placeholder.position.x = this.resizing.boxLayout.position.x
-                    this.placeholder.position.y = this.resizing.boxLayout.position.y
-                    this.placeholder.position.w = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
-                    this.placeholder.position.h = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+
+                    let newW = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
+                    let newH = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+                    // check if box has moved
+                    if (this.placeholder.position.w == newW && this.placeholder.position.h == newH) {
+                        return;
+                    }
+                    this.placeholder = utils.updateBoxPosition(this.placeholder, {
+                        x: this.resizing.boxLayout.position.x,
+                        y: this.resizing.boxLayout.position.y,
+                        w: newW,
+                        h: newH
+                    })
 
                     var newLayout = [ this.placeholder ]
                     initialLayout.forEach((boxLayout) => {
                         if (boxLayout.id === this.resizing.boxLayout.id) {
                             return
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxLayout, this.bubbleUp))
+                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxLayout, this.bubbleUp))
                     })
 
                     if (this.bubbleUp) {
@@ -310,19 +386,23 @@
                         w: this.resizing.boxLayout.position.w + resizeBy.x,
                         h: this.resizing.boxLayout.position.h + resizeBy.y
                     })) {
-                        this.placeholder.position.w = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
-                        this.placeholder.position.h = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+                        this.placeholder = utils.updateBoxPosition(this.placeholder, {
+                            w: Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x),
+                            h: Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+                        })
                     }
 
-                    this.resizing.boxLayout.position.w = this.placeholder.position.w
-                    this.resizing.boxLayout.position.h = this.placeholder.position.h
+                    this.resizing.boxLayout = utils.updateBoxPosition(this.resizing.boxLayout, {
+                        w: this.placeholder.position.w,
+                        h: this.placeholder.position.h
+                    })
 
                     var newLayout = [ this.resizing.boxLayout ]
                     initialLayout.forEach((boxPosition) => {
                         if (boxPosition.id === this.resizing.boxLayout.id) {
                             return
                         }
-                        newLayout.push(utils.moveToFreePlace(newLayout, boxPosition, this.bubbleUp))
+                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxPosition, this.bubbleUp))
                     })
 
                     if (this.bubbleUp) {

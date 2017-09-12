@@ -61,14 +61,19 @@
         },
         computed: {
             style () {
-                var pixelPosition = this.$parent.getPixelPositionById(this.boxId)
-                var visible = this.$parent.isBoxVisible(this.boxId)
+                if (this.$parent.isBoxVisible(this.boxId)) {
+                    var pixelPosition = this.$parent.getPixelPositionById(this.boxId)
+                    return {
+                        display: 'block',
+                        width: pixelPosition.w + 'px',
+                        height: pixelPosition.h + 'px',
+                        left: pixelPosition.x + 'px',
+                        top: pixelPosition.y + 'px'
+                    }
+                }
+
                 return {
-                    display: visible ? 'block' : 'none',
-                    width: pixelPosition.w + 'px',
-                    height: pixelPosition.h + 'px',
-                    left: pixelPosition.x + 'px',
-                    top: pixelPosition.y + 'px'
+                    display: 'none'
                 }
             },
             classes () {
@@ -80,6 +85,9 @@
             }
         },
         mounted () {
+            // register component on parent
+            this.$parent.registerBox(this.boxId)
+
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
             this.$dragHandle.addEventListener('mousedown', evt => {
@@ -154,6 +162,10 @@
                     window.addEventListener('mousemove', handleMouseMove, true)
                 })
             }
+        },
+        beforeDestroy () {
+            // register component on parent
+            this.$parent.unregisterBox(this.boxId)
         }
     }
 </script>

@@ -65,7 +65,7 @@ The **components** require **Vue >= 2.0.0**
 
 ### Using npm
 
-`npm i --save dnd-grid`
+`npm i --save @dattn/dnd-grid`
 
 ### How to import (using ES6 import)
 
