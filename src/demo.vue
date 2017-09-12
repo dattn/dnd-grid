@@ -54,6 +54,17 @@
                             </div>
                         </div>
                     </dnd-grid-box>
+                    <dnd-grid-box
+                        boxId="test"
+                        key="test"
+                        dragSelector="div.card-header"
+                    >
+                        <div class="card demo-box">
+                            <div class="card-header">
+                                Box Test
+                            </div>
+                        </div>
+                    </dnd-grid-box>
                 </dnd-grid-container>
     </div>
 </template>

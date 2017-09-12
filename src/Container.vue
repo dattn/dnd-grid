@@ -142,7 +142,7 @@
             },
             isBoxVisible (id) {
                 var boxLayout = this.getBoxLayoutById(id)
-                return !boxLayout.hidden
+                return boxLayout && !boxLayout.hidden
             },
             getPositionByPixel (x, y) {
                 return {
@@ -152,6 +152,10 @@
             },
             updateLayout (layout) {
                 this.$emit('update:layout', layout)
+            },
+            registerBox (boxId) {
+            },
+            unregisterBox (boxId) {
             }
         },
         mounted () {
