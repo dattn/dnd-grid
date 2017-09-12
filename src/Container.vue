@@ -77,6 +77,20 @@
                         h: 1
                     }
                 }
+            },
+            fixLayoutOnLoad: {
+                type: Boolean,
+                required: false,
+                default: true
+            }
+        },
+        watch: {
+            layout (newLayout) {
+                if (this.fixLayoutOnLoad) {
+                    if (utils.layoutHasCollisions(newLayout)) {
+                        this.updateLayout(utils.fixLayout(newLayout, this.bubbleUp))
+                    }
+                }
             }
         },
         data () {

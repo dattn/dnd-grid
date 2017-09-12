@@ -16,13 +16,18 @@ export const updateBoxPosition = (boxLayout, data) => {
     })
 }
 
+// check if 2 positions are colliding
+export const positionsAreColliding = (positionA, positionB) => {
+    return positionA.x < (positionB.x + positionB.w) &&
+        (positionA.x + positionA.w) > positionB.x &&
+        positionA.y < (positionB.y + positionB.h) &&
+        (positionA.y + positionA.h) > positionB.y
+}
+
 // check if position is free in layout
 export const isFree = (layout, position) => {
     for (let i = 0; i < layout.length; i++) {
-        if (layout[i].position.x < (position.x + position.w) &&
-            (layout[i].position.x + layout[i].position.w) > position.x &&
-            layout[i].position.y < (position.y + position.h) &&
-            (layout[i].position.y + layout[i].position.h) > position.y) {
+        if (positionsAreColliding(layout[i].position, position)) {
             return false
         }
     }
@@ -129,4 +134,26 @@ export const matchesSelector = (el, selector) => {
         return [].indexOf.call(document.querySelectorAll(s), this) !== -1
     }
     return f.call(el, selector)
+}
+
+// check if layout has collisions
+export const layoutHasCollisions = (layout) => {
+    for (let i = 0; i < layout.length; i++) {
+        for (let j = i + 1; j < layout.length; j++) {
+            if (positionsAreColliding(layout[i].position, layout[j].position)) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+// fix layout with collisions
+export const fixLayout = (layout, doBubbleUp) => {
+    layout = sortLayout(layout)
+    let fixedLayout = []
+    layout.forEach(boxLayout => {
+        fixedLayout.push(moveBoxToFreePlace(fixedLayout, boxLayout, doBubbleUp))
+    })
+    return fixedLayout
 }
