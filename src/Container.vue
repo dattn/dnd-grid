@@ -44,7 +44,7 @@
             },
             gridSize: {
                 type: Object,
-                default: () => {
+                default() {
                     return {
                         w: 100,
                         h: 100
