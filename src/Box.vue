@@ -86,7 +86,7 @@
         },
         mounted () {
             // register component on parent
-            this.$parent.registerBox(this.boxId)
+            this.$parent.registerBox(this)
 
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
@@ -165,7 +165,7 @@
         },
         beforeDestroy () {
             // register component on parent
-            this.$parent.unregisterBox(this.boxId)
+            this.$parent.unregisterBox(this)
         }
     }
 </script>

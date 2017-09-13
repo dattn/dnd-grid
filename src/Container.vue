@@ -117,7 +117,8 @@
                         x: 0,
                         y: 0
                     }
-                }
+                },
+                isMounted: false
             }
         },
         computed: {
@@ -182,33 +183,18 @@
             updateLayout (layout) {
                 this.$emit('update:layout', layout)
             },
-            registerBox (boxId) {
-                if (this.autoAddLayoutForNewBox) {
-                    let boxLayout = this.getBoxLayoutById(boxId)
-                    if (!boxLayout) {
-                        this.updateLayout([
-                            ...this.layout,
-                            utils.moveBoxToFreePlace(this.layout, {
-                                id: boxId,
-                                hidden: false,
-                                position: {
-                                    x: 0,
-                                    y: 0,
-                                    ...this.defaultSize
-                                }
-                            }, this.bubbleUp)
-                        ])
-                    }
+            registerBox (box) {
+                this.enableResizing(box)
+                this.enableDragging(box)
+                if (this.isMounted && this.autoAddLayoutForNewBox) {
+                    this.createBoxLayout(box.$props.boxId)
                 }
             },
-            unregisterBox (boxId) {
-            }
-        },
-        mounted () {
-            this.$children.forEach(box => {
+            unregisterBox (box) {
+            },
+            enableDragging (box) {
                 var initialLayout
                 var isDragging = false
-                var isResizing = false
 
                 box.$on('dragStart', evt => {
                     var boxLayout = this.getBoxLayoutById(box.boxId)
@@ -312,6 +298,10 @@
                     this.placeholder.hidden = true
                     isDragging = false
                 })
+            },
+            enableResizing (box) {
+                var initialLayout
+                var isResizing = false
 
                 box.$on('resizeStart', evt => {
                     var boxLayout = this.getBoxLayoutById(box.boxId)
@@ -416,7 +406,33 @@
 
                     this.placeholder.hidden = true
                 })
-            })
+            },
+            createBoxLayout (...boxIds) {
+                boxIds = boxIds.filter(boxId => !this.getBoxLayoutById(boxId))
+
+                if (boxIds.length) {
+                    let newLayout = [
+                        ...this.layout
+                    ]
+                    boxIds.forEach(boxId => {
+                        newLayout.push(utils.moveBoxToFreePlace(newLayout, {
+                            id: boxId,
+                            hidden: false,
+                            position: {
+                                x: 0,
+                                y: 0,
+                                ...this.defaultSize
+                            }
+                        }, this.bubbleUp))
+                    })
+                    this.updateLayout(newLayout)
+                }
+            }
+        },
+        mounted () {
+            this.isMounted = true
+            let boxIds = this.$children.map(box => box.$props.boxId)
+            this.createBoxLayout(...boxIds)
         }
     }
 </script>
