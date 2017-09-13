@@ -1,60 +1,62 @@
 <template>
     <div class="container-fluid">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous" />
         <h1>DEMO dnd-grid Vue.js Component</h1>
 
-                <dnd-grid-container
-                    :layout.sync="layout"
-                    :gridSize="gridSize"
-                    :margin="margin"
-                    :bubbleUp="bubbleUp"
-                >
-                    <dnd-grid-box
-                        boxId="settings"
-                        dragSelector="div.card-header"
-                    >
-                        <div class="card demo-box">
-                            <div class="card-header">
-                                Settings
-                            </div>
-                            <div class="card-block">
-                                <div class="form-group row">
-                                    <label for="settings-margin-input" class="col-sm-4 col-form-label">Margin</label>
-                                    <div class="col-sm-8">
-                                        <input class="form-control" type="number" v-model.number="margin" id="settings-margin-input">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Grid Size</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" type="number" v-model.number="gridSize.w" id="settings-grid-size-w-input">
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" type="number" v-model.number="gridSize.h">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="settings-bubble-up-input" class="col-sm-4 col-form-label">Bubble Up</label>
-                                    <div class="col-sm-8">
-                                        <input type="checkbox" v-model="bubbleUp" id="settings-bubble-up-input">
-                                    </div>
-                                </div>
+        <dnd-grid-container
+            :layout.sync="layout"
+            :gridSize="gridSize"
+            :margin="margin"
+            :bubbleUp="bubbleUp"
+        >
+            <dnd-grid-box
+                boxId="settings"
+                dragSelector="div.card-header"
+            >
+                <div class="card demo-box">
+                    <div class="card-header">
+                        Settings
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label for="settings-margin-input" class="col-sm-4 col-form-label">Margin</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" type="number" v-model.number="margin" id="settings-margin-input">
                             </div>
                         </div>
-                    </dnd-grid-box>
-                    <dnd-grid-box
-                        v-for="box in layoutWithoutSettings"
-                        :boxId="box.id"
-                        :key="box.id"
-                        dragSelector="div.card-header"
-                    >
-                        <div class="card demo-box">
-                            <div class="card-header">
-                                Box {{ box.id }}
+                        <div class="form-group row">
+                            <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Grid Size</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" v-model.number="gridSize.w" id="settings-grid-size-w-input">
+                            </div>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" v-model.number="gridSize.h">
                             </div>
                         </div>
-                    </dnd-grid-box>
-                </dnd-grid-container>
+                        <div class="form-group row">
+                            <label for="settings-bubble-up-input" class="col-sm-4 col-form-label">Bubble Up</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" v-model="bubbleUp" id="settings-bubble-up-input">
+                            </div>
+                        </div>
+                        <button class="btn btn-success" @click="boxCount++">Add Box</button>
+                        <button class="btn btn-danger" @click="boxCount = Math.max(0, boxCount-1)">Remove Box</button>
+                    </div>
+                </div>
+            </dnd-grid-box>
+            <dnd-grid-box
+                v-for="number in boxCount"
+                :boxId="number"
+                :key="number"
+                dragSelector="div.card-header"
+            >
+                <div class="card demo-box">
+                    <div class="card-header">
+                        Box {{ number }}
+                    </div>
+                </div>
+            </dnd-grid-box>
+        </dnd-grid-container>
     </div>
 </template>
 
@@ -82,6 +84,7 @@
                 },
                 bubbleUp: false,
                 margin: 5,
+                boxCount: 4,
                 layout: [
                     {
                         id: 'settings',
@@ -95,7 +98,7 @@
                         }
                     },
                     {
-                        id: 'a',
+                        id: 1,
                         hidden: false,
                         pinned: false,
                         position: {
@@ -106,7 +109,7 @@
                         }
                     },
                     {
-                        id: 'b',
+                        id: 2,
                         hidden: false,
                         pinned: false,
                         position: {
@@ -117,7 +120,7 @@
                         }
                     },
                     {
-                        id: 'c',
+                        id: 3,
                         hidden: false,
                         pinned: false,
                         position: {
@@ -128,7 +131,7 @@
                         }
                     },
                     {
-                        id: 'd',
+                        id: 4,
                         hidden: false,
                         pinned: false,
                         position: {
