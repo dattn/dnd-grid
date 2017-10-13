@@ -61,7 +61,7 @@ export const moveBoxToFreePlace = (layout, boxLayout, doBubbleUp) => {
 
 // sort layout based on position and visibility
 export const sortLayout = (layout) => {
-    return layout.sort((a, b) => {
+    return [ ...layout ].sort((a, b) => {
         if (a.hidden && !b.hidden) {
             return 1
         }
