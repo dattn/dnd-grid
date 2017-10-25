@@ -46,8 +46,8 @@ The **components** require **Vue >= 2.0.0**
         position: {
             x: 4,
             y: 0,
-            w: 2, // Equals 200 pixel
-            h: 1 // Equals 100 pixel
+            w: 2,
+            h: 1
         }
     },
     ...
