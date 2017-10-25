@@ -35,9 +35,9 @@ The **components** require **Vue >= 2.0.0**
         position: {
             x: 0,
             y: 0,
-            w: 4, // Equals 400 pixel
-            h: 2 // Equals 200 pixel
-        }
+            w: 4, // Multiplier for virtual grid width
+            h: 2 // Multiplier for virtual grid height
+       }
     },
     {
         id: 'box-b',
@@ -46,8 +46,8 @@ The **components** require **Vue >= 2.0.0**
         position: {
             x: 4,
             y: 0,
-            w: 2, // Equals 200 pixel
-            h: 1 // Equals 100 pixel
+            w: 2,
+            h: 1
         }
     },
     ...
