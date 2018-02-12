@@ -6,6 +6,7 @@
         <dnd-grid-container
             :layout.sync="layout"
             :gridSize="gridSize"
+            :containerSize="containerSize"
             :margin="margin"
             :bubbleUp="bubbleUp"
         >
@@ -81,6 +82,10 @@
                 gridSize: {
                     w: 100,
                     h: 100
+                },
+                containerSize: {
+                    w: null,
+                    h: 24
                 },
                 bubbleUp: false,
                 margin: 5,
