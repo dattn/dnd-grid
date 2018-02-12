@@ -51,6 +51,10 @@
                     }
                 }
             },
+            containerSize: {
+                w: null,
+                h: null
+            },
             margin: {
                 type: Number,
                 default: 5
@@ -231,6 +235,21 @@
 
                     let newX = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
                     let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
+
+                    const overflowsContainerWidth = this.containerSize && this.containerSize.w &&
+                        newX > (this.containerSize.w - this.dragging.boxLayout.data.width);
+
+                    const overflowContainerHeight = this.containerSize && this.containerSize.h &&
+                        newY > (this.containerSize.h - this.dragging.boxLayout.data.height);
+
+                    if (overflowsContainerWidth) {
+                        newX = this.containerSize.w - this.dragging.boxLayout.data.width;
+                    }
+
+                    if (overflowContainerHeight) {
+                        newY = this.containerSize.h - this.dragging.boxLayout.data.height;
+                    }
+
                     // check if box has moved
                     if (this.placeholder.position.x == newX && this.placeholder.position.y == newY) {
                         return;
@@ -267,9 +286,27 @@
                         x: this.dragging.boxLayout.position.x + moveBy.x,
                         y: this.dragging.boxLayout.position.y + moveBy.y
                     })) {
+
+                        let newX = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
+                        let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
+
+                        const overflowsContainerWidth = this.containerSize && this.containerSize.w &&
+                            newX > (this.containerSize.w - this.dragging.boxLayout.data.width);
+
+                        const overflowContainerHeight = this.containerSize && this.containerSize.h &&
+                            newY > (this.containerSize.h - this.dragging.boxLayout.data.height);
+
+                        if (overflowsContainerWidth) {
+                            newX = this.containerSize.w - this.dragging.boxLayout.data.width;
+                        }
+
+                        if (overflowContainerHeight) {
+                            newY = this.containerSize.h - this.dragging.boxLayout.data.height;
+                        }
+
                         this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                            x: Math.max(0, this.dragging.boxLayout.position.x + moveBy.x),
-                            y: Math.max(0, this.dragging.boxLayout.position.y + moveBy.y)
+                            x: newX,
+                            y: newY
                         })
                     }
 
