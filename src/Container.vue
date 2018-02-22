@@ -237,17 +237,17 @@
                     let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
 
                     const overflowsContainerWidth = this.containerSize && this.containerSize.w &&
-                        newX > (this.containerSize.w - this.dragging.boxLayout.data.width);
+                        newX > (this.containerSize.w - this.dragging.boxLayout.position.w);
 
                     const overflowContainerHeight = this.containerSize && this.containerSize.h &&
-                        newY > (this.containerSize.h - this.dragging.boxLayout.data.height);
+                        newY > (this.containerSize.h - this.dragging.boxLayout.position.h);
 
                     if (overflowsContainerWidth) {
-                        newX = this.containerSize.w - this.dragging.boxLayout.data.width;
+                        newX = this.containerSize.w - this.dragging.boxLayout.position.w;
                     }
 
                     if (overflowContainerHeight) {
-                        newY = this.containerSize.h - this.dragging.boxLayout.data.height;
+                        newY = this.containerSize.h - this.dragging.boxLayout.position.h;
                     }
 
                     // check if box has moved
@@ -291,17 +291,17 @@
                         let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
 
                         const overflowsContainerWidth = this.containerSize && this.containerSize.w &&
-                            newX > (this.containerSize.w - this.dragging.boxLayout.data.width);
+                            newX > (this.containerSize.w - this.dragging.boxLayout.position.w);
 
                         const overflowContainerHeight = this.containerSize && this.containerSize.h &&
-                            newY > (this.containerSize.h - this.dragging.boxLayout.data.height);
+                            newY > (this.containerSize.h - this.dragging.boxLayout.position.h);
 
                         if (overflowsContainerWidth) {
-                            newX = this.containerSize.w - this.dragging.boxLayout.data.width;
+                            newX = this.containerSize.w - this.dragging.boxLayout.position.w;
                         }
 
                         if (overflowContainerHeight) {
-                            newY = this.containerSize.h - this.dragging.boxLayout.data.height;
+                            newY = this.containerSize.h - this.dragging.boxLayout.position.h;
                         }
 
                         this.placeholder = utils.updateBoxPosition(this.placeholder, {
