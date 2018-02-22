@@ -1,6 +1,6 @@
 {
   "name": "@dattn/dnd-grid",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "A vuejs grid with draggable and resizable boxes",
   "author": "Daniel Duton <daniel@duton.lu>",
   "license": "MIT",
@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/dattn/dnd-grid.git"
   },
-  "main": "dist/index.js",
+  "main": "dist/dnd-grid.js",
   "scripts": {
     "dist": "./node_modules/poi/bin/cli.js build ./src/index.js --dist ./dist/ --prod --library",
     "dist:demo": "./node_modules/poi/bin/cli.js build ./src/demo/index.js --dist ./demo/ --prod",
