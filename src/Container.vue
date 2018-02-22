@@ -44,7 +44,7 @@
             },
             cellSize: {
                 type: Object,
-                default() {
+                default () {
                     return {
                         w: 100,
                         h: 100
@@ -79,7 +79,7 @@
             defaultSize: {
                 type: Object,
                 required: false,
-                default() {
+                default () {
                     return {
                         w: 1,
                         h: 1
@@ -269,8 +269,8 @@
                     )
 
                     // check if box has moved
-                    if (this.placeholder.position.x == targetX && this.placeholder.position.y == targetY) {
-                        return;
+                    if (this.placeholder.position.x === targetX && this.placeholder.position.y === targetY) {
+                        return
                     }
                     this.placeholder = utils.updateBoxPosition(this.placeholder, {
                         x: targetX,
@@ -405,8 +405,8 @@
                     )
 
                     // check if box size has changed
-                    if (this.placeholder.position.w == targetW && this.placeholder.position.h == targetH) {
-                        return;
+                    if (this.placeholder.position.w === targetW && this.placeholder.position.h === targetH) {
+                        return
                     }
                     this.placeholder = utils.updateBoxPosition(this.placeholder, {
                         w: targetW,
