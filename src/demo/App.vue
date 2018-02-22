@@ -6,7 +6,8 @@
         <dnd-grid-container
             :layout.sync="layout"
             :gridSize="gridSize"
-            :containerSize="containerSize"
+            :maxColumnCount="maxColumnCount"
+            :maxRowCount="maxRowCount"
             :margin="margin"
             :bubbleUp="bubbleUp"
         >
@@ -83,10 +84,8 @@
                     w: 100,
                     h: 100
                 },
-                containerSize: {
-                    w: null,
-                    h: 24
-                },
+                maxColumnCount: 10,
+                maxRowCount: Infinity,
                 bubbleUp: false,
                 margin: 5,
                 boxCount: 4,

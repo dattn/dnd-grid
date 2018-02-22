@@ -51,9 +51,13 @@
                     }
                 }
             },
-            containerSize: {
-                w: null,
-                h: null
+            maxColumnCount: {
+                type: Number,
+                default: Infinity
+            },
+            maxRowCount: {
+                type: Number,
+                default: Infinity
             },
             margin: {
                 type: Number,
@@ -200,6 +204,27 @@
                 var initialLayout
                 var isDragging = false
 
+                let validateTargetPosition = (targetX, targetY) => {
+                    if (targetX + this.dragging.boxLayout.position.w > this.maxColumnCount) {
+                        targetX = this.maxColumnCount - this.dragging.boxLayout.position.w
+                    } else {
+                        if (targetX < 0) {
+                            targetX = 0
+                        }
+                    }
+                    if (targetY + this.dragging.boxLayout.position.h > this.maxRowCount) {
+                        targetY = this.maxRowCount - this.dragging.boxLayout.position.h
+                    } else {
+                        if (targetY < 0) {
+                            targetY = 0
+                        }
+                    }
+                    return {
+                        targetX,
+                        targetY
+                    }
+                }
+
                 box.$on('dragStart', evt => {
                     var boxLayout = this.getBoxLayoutById(box.boxId)
                     if (boxLayout.pinned) {
@@ -233,30 +258,18 @@
                         return
                     }
 
-                    let newX = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
-                    let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
-
-                    const overflowsContainerWidth = this.containerSize && this.containerSize.w &&
-                        newX > (this.containerSize.w - this.dragging.boxLayout.position.w);
-
-                    const overflowContainerHeight = this.containerSize && this.containerSize.h &&
-                        newY > (this.containerSize.h - this.dragging.boxLayout.position.h);
-
-                    if (overflowsContainerWidth) {
-                        newX = this.containerSize.w - this.dragging.boxLayout.position.w;
-                    }
-
-                    if (overflowContainerHeight) {
-                        newY = this.containerSize.h - this.dragging.boxLayout.position.h;
-                    }
+                    let { targetX, targetY } = validateTargetPosition(
+                        this.dragging.boxLayout.position.x + moveBy.x,
+                        this.dragging.boxLayout.position.y + moveBy.y
+                    )
 
                     // check if box has moved
-                    if (this.placeholder.position.x == newX && this.placeholder.position.y == newY) {
+                    if (this.placeholder.position.x == targetX && this.placeholder.position.y == targetY) {
                         return;
                     }
                     this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                        x: newX,
-                        y: newY
+                        x: targetX,
+                        y: targetY
                     })
 
                     var newLayout = [ this.placeholder ]
@@ -286,27 +299,14 @@
                         x: this.dragging.boxLayout.position.x + moveBy.x,
                         y: this.dragging.boxLayout.position.y + moveBy.y
                     })) {
-
-                        let newX = Math.max(0, this.dragging.boxLayout.position.x + moveBy.x);
-                        let newY = Math.max(0, this.dragging.boxLayout.position.y + moveBy.y);
-
-                        const overflowsContainerWidth = this.containerSize && this.containerSize.w &&
-                            newX > (this.containerSize.w - this.dragging.boxLayout.position.w);
-
-                        const overflowContainerHeight = this.containerSize && this.containerSize.h &&
-                            newY > (this.containerSize.h - this.dragging.boxLayout.position.h);
-
-                        if (overflowsContainerWidth) {
-                            newX = this.containerSize.w - this.dragging.boxLayout.position.w;
-                        }
-
-                        if (overflowContainerHeight) {
-                            newY = this.containerSize.h - this.dragging.boxLayout.position.h;
-                        }
+                        let { targetX, targetY } = validateTargetPosition(
+                            this.dragging.boxLayout.position.x + moveBy.x,
+                            this.dragging.boxLayout.position.y + moveBy.y
+                        )
 
                         this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                            x: newX,
-                            y: newY
+                            x: targetX,
+                            y: targetY
                         })
                     }
 
@@ -339,6 +339,27 @@
             enableResizing (box) {
                 var initialLayout
                 var isResizing = false
+
+                let validateTargetSize = (targetW, targetH) => {
+                    if (this.resizing.boxLayout.position.x + targetW > this.maxColumnCount) {
+                        targetW = this.maxColumnCount - this.resizing.boxLayout.position.x
+                    } else {
+                        if (targetW < 1) {
+                            targetW = 1
+                        }
+                    }
+                    if (this.resizing.boxLayout.position.y + targetH > this.maxRowCount) {
+                        targetH = this.maxRowCount - this.resizing.boxLayout.position.y
+                    } else {
+                        if (targetH < 1) {
+                            targetH = 1
+                        }
+                    }
+                    return {
+                        targetW,
+                        targetH
+                    }
+                }
 
                 box.$on('resizeStart', evt => {
                     var boxLayout = this.getBoxLayoutById(box.boxId)
@@ -373,17 +394,18 @@
                         return
                     }
 
-                    let newW = Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x)
-                    let newH = Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
-                    // check if box has moved
-                    if (this.placeholder.position.w == newW && this.placeholder.position.h == newH) {
+                    let { targetW, targetH } = validateTargetSize(
+                        this.resizing.boxLayout.position.w + resizeBy.x,
+                        this.resizing.boxLayout.position.h + resizeBy.y
+                    )
+
+                    // check if box size has changed
+                    if (this.placeholder.position.w == targetW && this.placeholder.position.h == targetH) {
                         return;
                     }
                     this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                        x: this.resizing.boxLayout.position.x,
-                        y: this.resizing.boxLayout.position.y,
-                        w: newW,
-                        h: newH
+                        w: targetW,
+                        h: targetH
                     })
 
                     var newLayout = [ this.placeholder ]
@@ -413,9 +435,14 @@
                         w: this.resizing.boxLayout.position.w + resizeBy.x,
                         h: this.resizing.boxLayout.position.h + resizeBy.y
                     })) {
+                        let { targetW, targetH } = validateTargetSize(
+                            this.resizing.boxLayout.position.w + resizeBy.x,
+                            this.resizing.boxLayout.position.h + resizeBy.y
+                        )
+
                         this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                            w: Math.max(1, this.resizing.boxLayout.position.w + resizeBy.x),
-                            h: Math.max(1, this.resizing.boxLayout.position.h + resizeBy.y)
+                            w: targetW,
+                            h: targetH
                         })
                     }
 
