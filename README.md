@@ -73,7 +73,7 @@ The **components** require **Vue >= 2.0.0**
 // import Container and Box components
 import { Container, Box } from '@dattn/dnd-grid'
 // minimal css for the components to work properly
-import '@dattn/dnd-grid/dist/index.css'
+import '@dattn/dnd-grid/dist/dnd-grid.css'
 ```
 
 ### Setup component
