@@ -69,7 +69,7 @@
 </style>
 
 <script>
-    import components from '../src/components'
+    import components from '../components'
 
     export default {
         components: {
