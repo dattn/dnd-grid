@@ -1,8 +1,8 @@
-const Container = require('./Container.vue')
-const Box = require('./Box.vue')
-const utils = require('./utils')
+import Container from './Container'
+import Box from './Box'
+import * as utils from './utils'
 
-module.exports = {
+export default {
     Container,
     Box,
     utils

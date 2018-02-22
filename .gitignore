@@ -1,7 +1,7 @@
 .DS_Store
-node_modules/
-dist/
-demo/
+node_modules
+/dist
+/demo
 npm-debug.log
 yarn-error.log
-.idea/
+.idea

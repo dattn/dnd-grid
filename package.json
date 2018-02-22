@@ -10,11 +10,10 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "dist": "./node_modules/vue-cli/bin/vue-build ./src/index.js --dist ./dist/ --prod --lib",
-    "dist:demo": "./node_modules/vue-cli/bin/vue-build ./src/demo.vue --dist ./demo/ --prod",
-    "build": "npm run dist -- --disable-compress",
+    "build": "./node_modules/poi/bin/cli.js build ./src/index.js --dist ./dist/ --prod --library",
+    "build:demo": "./node_modules/poi/bin/cli.js build ./src/demo/index.js --dist ./demo/ --prod",
     "start": "npm run dev",
-    "dev": "./node_modules/vue-cli/bin/vue-build ./src/demo.vue",
+    "dev": "./node_modules/poi/bin/cli.js ./src/demo/index.js",
     "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.vue src"
   },
   "files": [
@@ -25,14 +24,14 @@
     "component"
   ],
   "devDependencies": {
-    "babel-eslint": "^7.2.3",
+    "babel-eslint": "^8.2.2",
     "eslint": "^4.2.0",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-html": "^3.1.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-html": "^4.0.2",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-node": "^6.0.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "vue-cli": "^2.8.2"
+    "poi": "^9.6.13"
   }
 }
