@@ -101,12 +101,12 @@ export const layoutBubbleUp = (layout) => {
 }
 
 // get box position in pixels
-export const positionToPixels = (position, gridSize, margin = 0, outerMargin = 0) => {
+export const positionToPixels = (position, cellSize, margin = 0, outerMargin = 0) => {
     return {
-        x: (position.x * gridSize.w) + ((position.x) * margin) + outerMargin,
-        y: (position.y * gridSize.h) + ((position.y) * margin) + outerMargin,
-        w: (position.w * gridSize.w) + ((position.w - 1) * margin),
-        h: (position.h * gridSize.h) + ((position.h - 1) * margin)
+        x: (position.x * cellSize.w) + ((position.x) * margin) + outerMargin,
+        y: (position.y * cellSize.h) + ((position.y) * margin) + outerMargin,
+        w: (position.w * cellSize.w) + ((position.w - 1) * margin),
+        h: (position.h * cellSize.h) + ((position.h - 1) * margin)
     }
 }
 

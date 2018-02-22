@@ -5,7 +5,7 @@
 
         <dnd-grid-container
             :layout.sync="layout"
-            :gridSize="gridSize"
+            :cellSize="cellSize"
             :maxColumnCount="maxColumnCount"
             :maxRowCount="maxRowCount"
             :margin="margin"
@@ -27,12 +27,12 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Grid Size</label>
+                            <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Cell Size</label>
                             <div class="col-sm-4">
-                                <input class="form-control" type="number" v-model.number="gridSize.w" id="settings-grid-size-w-input">
+                                <input class="form-control" type="number" v-model.number="cellSize.w" id="settings-grid-size-w-input">
                             </div>
                             <div class="col-sm-4">
-                                <input class="form-control" type="number" v-model.number="gridSize.h">
+                                <input class="form-control" type="number" v-model.number="cellSize.h">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -80,7 +80,7 @@
 
         data () {
             return {
-                gridSize: {
+                cellSize: {
                     w: 100,
                     h: 100
                 },
