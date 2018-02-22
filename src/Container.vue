@@ -149,6 +149,13 @@
                 return this.layout.filter((boxLayout) => {
                     return boxLayout.pinned
                 })
+            },
+            layoutMap () {
+                let map = new Map()
+                this.layout.forEach(boxLayout => {
+                    map.set(boxLayout.id, boxLayout)
+                })
+                return map
             }
         },
         methods: {
@@ -156,9 +163,7 @@
                 if (id === '::placeholder::') {
                     return this.placeholder
                 }
-                return this.layout.find(box => {
-                    return box.id === id
-                })
+                return this.layoutMap.get(id)
             },
             getPixelPositionById (id) {
                 if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
