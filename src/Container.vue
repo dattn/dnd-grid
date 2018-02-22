@@ -42,7 +42,7 @@
                 type: Array,
                 required: true
             },
-            gridSize: {
+            cellSize: {
                 type: Object,
                 default() {
                     return {
@@ -134,12 +134,12 @@
                 var layoutSize = utils.getLayoutSize(this.layout)
                 return {
                     minWidth: (
-                        (layoutSize.w * this.gridSize.w) +
+                        (layoutSize.w * this.cellSize.w) +
                         ((layoutSize.w - 1) * this.margin) +
                         (2 * this.outerMargin)
                     ) + 'px',
                     minHeight: (
-                        (layoutSize.h * this.gridSize.h) +
+                        (layoutSize.h * this.cellSize.h) +
                         ((layoutSize.h - 1) * this.margin) +
                         (2 * this.outerMargin)
                     ) + 'px'
@@ -162,21 +162,21 @@
             },
             getPixelPositionById (id) {
                 if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
-                    let pixels = utils.positionToPixels(this.dragging.boxLayout.position, this.gridSize, this.margin, this.outerMargin)
+                    let pixels = utils.positionToPixels(this.dragging.boxLayout.position, this.cellSize, this.margin, this.outerMargin)
                     pixels.x += this.dragging.offset.x
                     pixels.y += this.dragging.offset.y
                     return pixels
                 }
 
                 if (this.resizing.boxLayout && this.resizing.boxLayout.id === id) {
-                    let pixels = utils.positionToPixels(this.resizing.boxLayout.position, this.gridSize, this.margin, this.outerMargin)
+                    let pixels = utils.positionToPixels(this.resizing.boxLayout.position, this.cellSize, this.margin, this.outerMargin)
                     pixels.w += this.resizing.offset.x
                     pixels.h += this.resizing.offset.y
                     return pixels
                 }
 
                 var boxLayout = this.getBoxLayoutById(id)
-                return utils.positionToPixels(boxLayout.position, this.gridSize, this.margin, this.outerMargin)
+                return utils.positionToPixels(boxLayout.position, this.cellSize, this.margin, this.outerMargin)
             },
             isBoxVisible (id) {
                 var boxLayout = this.getBoxLayoutById(id)
@@ -184,8 +184,8 @@
             },
             getPositionByPixel (x, y) {
                 return {
-                    x: Math.round(x / (this.gridSize.w + this.margin)),
-                    y: Math.round(y / (this.gridSize.h + this.margin))
+                    x: Math.round(x / (this.cellSize.w + this.margin)),
+                    y: Math.round(y / (this.cellSize.h + this.margin))
                 }
             },
             updateLayout (layout) {
