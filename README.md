@@ -35,9 +35,9 @@ The **components** require **Vue >= 2.0.0**
         position: {
             x: 0,
             y: 0,
-            w: 4,
-            h: 2
-        }
+            w: 4, // Multiplier for virtual grid width
+            h: 2 // Multiplier for virtual grid height
+       }
     },
     {
         id: 'box-b',
@@ -74,6 +74,19 @@ The **components** require **Vue >= 2.0.0**
 import { Container, Box } from '@dattn/dnd-grid'
 // minimal css for the components to work properly
 import '@dattn/dnd-grid/dist/index.css'
+```
+
+### Setup component
+
+```javascript
+<script>
+export default {
+    components: {
+        DndGridContainer: Container,
+        DndGridBox: Box
+    }
+}
+</script>
 ```
 
 ## License

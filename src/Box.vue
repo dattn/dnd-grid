@@ -26,7 +26,7 @@
     }
 
     .dnd-grid-box:not(.dragging):not(.resizing) {
-        transition: top ease-out 0.1s, left ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
+        transition: transform ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
     }
 
     .dnd-grid-box .resize-handle {
@@ -67,8 +67,7 @@
                         display: 'block',
                         width: pixelPosition.w + 'px',
                         height: pixelPosition.h + 'px',
-                        left: pixelPosition.x + 'px',
-                        top: pixelPosition.y + 'px'
+                        transform: `translate(${pixelPosition.x}px, ${pixelPosition.y}px)`
                     }
                 }
 

@@ -1,11 +1,13 @@
 <template>
     <div class="container-fluid">
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <h1>DEMO dnd-grid Vue.js Component</h1>
 
         <dnd-grid-container
             :layout.sync="layout"
-            :gridSize="gridSize"
+            :cellSize="cellSize"
+            :maxColumnCount="maxColumnCount"
+            :maxRowCount="maxRowCount"
             :margin="margin"
             :bubbleUp="bubbleUp"
         >
@@ -25,12 +27,12 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Grid Size</label>
+                            <label for="settings-grid-size-w-input" class="col-sm-4 col-form-label">Cell Size</label>
                             <div class="col-sm-4">
-                                <input class="form-control" type="number" v-model.number="gridSize.w" id="settings-grid-size-w-input">
+                                <input class="form-control" type="number" v-model.number="cellSize.w" id="settings-grid-size-w-input">
                             </div>
                             <div class="col-sm-4">
-                                <input class="form-control" type="number" v-model.number="gridSize.h">
+                                <input class="form-control" type="number" v-model.number="cellSize.h">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -68,7 +70,7 @@
 </style>
 
 <script>
-    import components from '../src/components'
+    import components from '../components'
 
     export default {
         components: {
@@ -78,10 +80,12 @@
 
         data () {
             return {
-                gridSize: {
+                cellSize: {
                     w: 100,
                     h: 100
                 },
+                maxColumnCount: 10,
+                maxRowCount: Infinity,
                 bubbleUp: false,
                 margin: 5,
                 boxCount: 4,
