@@ -67,8 +67,7 @@
                         display: 'block',
                         width: pixelPosition.w + 'px',
                         height: pixelPosition.h + 'px',
-                        left: pixelPosition.x + 'px',
-                        top: pixelPosition.y + 'px'
+                        transform: `translate(${pixelPosition.x}px, ${pixelPosition.y}px)`
                     }
                 }
 
