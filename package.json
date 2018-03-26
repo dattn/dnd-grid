@@ -1,6 +1,6 @@
 {
   "name": "@dattn/dnd-grid",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "A vuejs grid with draggable and resizable boxes",
   "author": "Daniel Duton <daniel@duton.lu>",
   "license": "MIT",
