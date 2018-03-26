@@ -70,12 +70,12 @@
 </style>
 
 <script>
-    import components from '../components'
+    import { Container, Box } from '../components'
 
     export default {
         components: {
-            DndGridContainer: components.Container,
-            DndGridBox: components.Box
+            DndGridContainer: Container,
+            DndGridBox: Box
         },
 
         data () {
