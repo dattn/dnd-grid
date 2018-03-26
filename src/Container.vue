@@ -32,6 +32,8 @@
     import Box from './Box'
     import * as utils from './utils'
 
+    export const List = new Set()
+
     export default {
         name: 'DndGridContainer',
         components: {
@@ -498,10 +500,16 @@
                 }
             }
         },
+        created () {
+            List.add(this)
+        },
         mounted () {
             this.isMounted = true
             let boxIds = this.$children.map(box => box.$props.boxId)
             this.createBoxLayout(...boxIds)
+        },
+        beforeDestroy () {
+            List.delete(this)
         }
     }
 </script>
