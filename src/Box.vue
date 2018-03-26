@@ -80,7 +80,7 @@
             }
         },
         computed: {
-            style() {
+            style () {
                 if (this.container && this.container.isBoxVisible(this.boxId)) {
                     var pixelPosition = this.container.getPixelPositionById(this.boxId)
                     return {
@@ -116,7 +116,7 @@
                 return null
             }
         },
-        mounted() {
+        mounted () {
             this.container = this.findContainer()
             if (!this.container) {
                 throw new Error('Can not find container')
