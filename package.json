@@ -10,13 +10,13 @@
   },
   "main": "dist/dnd-grid.js",
   "scripts": {
-    "dist": "./node_modules/poi/bin/cli.js build ./src/index.js --dist ./dist/ --prod --library",
-    "dist:demo": "./node_modules/poi/bin/cli.js build ./src/demo/index.js --dist ./demo/ --prod",
+    "dist": "poi build ./src/index.js --dist ./dist/ --prod --library",
+    "dist:demo": "poi build ./src/demo/index.js --dist ./demo/ --prod",
     "build": "npm run dist -- --minimize 0",
     "build:demo": "npm run dist:demo -- --minimize 0",
     "start": "npm run dev",
-    "dev": "./node_modules/poi/bin/cli.js ./src/demo/index.js",
-    "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.vue src"
+    "dev": "poi ./src/demo/index.js",
+    "lint": "eslint --ext .js,.vue src"
   },
   "files": [
     "dist/"
