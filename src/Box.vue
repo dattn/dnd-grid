@@ -41,6 +41,7 @@
 
 <script>
     import * as utils from './utils'
+    import { List as ContainerList } from './Container'
 
     export default {
         name: 'DndGridBox',
@@ -55,14 +56,15 @@
         },
         data () {
             return {
+                container: null,
                 dragging: false,
                 resizing: false
             }
         },
         computed: {
             style () {
-                if (this.$parent.isBoxVisible(this.boxId)) {
-                    var pixelPosition = this.$parent.getPixelPositionById(this.boxId)
+                if (this.container && this.container.isBoxVisible(this.boxId)) {
+                    var pixelPosition = this.container.getPixelPositionById(this.boxId)
                     return {
                         display: 'block',
                         width: pixelPosition.w + 'px',
@@ -83,9 +85,26 @@
                 }
             }
         },
+        methods: {
+            findContainer () {
+                let current = this
+                while (current.$parent) {
+                    current = current.$parent
+                    if (ContainerList.has(current)) {
+                        return current
+                    }
+                }
+                return null
+            }
+        },
         mounted () {
+            this.container = this.findContainer()
+            if (!this.container) {
+                throw new Error('Can not find container')
+            }
+
             // register component on parent
-            this.$parent.registerBox(this)
+            this.container.registerBox(this)
 
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
@@ -164,7 +183,9 @@
         },
         beforeDestroy () {
             // register component on parent
-            this.$parent.unregisterBox(this)
+            if (this.container) {
+                this.container.unregisterBox(this)
+            }
         }
     }
 </script>
