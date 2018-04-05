@@ -247,6 +247,8 @@
 
                     // clone layout
                     initialLayout = utils.sortLayout(this.layout)
+
+                    this.$emit('drag:start', initialLayout)
                 })
 
                 box.$on('dragUpdate', evt => {
@@ -294,6 +296,8 @@
                         })
                     }
                     this.updateLayout(newLayout)
+
+                    this.$emit('drag:update', newLayout)
                 })
 
                 box.$on('dragEnd', evt => {
@@ -341,6 +345,8 @@
 
                     this.placeholder.hidden = true
                     isDragging = false
+
+                    this.$emit('drag:end', newLayout)
                 })
             },
             enableResizing (box) {
