@@ -108,7 +108,8 @@
 
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
-            this.$dragHandle.addEventListener('mousedown', evt => {
+
+            const startEvent = evt => {
                 if (!utils.matchesSelector(evt.target, this.dragSelector)) {
                     return
                 }
@@ -116,33 +117,41 @@
                 evt.preventDefault()
                 this.dragging = true
                 this.$emit('dragStart')
-                let mouseX = evt.clientX
-                let mouseY = evt.clientY
+                let mouseX = evt.clientX || evt.touches[0].pageX
+                let mouseY = evt.clientY || evt.touches[0].pageY
 
                 const handleMouseUp = evt => {
                     window.removeEventListener('mouseup', handleMouseUp, true)
+                    window.removeEventListener('touchend', handleMouseUp, true)
                     window.removeEventListener('mousemove', handleMouseMove, true)
+                    window.removeEventListener('touchmove', handleMouseMove, true)
 
                     this.dragging = false
 
                     var offset = {
-                        x: evt.clientX - mouseX,
-                        y: evt.clientY - mouseY
+                        x: (evt.clientX || evt.changedTouches[0].pageX) - mouseX,
+                        y: (evt.clientY || evt.changedTouches[0].pageY) - mouseY
                     }
                     this.$emit('dragEnd', { offset })
                 }
 
                 const handleMouseMove = evt => {
+                    console.log(evt)
                     var offset = {
-                        x: evt.clientX - mouseX,
-                        y: evt.clientY - mouseY
+                        x: (evt.clientX || evt.touches[0].pageX) - mouseX,
+                        y: (evt.clientY || evt.touches[0].pageY) - mouseY
                     }
                     this.$emit('dragUpdate', { offset })
                 }
 
                 window.addEventListener('mouseup', handleMouseUp, true)
+                window.addEventListener('touchend', handleMouseUp, true)
                 window.addEventListener('mousemove', handleMouseMove, true)
-            })
+                window.addEventListener('touchmove', handleMouseMove, true)
+            }
+
+            this.$dragHandle.addEventListener('mousedown', startEvent)
+            this.$dragHandle.addEventListener('touchstart', startEvent)
 
             // resizing
             this.$resizeHandle = this.$refs.resizeHandle
