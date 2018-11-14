@@ -58,17 +58,17 @@ The **components** require **Vue >= 2.0.0**
 | Property               | Default         | Description                                                               |
 |----------------------- | --------------- | ------------------------------------------------------------------------- |
 | layout                 |                 | Array of objects each representing a box with the below Object properties |
-|   id                   |                 | The id of the box linked with this box layout (must be unique)            |
-|   hidden               |                 | hide or show the box                                                      |
-|   pinned               |                 | If pinned, the box can not be dragged/resized and always stays in place   |
-|   position             |                 | The position/size in the grid                                             |
-|     x                  |                 | The x position in the grid by cells                                       |
-|     y                  |                 | The y position in the grid by cells                                       |
-|     w                  |                 | The width in the grid by cells                                            |
-|     h                  |                 | The height in the grid by cells                                           |
+|   - id                 |                 | The id of the box linked with this box layout (must be unique)            |
+|   - hidden             |                 | hide or show the box                                                      |
+|   - pinned             |                 | If pinned, the box can not be dragged/resized and always stays in place   |
+|   - position           |                 | The position/size in the grid                                             |
+|   - - x                |                 | The x position in the grid by cells                                       |
+|   - - y                |                 | The y position in the grid by cells                                       |
+|   - - w                |                 | The width in the grid by cells                                            |
+|   - - h                |                 | The height in the grid by cells                                           |
 | cellSize               |                 | Object describing the default cell size                                   |
-|   w                    | 100             | Width in pixels                                                           |
-|   h                    | 100             | Height in pixels                                                          |
+|   - w                  | 100             | Width in pixels                                                           |
+|   - h                  | 100             | Height in pixels                                                          |
 | maxColumnCount         | infinity        | Integer max columns                                                       |
 | maxRowCount            | infinity        | Integer max rows                                                          |
 | margin                 | 5               | Integer in pixels                                                         |
@@ -76,8 +76,8 @@ The **components** require **Vue >= 2.0.0**
 | bubbleUp               | false           | Boolean when true bubbles boxes to the top of the screen                  |
 | autoAddLayoutForNewBox | true            | Boolean                                                                   |
 | defaultSize            |                 | Default size of a new box                                                 |
-|   w                    | 1               | Width in cells                                                            |
-|   h                    | 1               | Height in cells                                                           |
+|   - w                  | 1               | Width in cells                                                            |
+|   - h                  | 1               | Height in cells                                                           |
 | fixLayoutOnLoad        | true            | Boolean describing to fix layout (overlaps) on load                       |
 
 ## Box:
