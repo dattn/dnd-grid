@@ -53,7 +53,7 @@ The **components** require **Vue >= 2.0.0**
     ...
 ]
 ```
-##CONTAINER:
+## Container:
 
 | Property               | Default         | Description                                                               |
 |----------------------- | --------------- | ------------------------------------------------------------------------- |
@@ -80,7 +80,7 @@ The **components** require **Vue >= 2.0.0**
 |   h                    | 1               | Height in cells                                                           |
 | fixLayoutOnLoad        | true            | Boolean describing to fix layout (overlaps) on load                       |
 
-##BOX:
+## Box:
 
 | Property               | DEFAULT         | Description                                                               |
 |----------------------- | --------------- | ------------------------------------------------------------------------- |
