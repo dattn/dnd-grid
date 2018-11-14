@@ -35,7 +35,19 @@
     position: absolute;
     right: -5px;
     bottom: -5px;
-    width: 15px;
-    height: 15px;
+    width: 10px;
+    height: 10px;
     cursor: se-resize;
+    border-radius: 50%;
+}
+@media only screen and (max-width: 1366px) {
+.dnd-grid-box .resize-handle {
+        width: 60px;
+        height: 60px;
+        bottom: -10px;
+        right: -10px;
+}
+dnd-grid-box .resize-handle.resize-visible {
+        background-color: rgba(100, 100, 100, .1);
+}
 }

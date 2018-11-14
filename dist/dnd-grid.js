@@ -945,9 +945,9 @@ var List = new Set();
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_babelrc_false_presets_Users_Jeffrey_repository_dnd_grid_node_modules_babel_preset_poi_index_js_jsx_vue_cacheDirectory_true_node_modules_vue_loader_lib_selector_type_script_index_0_Box_vue__ = __webpack_require__(/*! !babel-loader?{"babelrc":false,"presets":[["/Users/Jeffrey/repository/dnd-grid/node_modules/babel-preset-poi/index.js",{"jsx":"vue"}]],"cacheDirectory":true}!../node_modules/vue-loader/lib/selector?type=script&index=0!./Box.vue */ 5);
 /* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3ce811d1_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Box_vue__ = __webpack_require__(/*! !../node_modules/vue-loader/lib/template-compiler/index?{"id":"data-v-3ce811d1","hasScoped":false,"buble":{"transforms":{}}}!../node_modules/vue-loader/lib/selector?type=template&index=0!./Box.vue */ 11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_99ca528c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Box_vue__ = __webpack_require__(/*! !../node_modules/vue-loader/lib/template-compiler/index?{"id":"data-v-99ca528c","hasScoped":false,"buble":{"transforms":{}}}!../node_modules/vue-loader/lib/selector?type=template&index=0!./Box.vue */ 11);
 function injectStyle (ssrContext) {
-  __webpack_require__(/*! !../node_modules/extract-text-webpack-plugin/dist/loader.js?{"omit":1,"remove":true}!vue-style-loader!css-loader?{"autoprefixer":false,"sourceMap":false,"minimize":0}!../node_modules/vue-loader/lib/style-compiler/index?{"vue":true,"id":"data-v-3ce811d1","scoped":false,"hasInlineConfig":true}!../node_modules/vue-loader/lib/selector?type=styles&index=0!./Box.vue */ 10)
+  __webpack_require__(/*! !../node_modules/extract-text-webpack-plugin/dist/loader.js?{"omit":1,"remove":true}!vue-style-loader!css-loader?{"autoprefixer":false,"sourceMap":false,"minimize":0}!../node_modules/vue-loader/lib/style-compiler/index?{"vue":true,"id":"data-v-99ca528c","scoped":false,"hasInlineConfig":true}!../node_modules/vue-loader/lib/selector?type=styles&index=0!./Box.vue */ 10)
 }
 var normalizeComponent = __webpack_require__(/*! ../node_modules/vue-loader/lib/component-normalizer */ 2)
 /* script */
@@ -965,7 +965,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_babelrc_false_presets_Users_Jeffrey_repository_dnd_grid_node_modules_babel_preset_poi_index_js_jsx_vue_cacheDirectory_true_node_modules_vue_loader_lib_selector_type_script_index_0_Box_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3ce811d1_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Box_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_99ca528c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Box_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -985,8 +985,22 @@ var Component = normalizeComponent(
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(/*! ./utils */ 0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Container__ = __webpack_require__(/*! ./Container */ 1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Container__ = __webpack_require__(/*! ./Container */ 1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils__ = __webpack_require__(/*! ./utils */ 0);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -1041,6 +1055,10 @@ var Component = normalizeComponent(
         dragSelector: {
             type: String,
             default: '*'
+        },
+        resizeVisible: {
+            type: Boolean,
+            default: false
         }
     },
     data: function data() {
@@ -1071,7 +1089,8 @@ var Component = normalizeComponent(
             return {
                 'dnd-grid-box': true,
                 'dragging': this.dragging,
-                'resizing': this.resizing
+                'resizing': this.resizing,
+                'resize.visible': this.resizeVisible
             };
         }
     },
@@ -1080,7 +1099,7 @@ var Component = normalizeComponent(
             var current = this;
             while (current.$parent) {
                 current = current.$parent;
-                if (__WEBPACK_IMPORTED_MODULE_1__Container__["a" /* List */].has(current)) {
+                if (__WEBPACK_IMPORTED_MODULE_0__Container__["a" /* List */].has(current)) {
                     return current;
                 }
             }
@@ -1102,44 +1121,43 @@ var Component = normalizeComponent(
         this.$dragHandle = this.$el || this.$refs.dragHandle;
 
         var startEvent = function startEvent(evt) {
-            if (!__WEBPACK_IMPORTED_MODULE_0__utils__["matchesSelector"](evt.target, _this.dragSelector)) {
+            if (!__WEBPACK_IMPORTED_MODULE_1__utils__["matchesSelector"](evt.target, _this.dragSelector)) {
                 return;
             }
 
             evt.preventDefault();
             _this.dragging = true;
             _this.$emit('dragStart');
-            var mouseX = evt.clientX || evt.touches[0].pageX;
-            var mouseY = evt.clientY || evt.touches[0].pageY;
+            var positionX = evt.clientX || evt.touches[0].pageX;
+            var positionY = evt.clientY || evt.touches[0].pageY;
 
-            var handleMouseUp = function handleMouseUp(evt) {
-                window.removeEventListener('mouseup', handleMouseUp, true);
-                window.removeEventListener('touchend', handleMouseUp, true);
-                window.removeEventListener('mousemove', handleMouseMove, true);
-                window.removeEventListener('touchmove', handleMouseMove, true);
+            var handleEndDrag = function handleEndDrag(evt) {
+                window.removeEventListener('mouseup', handleEndDrag, true);
+                window.removeEventListener('touchend', handleEndDrag, true);
+                window.removeEventListener('mousemove', handleMoveDrag, true);
+                window.removeEventListener('touchmove', handleMoveDrag, true);
 
                 _this.dragging = false;
 
                 var offset = {
-                    x: (evt.clientX || evt.changedTouches[0].pageX) - mouseX,
-                    y: (evt.clientY || evt.changedTouches[0].pageY) - mouseY
+                    x: (evt.clientX || evt.changedTouches[0].pageX) - positionX,
+                    y: (evt.clientY || evt.changedTouches[0].pageY) - positionY
                 };
                 _this.$emit('dragEnd', { offset: offset });
             };
 
-            var handleMouseMove = function handleMouseMove(evt) {
-                console.log(evt);
+            var handleMoveDrag = function handleMoveDrag(evt) {
                 var offset = {
-                    x: (evt.clientX || evt.touches[0].pageX) - mouseX,
-                    y: (evt.clientY || evt.touches[0].pageY) - mouseY
+                    x: (evt.clientX || evt.touches[0].pageX) - positionX,
+                    y: (evt.clientY || evt.touches[0].pageY) - positionY
                 };
                 _this.$emit('dragUpdate', { offset: offset });
             };
 
-            window.addEventListener('mouseup', handleMouseUp, true);
-            window.addEventListener('touchend', handleMouseUp, true);
-            window.addEventListener('mousemove', handleMouseMove, true);
-            window.addEventListener('touchmove', handleMouseMove, true);
+            window.addEventListener('mouseup', handleEndDrag, true);
+            window.addEventListener('touchend', handleEndDrag, true);
+            window.addEventListener('mousemove', handleMoveDrag, true);
+            window.addEventListener('touchmove', handleMoveDrag, true);
         };
 
         this.$dragHandle.addEventListener('mousedown', startEvent);
@@ -1148,38 +1166,45 @@ var Component = normalizeComponent(
         // resizing
         this.$resizeHandle = this.$refs.resizeHandle;
         if (this.$resizeHandle) {
-            this.$resizeHandle.addEventListener('mousedown', function (evt) {
+            var resizeStart = function resizeStart(evt) {
                 evt.preventDefault();
                 evt.stopPropagation();
                 _this.resizing = true;
                 _this.$emit('resizeStart');
-                var mouseX = evt.clientX;
-                var mouseY = evt.clientY;
+                var positionX = evt.clientX || evt.touches[0].pageX;
+                var positionY = evt.clientY || evt.touches[0].pageY;
 
-                var handleMouseUp = function handleMouseUp(evt) {
-                    window.removeEventListener('mouseup', handleMouseUp, true);
-                    window.removeEventListener('mousemove', handleMouseMove, true);
+                var handleEndResize = function handleEndResize(evt) {
+                    window.removeEventListener('mouseup', handleEndResize, true);
+                    window.removeEventListener('touchend', handleEndResize, true);
+                    window.removeEventListener('mousemove', handleMoveResize, true);
+                    window.removeEventListener('touchmove', handleMoveResize, true);
 
                     _this.resizing = false;
 
                     var offset = {
-                        x: evt.clientX - mouseX,
-                        y: evt.clientY - mouseY
+                        x: (evt.clientX || evt.changedTouches[0].pageX) - positionX,
+                        y: (evt.clientY || evt.changedTouches[0].pageY) - positionY
                     };
                     _this.$emit('resizeEnd', { offset: offset });
                 };
 
-                var handleMouseMove = function handleMouseMove(evt) {
+                var handleMoveResize = function handleMoveResize(evt) {
                     var offset = {
-                        x: evt.clientX - mouseX,
-                        y: evt.clientY - mouseY
+                        x: (evt.clientX || evt.touches[0].pageX) - positionX,
+                        y: (evt.clientY || evt.touches[0].pageY) - positionY
                     };
                     _this.$emit('resizeUpdate', { offset: offset });
                 };
 
-                window.addEventListener('mouseup', handleMouseUp, true);
-                window.addEventListener('mousemove', handleMouseMove, true);
-            });
+                window.addEventListener('mouseup', handleEndResize, true);
+                window.addEventListener('touchend', handleEndResize, true);
+                window.addEventListener('mousemove', handleMoveResize, true);
+                window.addEventListener('touchmove', handleMoveResize, true);
+            };
+
+            this.$resizeHandle.addEventListener('mousedown', resizeStart);
+            this.$resizeHandle.addEventListener('touchstart', resizeStart);
         }
     },
     beforeDestroy: function beforeDestroy() {
@@ -1266,7 +1291,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ }),
 /* 10 */
 /*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/extract-text-webpack-plugin/dist/loader.js?{"omit":1,"remove":true}!./node_modules/vue-style-loader!./node_modules/css-loader?{"autoprefixer":false,"sourceMap":false,"minimize":0}!./node_modules/vue-loader/lib/style-compiler?{"vue":true,"id":"data-v-3ce811d1","scoped":false,"hasInlineConfig":true}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./src/Box.vue ***!
+  !*** ./node_modules/extract-text-webpack-plugin/dist/loader.js?{"omit":1,"remove":true}!./node_modules/vue-style-loader!./node_modules/css-loader?{"autoprefixer":false,"sourceMap":false,"minimize":0}!./node_modules/vue-loader/lib/style-compiler?{"vue":true,"id":"data-v-99ca528c","scoped":false,"hasInlineConfig":true}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./src/Box.vue ***!
   \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! dynamic exports provided */
 /*! all exports used */
@@ -1277,7 +1302,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ }),
 /* 11 */
 /*!**********************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-3ce811d1","hasScoped":false,"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/Box.vue ***!
+  !*** ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-99ca528c","hasScoped":false,"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/Box.vue ***!
   \**********************************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /*! exports used: default */
