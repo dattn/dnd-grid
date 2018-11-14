@@ -54,6 +54,7 @@ The **components** require **Vue >= 2.0.0**
 ]
 ```
 ##CONTAINER:
+
 | Property               | Default         | Description                                                               |
 |----------------------- | --------------- | ------------------------------------------------------------------------- |
 | layout                 |                 | Array of objects each representing a box with the below Object properties |
@@ -80,6 +81,7 @@ The **components** require **Vue >= 2.0.0**
 | fixLayoutOnLoad        | true            | Boolean describing to fix layout (overlaps) on load                       |
 
 ##BOX:
+
 | Property               | DEFAULT         | Description                                                               |
 |----------------------- | --------------- | ------------------------------------------------------------------------- |
 | boxId                  | !               | String, Box id, this is a required field                                  |
