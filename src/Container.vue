@@ -29,9 +29,12 @@
 </style>
 
 <script>
-    import Box from './Box'
+    import Box from './Box.vue'
+    import Widget from './widget'
+    import Layout from './layout'
     import * as utils from './utils'
 
+    let layoutHandler = null
     export const List = new Set()
 
     export default {
@@ -95,12 +98,14 @@
             }
         },
         watch: {
-            layout (newLayout) {
-                if (this.fixLayoutOnLoad) {
-                    if (utils.layoutHasCollisions(newLayout)) {
-                        this.updateLayout(utils.fixLayout(newLayout, this.bubbleUp))
+            layout: {
+                handler(to, from) {
+                    if (this.doCommitLayout) {
+                        layoutHandler.setNewLayout(this.layout)
+                        this.doCommitLayout = false
                     }
-                }
+                },
+                deep: true
             }
         },
         data () {
@@ -128,12 +133,14 @@
                         y: 0
                     }
                 },
-                isMounted: false
+                isMounted: false,
+                processingLayout: false,
+                doCommitLayout: false
             }
         },
         computed: {
             style () {
-                var layoutSize = utils.getLayoutSize(this.layout)
+                var layoutSize = layoutHandler.getLayoutSize(this.layout)
                 return {
                     minWidth: (
                         (layoutSize.w * this.cellSize.w) +
@@ -161,29 +168,43 @@
             }
         },
         methods: {
-            getBoxLayoutById (id) {
+            addWidget(widget) {
+                this.layout.push(widget)
+                layoutHandler.updatePositions(widget).then(updatedLayout => {
+                    this.processingLayout = false
+                    this.updateLayout(updatedLayout)
+                    layoutHandler.commit()
+                })
+            },
+            commitLayout() {
+                this.doCommitLayout = true
+            },
+            getBoxLayoutById(id) {
                 if (id === '::placeholder::') {
                     return this.placeholder
                 }
-                return this.layoutMap.get(id)
+                let r = this.layoutMap.get(id)
+                return r
             },
-            getPixelPositionById (id) {
+            getPixelPositionById(id) {
+                let baseOn = null
                 if (this.dragging.boxLayout && this.dragging.boxLayout.id === id) {
-                    let pixels = utils.positionToPixels(this.dragging.boxLayout.position, this.cellSize, this.margin, this.outerMargin)
-                    pixels.x += this.dragging.offset.x
-                    pixels.y += this.dragging.offset.y
-                    return pixels
+                    baseOn = this.dragging
                 }
 
                 if (this.resizing.boxLayout && this.resizing.boxLayout.id === id) {
-                    let pixels = utils.positionToPixels(this.resizing.boxLayout.position, this.cellSize, this.margin, this.outerMargin)
-                    pixels.w += this.resizing.offset.x
-                    pixels.h += this.resizing.offset.y
+                    baseOn = this.resizing
+                }
+
+                if (baseOn) {
+                    let pixels = layoutHandler.positionToPixels(baseOn.boxLayout.position, this.cellSize, this.margin, this.outerMargin)
+                    pixels.x += baseOn.offset.x
+                    pixels.y += baseOn.offset.y
                     return pixels
                 }
 
                 var boxLayout = this.getBoxLayoutById(id)
-                return utils.positionToPixels(boxLayout.position, this.cellSize, this.margin, this.outerMargin)
+                return layoutHandler.positionToPixels(boxLayout.position, this.cellSize, this.margin, this.outerMargin)
             },
             isBoxVisible (id) {
                 var boxLayout = this.getBoxLayoutById(id)
@@ -207,8 +228,7 @@
             },
             unregisterBox (box) {
             },
-            enableDragging (box) {
-                var initialLayout
+            enableDragging(box) {
                 var isDragging = false
 
                 let validateTargetPosition = (targetX, targetY) => {
@@ -233,124 +253,86 @@
                 }
 
                 box.$on('dragStart', evt => {
-                    var boxLayout = this.getBoxLayoutById(box.boxId)
-                    if (boxLayout.pinned) {
+                    var widget = this.getBoxLayoutById(box.boxId)
+                    if (widget.pinned) {
                         return
                     }
                     isDragging = true
 
                     // find box
-                    this.dragging.boxLayout = boxLayout
+                    this.dragging.boxLayout = new Widget(widget)
                     this.placeholder = {
                         ...this.dragging.boxLayout
                     }
 
-                    // clone layout
-                    initialLayout = utils.sortLayout(this.layout)
-
-                    this.$emit('drag:start', initialLayout)
+                    // update layout
+                    layoutHandler.sortLayout()
                 })
 
                 box.$on('dragUpdate', evt => {
                     if (!isDragging) {
                         return
                     }
+                    this.processingLayout = true
                     this.dragging.offset.x = evt.offset.x
                     this.dragging.offset.y = evt.offset.y
 
                     var moveBy = this.getPositionByPixel(evt.offset.x, evt.offset.y)
-                    if (!utils.isFree(this.pinnedLayout, {
-                        ...this.dragging.boxLayout.position,
+
+                    let input = {
                         x: this.dragging.boxLayout.position.x + moveBy.x,
                         y: this.dragging.boxLayout.position.y + moveBy.y
-                    })) {
-                        return
                     }
-
+                    if (this.dragging.boxLayout.originalPosition) {
+                        input = {
+                            x: this.dragging.boxLayout.originalPosition.x + moveBy.x,
+                            y: this.dragging.boxLayout.originalPosition.y + moveBy.y
+                        }
+                    }
                     let { targetX, targetY } = validateTargetPosition(
-                        this.dragging.boxLayout.position.x + moveBy.x,
-                        this.dragging.boxLayout.position.y + moveBy.y
+                        input.x,
+                        input.y
                     )
 
                     // check if box has moved
                     if (this.placeholder.position.x === targetX && this.placeholder.position.y === targetY) {
                         return
                     }
-                    this.placeholder = utils.updateBoxPosition(this.placeholder, {
+
+                    let updateToPosition = {
                         x: targetX,
-                        y: targetY
-                    })
-
-                    var newLayout = [ this.placeholder ]
-                    initialLayout.forEach((boxLayout) => {
-                        if (boxLayout.id === this.dragging.boxLayout.id) {
-                            return
-                        }
-                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxLayout, this.bubbleUp))
-                    })
-
-                    if (this.bubbleUp) {
-                        newLayout = utils.layoutBubbleUp(newLayout)
-                        this.placeholder = newLayout.find((boxLayout) => {
-                            return boxLayout.id === this.dragging.boxLayout.id
-                        })
+                        y: targetY,
+                        w: this.placeholder.position.w,
+                        h: this.placeholder.position.h
+                        // w: !this.placeholder.minSize || this.placeholder.position.w > this.placeholder.minSize.w ? this.placeholder.position.w : this.placeholder.minSize.w,
+                        // h: !this.placeholder.minSize || this.placeholder.position.h > this.placeholder.minSize.h ? this.placeholder.position.h : this.placeholder.minSize.h
                     }
-                    this.updateLayout(newLayout)
 
-                    this.$emit('drag:update', newLayout)
+                    layoutHandler.updatePositions(new Widget({
+                        position: updateToPosition,
+                        id: this.dragging.boxLayout.id
+                    })).then(updatedLayout => {
+                        this.processingLayout = false
+                        this.updateLayout(updatedLayout)
+                    })
+                    this.placeholder = layoutHandler.movingBox
                 })
 
                 box.$on('dragEnd', evt => {
                     if (!isDragging) {
                         return
                     }
-                    var moveBy = this.getPositionByPixel(evt.offset.x, evt.offset.y)
-                    if (utils.isFree(this.pinnedLayout, {
-                        ...this.dragging.boxLayout.position,
-                        x: this.dragging.boxLayout.position.x + moveBy.x,
-                        y: this.dragging.boxLayout.position.y + moveBy.y
-                    })) {
-                        let { targetX, targetY } = validateTargetPosition(
-                            this.dragging.boxLayout.position.x + moveBy.x,
-                            this.dragging.boxLayout.position.y + moveBy.y
-                        )
 
-                        this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                            x: targetX,
-                            y: targetY
-                        })
-                    }
-
-                    this.dragging.boxLayout = utils.updateBoxPosition(this.dragging.boxLayout, {
-                        x: this.placeholder.position.x,
-                        y: this.placeholder.position.y
-                    })
-
-                    var newLayout = [ this.dragging.boxLayout ]
-                    initialLayout.forEach((boxPosition) => {
-                        if (boxPosition.id === this.dragging.boxLayout.id) {
-                            return
-                        }
-                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxPosition, this.bubbleUp))
-                    })
-
-                    if (this.bubbleUp) {
-                        newLayout = utils.layoutBubbleUp(newLayout)
-                    }
-                    this.updateLayout(newLayout)
-
+                    layoutHandler.commit()
+                    this.dragging.boxLayout.position = this.placeholder.position
                     this.dragging.boxLayout = null
                     this.dragging.offset.x = 0
                     this.dragging.offset.y = 0
-
                     this.placeholder.hidden = true
                     isDragging = false
-
-                    this.$emit('drag:end', newLayout)
                 })
             },
-            enableResizing (box) {
-                var initialLayout
+            enableResizing(box) {
                 var isResizing = false
 
                 let validateTargetSize = (targetW, targetH) => {
@@ -373,124 +355,89 @@
                         targetH
                     }
                 }
-
                 box.$on('resizeStart', evt => {
-                    var boxLayout = this.getBoxLayoutById(box.boxId)
-                    if (boxLayout.pinned) {
+                    var widget = this.getBoxLayoutById(box.boxId)
+                    if (widget.pinned) {
                         return
                     }
                     isResizing = true
 
                     // find box
-                    this.resizing.boxLayout = boxLayout
+                    this.resizing.boxLayout = new Widget(widget)
                     this.placeholder = {
                         ...this.resizing.boxLayout
                     }
 
-                    // clone layout
-                    initialLayout = utils.sortLayout(this.layout)
-
-                    this.$emit('resize:start', initialLayout)
+                    // update layout
+                    layoutHandler.sortLayout()
                 })
 
                 box.$on('resizeUpdate', evt => {
                     if (!isResizing) {
                         return
                     }
+                    this.processingLayout = true
                     this.resizing.offset.x = evt.offset.x
                     this.resizing.offset.y = evt.offset.y
 
                     var resizeBy = this.getPositionByPixel(evt.offset.x, evt.offset.y)
-                    if (!utils.isFree(this.pinnedLayout, {
-                        ...this.resizing.boxLayout.position,
+
+                    let input = {
                         w: this.resizing.boxLayout.position.w + resizeBy.x,
                         h: this.resizing.boxLayout.position.h + resizeBy.y
-                    })) {
-                        return
                     }
-
+                    if (this.resizing.boxLayout.originalPosition) {
+                        input = {
+                            w: this.resizing.boxLayout.originalPosition.w + resizeBy.x,
+                            h: this.resizing.boxLayout.originalPosition.h + resizeBy.y
+                        }
+                    }
                     let { targetW, targetH } = validateTargetSize(
-                        this.resizing.boxLayout.position.w + resizeBy.x,
-                        this.resizing.boxLayout.position.h + resizeBy.y
+                        input.w,
+                        input.h
                     )
 
                     // check if box size has changed
                     if (this.placeholder.position.w === targetW && this.placeholder.position.h === targetH) {
                         return
                     }
-                    this.placeholder = utils.updateBoxPosition(this.placeholder, {
+
+                    let updateToPosition = {
+                        x: this.placeholder.position.x,
+                        y: this.placeholder.position.y,
                         w: targetW,
                         h: targetH
-                    })
-
-                    var newLayout = [ this.placeholder ]
-                    initialLayout.forEach((boxLayout) => {
-                        if (boxLayout.id === this.resizing.boxLayout.id) {
-                            return
-                        }
-                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxLayout, this.bubbleUp))
-                    })
-
-                    if (this.bubbleUp) {
-                        newLayout = utils.layoutBubbleUp(newLayout)
-                        this.placeholder = newLayout.find((boxLayout) => {
-                            return boxLayout.id === this.resizing.boxLayout.id
-                        })
                     }
-                    this.updateLayout(newLayout)
 
-                    this.$emit('resize:update', newLayout)
+                    // Show updated size
+                    // TODO: The box will be moved from its current x,y position with this change.
+                    // this.resizing.boxLayout.position = updateToPosition
+
+                    layoutHandler.updatePositions(new Widget({
+                        position: updateToPosition,
+                        id: this.resizing.boxLayout.id
+                    })).then(updatedLayout => {
+                        this.processingLayout = false
+                        this.updateLayout(updatedLayout)
+                    })
+                    this.placeholder = layoutHandler.movingBox
                 })
 
                 box.$on('resizeEnd', evt => {
                     if (!isResizing) {
                         return
                     }
-                    var resizeBy = this.getPositionByPixel(evt.offset.x, evt.offset.y)
-                    if (utils.isFree(this.pinnedLayout, {
-                        ...this.resizing.boxLayout.position,
-                        w: this.resizing.boxLayout.position.w + resizeBy.x,
-                        h: this.resizing.boxLayout.position.h + resizeBy.y
-                    })) {
-                        let { targetW, targetH } = validateTargetSize(
-                            this.resizing.boxLayout.position.w + resizeBy.x,
-                            this.resizing.boxLayout.position.h + resizeBy.y
-                        )
 
-                        this.placeholder = utils.updateBoxPosition(this.placeholder, {
-                            w: targetW,
-                            h: targetH
-                        })
-                    }
-
-                    this.resizing.boxLayout = utils.updateBoxPosition(this.resizing.boxLayout, {
-                        w: this.placeholder.position.w,
-                        h: this.placeholder.position.h
-                    })
-
-                    var newLayout = [ this.resizing.boxLayout ]
-                    initialLayout.forEach((boxPosition) => {
-                        if (boxPosition.id === this.resizing.boxLayout.id) {
-                            return
-                        }
-                        newLayout.push(utils.moveBoxToFreePlace(newLayout, boxPosition, this.bubbleUp))
-                    })
-
-                    if (this.bubbleUp) {
-                        newLayout = utils.layoutBubbleUp(newLayout)
-                    }
-                    this.updateLayout(newLayout)
-
+                    layoutHandler.commit()
+                    this.resizing.boxLayout.position = this.placeholder.position
                     this.resizing.boxLayout = null
                     this.resizing.offset.x = 0
                     this.resizing.offset.y = 0
-
                     this.placeholder.hidden = true
-
-                    this.$emit('resize:end', newLayout)
+                    isResizing = false
                 })
             },
-            createBoxLayout (...boxIds) {
+            createBoxLayout(...boxIds) {
                 boxIds = boxIds.filter(boxId => !this.getBoxLayoutById(boxId))
 
                 if (boxIds.length) {
@@ -498,7 +445,8 @@
                         ...this.layout
                     ]
                     boxIds.forEach(boxId => {
-                        newLayout.push(utils.moveBoxToFreePlace(newLayout, {
+                        /*
+                        newLayout.push(layoutHandler.moveBoxToFreePlace(newLayout, {
                             id: boxId,
                             hidden: false,
                             position: {
@@ -506,14 +454,17 @@
                                 y: 0,
                                 ...this.defaultSize
                             }
-                        }, this.bubbleUp))
+                        }))
+                        */
                     })
-                    this.updateLayout(newLayout)
                 }
             }
         },
         created () {
             List.add(this)
+            layoutHandler = new Layout(this.layout, {
+                maxColumnCount: this.maxColumnCount
+            })
         },
         mounted () {
             this.isMounted = true

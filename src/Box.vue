@@ -4,6 +4,11 @@
         :style="style"
         ref="dragHandle"
     >
+        <button type="button" class="close"
+            aria-label="Close"
+            @click="removeBox">
+            <span aria-hidden="true">&times;</span>
+        </button>
         <slot></slot>
         <div
             class="resize-handle"
@@ -17,6 +22,12 @@
         position: absolute;
         z-index: 1;
         box-sizing: border-box;
+    }
+
+    .dnd-grid-box .close {
+        position: relative;
+        top: 34px;
+        z-index: 2;
     }
 
     .dnd-grid-box.dragging,
@@ -42,10 +53,16 @@
 <script>
     import * as utils from './utils'
     import { List as ContainerList } from './Container'
+    import Widget from './widget'
 
     export default {
         name: 'DndGridBox',
         props: {
+            widget: {
+                type: Widget,
+                required: false,
+                default: null
+            },
             boxId: {
                 required: true
             },
@@ -80,6 +97,7 @@
             classes () {
                 return {
                     'dnd-grid-box': true,
+                    'active': this.active,
                     'dragging': this.dragging,
                     'resizing': this.resizing
                 }
@@ -95,6 +113,9 @@
                     }
                 }
                 return null
+            },
+            removeBox() {
+                this.$emit('removeClicked', this.boxId)
             }
         },
         mounted () {
@@ -108,7 +129,8 @@
 
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
-            this.$dragHandle.addEventListener('mousedown', evt => {
+
+            const dragStart = evt => {
                 if (!utils.matchesSelector(evt.target, this.dragSelector)) {
                     return
                 }
@@ -129,7 +151,7 @@
                         x: evt.clientX - mouseX,
                         y: evt.clientY - mouseY
                     }
-                    this.$emit('dragEnd', { offset })
+                    this.$emit('dragEnd', { offset, widget: this.widget })
                 }
 
                 const handleMouseMove = evt => {
@@ -137,17 +159,27 @@
                         x: evt.clientX - mouseX,
                         y: evt.clientY - mouseY
                     }
+
                     this.$emit('dragUpdate', { offset })
                 }
 
+                window.removeEventListener('mouseup', handleMouseUp, true)
+                window.removeEventListener('mousemove', handleMouseMove, true)
                 window.addEventListener('mouseup', handleMouseUp, true)
                 window.addEventListener('mousemove', handleMouseMove, true)
-            })
+            }
+
+            var supportsTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0))
+            if (supportsTouch) {
+                this.$dragHandle.addEventListener('touchstart', dragStart)
+            }
+
+            this.$dragHandle.addEventListener('mousedown', dragStart)
 
             // resizing
             this.$resizeHandle = this.$refs.resizeHandle
             if (this.$resizeHandle) {
-                this.$resizeHandle.addEventListener('mousedown', evt => {
+                const resizeStart = evt => {
                     evt.preventDefault()
                     evt.stopPropagation()
                     this.resizing = true
@@ -178,7 +210,12 @@
 
                     window.addEventListener('mouseup', handleMouseUp, true)
                     window.addEventListener('mousemove', handleMouseMove, true)
-                })
+                }
+
+                if (supportsTouch) {
+                    this.$dragHandle.addEventListener('touchstart', resizeStart)
+                }
+                this.$resizeHandle.addEventListener('mousedown', resizeStart)
             }
         },
         beforeDestroy () {
