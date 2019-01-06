@@ -53,6 +53,10 @@ export default {
     padding: 8px;
 }
 
+li {
+    list-style: none;
+}
+
 .widget {
     background: #888;
     border-radius: 4px;

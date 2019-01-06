@@ -25,8 +25,9 @@
     }
 
     .dnd-grid-box .close {
-        position: relative;
-        top: 34px;
+        position: absolute;
+        right: 5px;
+        top: 5px;
         z-index: 2;
     }
 
