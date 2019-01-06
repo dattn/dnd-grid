@@ -1,12 +1,12 @@
 {
-  "name": "@dattn/dnd-grid",
+  "name": "@danielnord/dnd-grid",
   "version": "0.0.14",
   "description": "A vuejs grid with draggable and resizable boxes",
   "author": "Daniel Duton <daniel@duton.lu>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dattn/dnd-grid.git"
+    "url": "git+https://github.com/danielnord/dnd-grid.git"
   },
   "main": "dist/dnd-grid.js",
   "scripts": {
