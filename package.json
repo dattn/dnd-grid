@@ -3,6 +3,7 @@
   "version": "0.0.14",
   "description": "A vuejs grid with draggable and resizable boxes",
   "author": "Daniel Duton <daniel@duton.lu>",
+  "contributors": ["Jeffrey Ernst <ernst.j.c@gmail.com>"],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,7 +17,8 @@
     "build:demo": "npm run dist:demo -- --minimize 0",
     "start": "npm run dev",
     "dev": "poi ./src/demo/index.js",
-    "lint": "eslint --ext .js,.vue src"
+    "lint": "eslint --ext .js,.vue src",
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "dist/"

@@ -33,15 +33,29 @@
         position: absolute;
         right: -5px;
         bottom: -5px;
-        width: 15px;
-        height: 15px;
+        width: 10px;
+        height: 10px;
         cursor: se-resize;
+        border-radius: 50%;
+    }
+
+    @media only screen and (max-width: 1366px) {
+        .dnd-grid-box .resize-handle {
+            width: 60px;
+            height: 60px;
+            bottom: -10px;
+            right: -10px;
+        }
+
+        dnd-grid-box .resize-handle.resize-visible {
+            background-color: rgba(100, 100, 100, .1);
+        }
     }
 </style>
 
 <script>
-    import * as utils from './utils'
     import { List as ContainerList } from './Container'
+    import * as utils from './utils'
 
     export default {
         name: 'DndGridBox',
@@ -52,9 +66,13 @@
             dragSelector: {
                 type: String,
                 default: '*'
+            },
+            resizeVisible: {
+                type: Boolean,
+                default: false
             }
         },
-        data () {
+        data() {
             return {
                 container: null,
                 dragging: false,
@@ -62,7 +80,7 @@
             }
         },
         computed: {
-            style () {
+            style() {
                 if (this.container && this.container.isBoxVisible(this.boxId)) {
                     var pixelPosition = this.container.getPixelPositionById(this.boxId)
                     return {
@@ -77,16 +95,17 @@
                     display: 'none'
                 }
             },
-            classes () {
+            classes() {
                 return {
                     'dnd-grid-box': true,
                     'dragging': this.dragging,
-                    'resizing': this.resizing
+                    'resizing': this.resizing,
+                    'resize.visible': this.resizeVisible
                 }
             }
         },
         methods: {
-            findContainer () {
+            findContainer() {
                 let current = this
                 while (current.$parent) {
                     current = current.$parent
@@ -97,7 +116,7 @@
                 return null
             }
         },
-        mounted () {
+        mounted() {
             this.container = this.findContainer()
             if (!this.container) {
                 throw new Error('Can not find container')
@@ -108,7 +127,8 @@
 
             // moving
             this.$dragHandle = this.$el || this.$refs.dragHandle
-            this.$dragHandle.addEventListener('mousedown', evt => {
+
+            const startEvent = evt => {
                 if (!utils.matchesSelector(evt.target, this.dragSelector)) {
                     return
                 }
@@ -116,72 +136,86 @@
                 evt.preventDefault()
                 this.dragging = true
                 this.$emit('dragStart')
-                let mouseX = evt.clientX
-                let mouseY = evt.clientY
+                let positionX = evt.clientX || evt.touches[0].pageX
+                let positionY = evt.clientY || evt.touches[0].pageY
 
-                const handleMouseUp = evt => {
-                    window.removeEventListener('mouseup', handleMouseUp, true)
-                    window.removeEventListener('mousemove', handleMouseMove, true)
+                const handleEndDrag = evt => {
+                    window.removeEventListener('mouseup', handleEndDrag, true)
+                    window.removeEventListener('touchend', handleEndDrag, true)
+                    window.removeEventListener('mousemove', handleMoveDrag, true)
+                    window.removeEventListener('touchmove', handleMoveDrag, true)
 
                     this.dragging = false
 
                     var offset = {
-                        x: evt.clientX - mouseX,
-                        y: evt.clientY - mouseY
+                        x: (evt.clientX || evt.changedTouches[0].pageX) - positionX,
+                        y: (evt.clientY || evt.changedTouches[0].pageY) - positionY
                     }
-                    this.$emit('dragEnd', { offset })
+                    this.$emit('dragEnd', {offset})
                 }
 
-                const handleMouseMove = evt => {
+                const handleMoveDrag = evt => {
                     var offset = {
-                        x: evt.clientX - mouseX,
-                        y: evt.clientY - mouseY
+                        x: (evt.clientX || evt.touches[0].pageX) - positionX,
+                        y: (evt.clientY || evt.touches[0].pageY) - positionY
                     }
-                    this.$emit('dragUpdate', { offset })
+                    this.$emit('dragUpdate', {offset})
                 }
 
-                window.addEventListener('mouseup', handleMouseUp, true)
-                window.addEventListener('mousemove', handleMouseMove, true)
-            })
+                window.addEventListener('mouseup', handleEndDrag, true)
+                window.addEventListener('touchend', handleEndDrag, true)
+                window.addEventListener('mousemove', handleMoveDrag, true)
+                window.addEventListener('touchmove', handleMoveDrag, true)
+            }
+
+            this.$dragHandle.addEventListener('mousedown', startEvent)
+            this.$dragHandle.addEventListener('touchstart', startEvent)
 
             // resizing
             this.$resizeHandle = this.$refs.resizeHandle
             if (this.$resizeHandle) {
-                this.$resizeHandle.addEventListener('mousedown', evt => {
+                const resizeStart = evt => {
                     evt.preventDefault()
                     evt.stopPropagation()
                     this.resizing = true
                     this.$emit('resizeStart')
-                    let mouseX = evt.clientX
-                    let mouseY = evt.clientY
+                    let positionX = evt.clientX || evt.touches[0].pageX
+                    let positionY = evt.clientY || evt.touches[0].pageY
 
-                    const handleMouseUp = evt => {
-                        window.removeEventListener('mouseup', handleMouseUp, true)
-                        window.removeEventListener('mousemove', handleMouseMove, true)
+                    const handleEndResize = evt => {
+                        window.removeEventListener('mouseup', handleEndResize, true)
+                        window.removeEventListener('touchend', handleEndResize, true)
+                        window.removeEventListener('mousemove', handleMoveResize, true)
+                        window.removeEventListener('touchmove', handleMoveResize, true)
 
                         this.resizing = false
 
                         var offset = {
-                            x: evt.clientX - mouseX,
-                            y: evt.clientY - mouseY
+                            x: (evt.clientX || evt.changedTouches[0].pageX) - positionX,
+                            y: (evt.clientY || evt.changedTouches[0].pageY) - positionY
                         }
-                        this.$emit('resizeEnd', { offset })
+                        this.$emit('resizeEnd', {offset})
                     }
 
-                    const handleMouseMove = evt => {
+                    const handleMoveResize = evt => {
                         var offset = {
-                            x: evt.clientX - mouseX,
-                            y: evt.clientY - mouseY
+                            x: (evt.clientX || evt.touches[0].pageX) - positionX,
+                            y: (evt.clientY || evt.touches[0].pageY) - positionY
                         }
-                        this.$emit('resizeUpdate', { offset })
+                        this.$emit('resizeUpdate', {offset})
                     }
 
-                    window.addEventListener('mouseup', handleMouseUp, true)
-                    window.addEventListener('mousemove', handleMouseMove, true)
-                })
+                    window.addEventListener('mouseup', handleEndResize, true)
+                    window.addEventListener('touchend', handleEndResize, true)
+                    window.addEventListener('mousemove', handleMoveResize, true)
+                    window.addEventListener('touchmove', handleMoveResize, true)
+                }
+
+                this.$resizeHandle.addEventListener('mousedown', resizeStart)
+                this.$resizeHandle.addEventListener('touchstart', resizeStart)
             }
         },
-        beforeDestroy () {
+        beforeDestroy() {
             // register component on parent
             if (this.container) {
                 this.container.unregisterBox(this)
