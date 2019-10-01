@@ -95,12 +95,15 @@
             }
         },
         watch: {
-            layout (newLayout) {
-                if (this.fixLayoutOnLoad) {
-                    if (utils.layoutHasCollisions(newLayout)) {
-                        this.updateLayout(utils.fixLayout(newLayout, this.bubbleUp))
+            layout: {
+                handler (newLayout) {
+                    if (this.fixLayoutOnLoad) {
+                        if (utils.layoutHasCollisions(newLayout)) {
+                            this.updateLayout(utils.fixLayout(newLayout, this.bubbleUp))
+                        }
                     }
-                }
+                },
+                deep: true
             }
         },
         data () {
