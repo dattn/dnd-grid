@@ -8,14 +8,14 @@
     "type": "git",
     "url": "git+https://github.com/dattn/dnd-grid.git"
   },
-  "main": "dist/dnd-grid.js",
+  "main": "dist/index.js",
   "scripts": {
-    "dist": "poi build ./src/index.js --dist ./dist/ --prod --library",
-    "dist:demo": "poi build ./src/demo/index.js --dist ./demo/ --prod",
-    "build": "npm run dist -- --minimize 0",
-    "build:demo": "npm run dist:demo -- --minimize 0",
+    "dist": "poi ./src/index.js --out-dir ./dist/ --prod --clean --format umd --module-name dnd-grid",
+    "dist:demo": "poi ./src/demo/index.js --out-dir ./demo/ --clean --prod",
+    "build": "npm run dist -- --no-minimize",
+    "build:demo": "npm run dist:demo -- --no-minimize",
     "start": "npm run dev",
-    "dev": "poi ./src/demo/index.js",
+    "dev": "poi --serve ./src/demo/index.js",
     "lint": "eslint --ext .js,.vue src"
   },
   "files": [
@@ -26,14 +26,18 @@
     "component"
   ],
   "devDependencies": {
-    "babel-eslint": "^8.2.2",
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-html": "^4.0.2",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "poi": "^9.6.13"
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.5.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-html": "^6.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "poi": "^12.7.2"
+  },
+  "dependencies": {
+    "vue": "^2.6.10",
+    "vue-template-compiler": "^2.6.10"
   }
 }

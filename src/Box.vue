@@ -41,7 +41,7 @@
 
 <script>
     import * as utils from './utils'
-    import { List as ContainerList } from './Container'
+    import { List as ContainerList } from './Container.vue'
 
     export default {
         name: 'DndGridBox',
