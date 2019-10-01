@@ -29,7 +29,7 @@
 </style>
 
 <script>
-    import Box from './Box'
+    import Box from './Box.vue'
     import * as utils from './utils'
 
     export const List = new Set()
