@@ -4,7 +4,8 @@
   "description": "A vuejs grid with draggable and resizable boxes",
   "author": "Daniel Duton <daniel@duton.lu>",
   "contributors": [
-    "Jeffrey Ernst <ernst.j.c@gmail.com>"
+    "Jeffrey Ernst <ernst.j.c@gmail.com>",
+    "Maverick Peppers <bmpeppers@gmail.com>"
   ],
   "license": "MIT",
   "repository": {
