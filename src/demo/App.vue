@@ -10,6 +10,7 @@
             :maxRowCount="maxRowCount"
             :margin="margin"
             :bubbleUp="bubbleUp"
+            :dynamicResize="false"
         >
             <dnd-grid-box
                 boxId="settings"
@@ -85,7 +86,7 @@
                     h: 100
                 },
                 maxColumnCount: 10,
-                maxRowCount: Infinity,
+                maxRowCount: 5,
                 bubbleUp: false,
                 margin: 5,
                 boxCount: 4,

@@ -135,7 +135,7 @@
 
                 evt.preventDefault()
                 this.dragging = true
-                this.$emit('dragStart')
+                this.$emit('dragStart', {offset:{x:0,y:0}, ...this.container.getBoxLayoutById(this.boxId)})
                 let positionX = evt.clientX || evt.touches[0].pageX
                 let positionY = evt.clientY || evt.touches[0].pageY
 
@@ -151,7 +151,7 @@
                         x: (evt.clientX || evt.changedTouches[0].pageX) - positionX,
                         y: (evt.clientY || evt.changedTouches[0].pageY) - positionY
                     }
-                    this.$emit('dragEnd', {offset})
+                    this.$emit('dragEnd', {offset, ...this.container.getBoxLayoutById(this.boxId)})
                 }
 
                 const handleMoveDrag = evt => {
@@ -159,7 +159,7 @@
                         x: (evt.clientX || evt.touches[0].pageX) - positionX,
                         y: (evt.clientY || evt.touches[0].pageY) - positionY
                     }
-                    this.$emit('dragUpdate', {offset})
+                    this.$emit('dragUpdate', {offset, ...this.container.getBoxLayoutById(this.boxId)})
                 }
 
                 window.addEventListener('mouseup', handleEndDrag, true)

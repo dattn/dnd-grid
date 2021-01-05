@@ -5,7 +5,8 @@
     >
         <slot></slot>
         <box
-            class="placeholder"
+            :class="placeholder"
+            :style="noplaceholder? '' : computePlaceholderStyle"
             boxId="::placeholder::"
         ></box>
     </div>
@@ -15,12 +16,6 @@
     .dnd-grid-container {
         position: relative;
         transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
-    }
-
-    .dnd-grid-container .dnd-grid-box.placeholder {
-        border: 1px dashed #000;
-        background: none;
-        z-index: 0;
     }
 
     .dnd-grid-container .dnd-grid-box.placeholder {
@@ -52,6 +47,10 @@
                         h: 100
                     }
                 }
+            },
+            dynamicResize: {
+                type: Boolean,
+                default: true
             },
             maxColumnCount: {
                 type: Number,
@@ -92,6 +91,46 @@
                 type: Boolean,
                 required: false,
                 default: true
+            },
+            gridStyle: {
+                type: Object,
+                required: false,
+                default () { 
+                    return {
+                        backgroundColor: "rgb(47, 122, 202)",
+                        color: "white",
+                        thickness: "2px",
+                        position: "-4px -4px, -4px -4px",
+                        innerGrid: {
+                            cols: 4,
+                            rows: 4,
+                            color: "#b0b0b0",
+                            position: "-2px -2px, -2px -2px",
+                            thickness: "1px"
+                        }
+                    }
+                }
+            },
+            placeholderStyle: {
+                type: Object,
+                required: false,
+                default () {
+                    return {
+                        border: '2px dashed gold',
+                        background: 'rgba(0,0,0,0.2)',
+                        zIndex: '0'
+                    }
+                }
+            },
+            nogrid: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            noplaceholder: {
+                type: Boolean,
+                required: false,
+                default: false
             }
         },
         watch: {
@@ -134,7 +173,16 @@
         computed: {
             style () {
                 var layoutSize = utils.getLayoutSize(this.layout)
-                return {
+
+                // Style should match the layout size if `dynamicResize` is false
+                // This implies it is static and the cells should be apparent to the user
+                if(!this.dynamicResize) {
+                    layoutSize.w = this.maxColumnCount;
+                    layoutSize.h = this.maxRowCount;
+                }
+
+                // Calculate the width and height css
+                var style = {
                     minWidth: (
                         (layoutSize.w * this.cellSize.w) +
                         ((layoutSize.w - 1) * this.margin) +
@@ -146,6 +194,50 @@
                         (2 * this.outerMargin)
                     ) + 'px'
                 }
+
+                // If `gridStyle` is non-null, apply rules
+                if(this.gridStyle && !this.nogrid) {
+                    let csize = { w: this.cellSize.w + this.margin, h: this.cellSize.h + this.margin }
+                    let gsize = { w: (csize.w/this.gridStyle.innerGrid.cols), h: (csize.h/this.gridStyle.innerGrid.rows) }
+                    let bThickness = this.gridStyle.thickness
+                    let gThickness = this.gridStyle.innerGrid.thickness
+                    let bgColor = this.gridStyle.backgroundColor
+                    let ccolor = this.gridStyle.color
+                    let gcolor = this.gridStyle.innerGrid.color
+
+                    style = { 
+                        ...style,
+                        backgroundColor: `${bgColor}`,
+                        backgroundSize: `${csize.w}px ${csize.h}px, ${csize.w}px ${csize.h}px`,
+                        backgroundPosition: `${this.gridStyle.position}`,
+                        backgroundImage: `-webkit-linear-gradient(${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -webkit-linear-gradient(0, ${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -webkit-linear-gradient(${gcolor} ${gThickness}, transparent ${gThickness}),
+                            -webkit-linear-gradient(0, ${gcolor} ${gThickness}, transparent ${gThickness}),
+                            -moz-linear-gradient(${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -moz-linear-gradient(0, ${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -moz-linear-gradient(${gcolor} ${gThickness}, transparent ${gThickness}),
+                            -moz-linear-gradient(0, ${gcolor} ${gThickness}, transparent ${gThickness}),
+                            linear-gradient(${ccolor} ${bThickness}, transparent ${bThickness}),
+                            linear-gradient(0, ${ccolor} ${bThickness}, transparent ${bThickness}),
+                            linear-gradient(${gcolor} ${gThickness}, transparent ${gThickness}),
+                            linear-gradient(0, ${gcolor} ${gThickness}, transparent ${gThickness})`
+                    }
+
+                    if(gsize.w > 0 && gsize.h > 0) {
+                        style.backgroundSize = `${style.backgroundSize}, ${gsize.w}px ${gsize.h}px, ${gsize.w}px ${gsize.h}px`
+                        style.backgroundPosition = `${style.backgroundPosition}, ${this.gridStyle.innerGrid.position}`
+                    }
+                }
+
+                // update properties object
+                style = { ...style, maxWidth: style.minWidth, maxHeight: style.minHeight }
+
+                // return the object to be used by Vue
+                return style
+            },
+            computePlaceholderStyle() {
+                return this.placeholderStyle;
             },
             pinnedLayout () {
                 return this.layout.filter((boxLayout) => {
@@ -337,7 +429,6 @@
                     if (this.bubbleUp) {
                         newLayout = utils.layoutBubbleUp(newLayout)
                     }
-                    this.updateLayout(newLayout)
 
                     this.dragging.boxLayout = null
                     this.dragging.offset.x = 0
@@ -346,6 +437,13 @@
                     this.placeholder.hidden = true
                     isDragging = false
 
+                    let newSize = utils.getLayoutSize(newLayout)
+
+                    if(!this.dynamicResize && (newSize.w > this.maxColumnCount || newSize.h > this.maxRowCount)) {
+                        newLayout = initialLayout // revert
+                    }
+
+                    this.updateLayout(newLayout)
                     this.$emit('drag:end', newLayout)
                 })
             },
@@ -479,13 +577,20 @@
                     if (this.bubbleUp) {
                         newLayout = utils.layoutBubbleUp(newLayout)
                     }
-                    this.updateLayout(newLayout)
 
                     this.resizing.boxLayout = null
                     this.resizing.offset.x = 0
                     this.resizing.offset.y = 0
 
                     this.placeholder.hidden = true
+
+                    let newSize = utils.getLayoutSize(newLayout)
+
+                    if(!this.dynamicResize && (newSize.w > this.maxColumnCount || newSize.h > this.maxRowCount)) {
+                        newLayout = initialLayout // revert
+                    }
+
+                    this.updateLayout(newLayout)
 
                     this.$emit('resize:end', newLayout)
                 })
