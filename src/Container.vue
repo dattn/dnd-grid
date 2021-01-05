@@ -5,8 +5,8 @@
     >
         <slot></slot>
         <box
-            class="placeholder"
-            :style="computePlaceholderStyle"
+            :class="placeholder"
+            :style="noplaceholder? '' : computePlaceholderStyle"
             boxId="::placeholder::"
         ></box>
     </div>
@@ -102,9 +102,9 @@
                         thickness: "2px",
                         position: "-4px -4px, -4px -4px",
                         innerGrid: {
-                            cols: 5,
-                            rows: 5,
-                            color: "#d0d0d0",
+                            cols: 4,
+                            rows: 4,
+                            color: "#b0b0b0",
                             position: "-2px -2px, -2px -2px",
                             thickness: "1px"
                         }
@@ -116,13 +116,18 @@
                 required: false,
                 default () {
                     return {
-                        border: '1px dashed white',
-                        background: 'none',
+                        border: '2px dashed gold',
+                        background: 'rgba(0,0,0,0.2)',
                         zIndex: '0'
                     }
                 }
             },
             nogrid: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            noplaceholder: {
                 type: Boolean,
                 required: false,
                 default: false
@@ -193,7 +198,7 @@
                 // If `gridStyle` is non-null, apply rules
                 if(this.gridStyle && !this.nogrid) {
                     let csize = { w: this.cellSize.w + this.margin, h: this.cellSize.h + this.margin }
-                    let gsize = { w: Math.floor(csize.w/this.gridStyle.innerGrid.cols), h: Math.floor(csize.h/this.gridStyle.innerGrid.rows) }
+                    let gsize = { w: (csize.w/this.gridStyle.innerGrid.cols), h: (csize.h/this.gridStyle.innerGrid.rows) }
                     let bThickness = this.gridStyle.thickness
                     let gThickness = this.gridStyle.innerGrid.thickness
                     let bgColor = this.gridStyle.backgroundColor
