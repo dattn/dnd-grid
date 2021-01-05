@@ -6,6 +6,7 @@
         <slot></slot>
         <box
             class="placeholder"
+            :style="computePlaceholderStyle"
             boxId="::placeholder::"
         ></box>
     </div>
@@ -15,12 +16,6 @@
     .dnd-grid-container {
         position: relative;
         transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
-    }
-
-    .dnd-grid-container .dnd-grid-box.placeholder {
-        border: 1px dashed #000;
-        background: none;
-        z-index: 0;
     }
 
     .dnd-grid-container .dnd-grid-box.placeholder {
@@ -96,6 +91,41 @@
                 type: Boolean,
                 required: false,
                 default: true
+            },
+            gridStyle: {
+                type: Object,
+                required: false,
+                default () { 
+                    return {
+                        backgroundColor: "rgb(47, 122, 202)",
+                        color: "white",
+                        thickness: "2px",
+                        position: "-4px -4px, -4px -4px",
+                        innerGrid: {
+                            cols: 5,
+                            rows: 5,
+                            color: "#d0d0d0",
+                            position: "-2px -2px, -2px -2px",
+                            thickness: "1px"
+                        }
+                    }
+                }
+            },
+            placeholderStyle: {
+                type: Object,
+                required: false,
+                default () {
+                    return {
+                        border: '1px dashed white',
+                        background: 'none',
+                        zIndex: '0'
+                    }
+                }
+            },
+            nogrid: {
+                type: Boolean,
+                required: false,
+                default: false
             }
         },
         watch: {
@@ -139,11 +169,14 @@
             style () {
                 var layoutSize = utils.getLayoutSize(this.layout)
 
+                // Style should match the layout size if `dynamicResize` is false
+                // This implies it is static and the cells should be apparent to the user
                 if(!this.dynamicResize) {
                     layoutSize.w = this.maxColumnCount;
                     layoutSize.h = this.maxRowCount;
                 }
 
+                // Calculate the width and height css
                 var style = {
                     minWidth: (
                         (layoutSize.w * this.cellSize.w) +
@@ -155,11 +188,51 @@
                         ((layoutSize.h - 1) * this.margin) +
                         (2 * this.outerMargin)
                     ) + 'px'
-                };
+                }
 
-                style = {...style, maxWidth: style.minWidth, maxHeight: style.minHeight };
+                // If `gridStyle` is non-null, apply rules
+                if(this.gridStyle && !this.nogrid) {
+                    let csize = { w: this.cellSize.w + this.margin, h: this.cellSize.h + this.margin }
+                    let gsize = { w: Math.floor(csize.w/this.gridStyle.innerGrid.cols), h: Math.floor(csize.h/this.gridStyle.innerGrid.rows) }
+                    let bThickness = this.gridStyle.thickness
+                    let gThickness = this.gridStyle.innerGrid.thickness
+                    let bgColor = this.gridStyle.backgroundColor
+                    let ccolor = this.gridStyle.color
+                    let gcolor = this.gridStyle.innerGrid.color
 
-                return style;
+                    style = { 
+                        ...style,
+                        backgroundColor: `${bgColor}`,
+                        backgroundSize: `${csize.w}px ${csize.h}px, ${csize.w}px ${csize.h}px`,
+                        backgroundPosition: `${this.gridStyle.position}`,
+                        backgroundImage: `-webkit-linear-gradient(${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -webkit-linear-gradient(0, ${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -webkit-linear-gradient(${gcolor} ${gThickness}, transparent ${gThickness}),
+                            -webkit-linear-gradient(0, ${gcolor} ${gThickness}, transparent ${gThickness}),
+                            -moz-linear-gradient(${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -moz-linear-gradient(0, ${ccolor} ${bThickness}, transparent ${bThickness}),
+                            -moz-linear-gradient(${gcolor} ${gThickness}, transparent ${gThickness}),
+                            -moz-linear-gradient(0, ${gcolor} ${gThickness}, transparent ${gThickness}),
+                            linear-gradient(${ccolor} ${bThickness}, transparent ${bThickness}),
+                            linear-gradient(0, ${ccolor} ${bThickness}, transparent ${bThickness}),
+                            linear-gradient(${gcolor} ${gThickness}, transparent ${gThickness}),
+                            linear-gradient(0, ${gcolor} ${gThickness}, transparent ${gThickness})`
+                    }
+
+                    if(gsize.w > 0 && gsize.h > 0) {
+                        style.backgroundSize = `${style.backgroundSize}, ${gsize.w}px ${gsize.h}px, ${gsize.w}px ${gsize.h}px`
+                        style.backgroundPosition = `${style.backgroundPosition}, ${this.gridStyle.innerGrid.position}`
+                    }
+                }
+
+                // update properties object
+                style = { ...style, maxWidth: style.minWidth, maxHeight: style.minHeight }
+
+                // return the object to be used by Vue
+                return style
+            },
+            computePlaceholderStyle() {
+                return this.placeholderStyle;
             },
             pinnedLayout () {
                 return this.layout.filter((boxLayout) => {
@@ -223,7 +296,6 @@
             },
             enableDragging (box) {
                 var initialLayout
-                var start // of dragging item
                 var isDragging = false
 
                 let validateTargetPosition = (targetX, targetY) => {
@@ -253,7 +325,6 @@
                         return
                     }
                     isDragging = true
-                    start = boxLayout.position;
 
                     // find box
                     this.dragging.boxLayout = boxLayout
@@ -361,12 +432,10 @@
                     this.placeholder.hidden = true
                     isDragging = false
 
-                    let size = utils.getLayoutSize(newLayout);
+                    let newSize = utils.getLayoutSize(newLayout)
 
-                    console.log(size);
-
-                    if(!this.dynamicResize && (size.w > this.maxColumnCount || size.h > this.maxRowCount)) {
-                        newLayout = initialLayout; // revert
+                    if(!this.dynamicResize && (newSize.w > this.maxColumnCount || newSize.h > this.maxRowCount)) {
+                        newLayout = initialLayout // revert
                     }
 
                     this.updateLayout(newLayout)
@@ -503,13 +572,20 @@
                     if (this.bubbleUp) {
                         newLayout = utils.layoutBubbleUp(newLayout)
                     }
-                    this.updateLayout(newLayout)
 
                     this.resizing.boxLayout = null
                     this.resizing.offset.x = 0
                     this.resizing.offset.y = 0
 
                     this.placeholder.hidden = true
+
+                    let newSize = utils.getLayoutSize(newLayout)
+
+                    if(!this.dynamicResize && (newSize.w > this.maxColumnCount || newSize.h > this.maxRowCount)) {
+                        newLayout = initialLayout // revert
+                    }
+
+                    this.updateLayout(newLayout)
 
                     this.$emit('resize:end', newLayout)
                 })
