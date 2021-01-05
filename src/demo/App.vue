@@ -10,6 +10,7 @@
             :maxRowCount="maxRowCount"
             :margin="margin"
             :bubbleUp="bubbleUp"
+            :dynamicResize="false"
         >
             <dnd-grid-box
                 boxId="settings"
@@ -67,6 +68,24 @@
         width: 100%;
         height: 100%;
     }
+
+    .dnd-grid-container {
+        background-color: #269;
+        background-size: 105px 105px, 105px 105px;
+        background-position: -4px -4px, -4px -4px;
+        background-image: -webkit-linear-gradient(white 2px, transparent 2px),
+                        -webkit-linear-gradient(0, white 2px, transparent 2px),
+                        -webkit-linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
+                        -webkit-linear-gradient(0, rgba(255,255,255,.3) 1px, transparent 1px);
+        background-image: -moz-linear-gradient(white 2px, transparent 2px),
+                        -moz-linear-gradient(0, white 2px, transparent 2px),
+                        -moz-linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
+                        -moz-linear-gradient(0, rgba(255,255,255,.3) 1px, transparent 1px);
+        background-image: linear-gradient(white 2px, transparent 2px),
+                        linear-gradient(90deg, white 2px, transparent 2px),
+                        linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
+    }
 </style>
 
 <script>
@@ -85,7 +104,7 @@
                     h: 100
                 },
                 maxColumnCount: 10,
-                maxRowCount: Infinity,
+                maxRowCount: 5,
                 bubbleUp: false,
                 margin: 5,
                 boxCount: 4,

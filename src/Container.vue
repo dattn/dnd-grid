@@ -53,6 +53,10 @@
                     }
                 }
             },
+            dynamicResize: {
+                type: Boolean,
+                default: true
+            },
             maxColumnCount: {
                 type: Number,
                 default: Infinity
@@ -134,7 +138,13 @@
         computed: {
             style () {
                 var layoutSize = utils.getLayoutSize(this.layout)
-                return {
+
+                if(!this.dynamicResize) {
+                    layoutSize.w = this.maxColumnCount;
+                    layoutSize.h = this.maxRowCount;
+                }
+
+                var style = {
                     minWidth: (
                         (layoutSize.w * this.cellSize.w) +
                         ((layoutSize.w - 1) * this.margin) +
@@ -145,7 +155,11 @@
                         ((layoutSize.h - 1) * this.margin) +
                         (2 * this.outerMargin)
                     ) + 'px'
-                }
+                };
+
+                style = {...style, maxWidth: style.minWidth, maxHeight: style.minHeight };
+
+                return style;
             },
             pinnedLayout () {
                 return this.layout.filter((boxLayout) => {
@@ -209,6 +223,7 @@
             },
             enableDragging (box) {
                 var initialLayout
+                var start // of dragging item
                 var isDragging = false
 
                 let validateTargetPosition = (targetX, targetY) => {
@@ -238,6 +253,7 @@
                         return
                     }
                     isDragging = true
+                    start = boxLayout.position;
 
                     // find box
                     this.dragging.boxLayout = boxLayout
@@ -337,7 +353,6 @@
                     if (this.bubbleUp) {
                         newLayout = utils.layoutBubbleUp(newLayout)
                     }
-                    this.updateLayout(newLayout)
 
                     this.dragging.boxLayout = null
                     this.dragging.offset.x = 0
@@ -346,6 +361,15 @@
                     this.placeholder.hidden = true
                     isDragging = false
 
+                    let size = utils.getLayoutSize(newLayout);
+
+                    console.log(size);
+
+                    if(!this.dynamicResize && (size.w > this.maxColumnCount || size.h > this.maxRowCount)) {
+                        newLayout = initialLayout; // revert
+                    }
+
+                    this.updateLayout(newLayout)
                     this.$emit('drag:end', newLayout)
                 })
             },

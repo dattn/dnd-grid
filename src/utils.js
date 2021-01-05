@@ -47,6 +47,7 @@ export const bubbleUp = (layout, boxLayout) => {
 }
 
 // updates box position to a free place in a given layout
+// if `dynamicResize` is `false` revert to `start` position if moving would force a bubbleup resize side-effect
 export const moveBoxToFreePlace = (layout, boxLayout, doBubbleUp) => {
     if (doBubbleUp) {
         boxLayout = bubbleUp(layout, boxLayout)
@@ -56,6 +57,11 @@ export const moveBoxToFreePlace = (layout, boxLayout, doBubbleUp) => {
             y: boxLayout.position.y + 1
         })
     }
+
+    if(!layout.dynamicResize) {
+
+    }
+
     return boxLayout
 }
 
