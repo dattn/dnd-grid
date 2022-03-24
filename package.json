@@ -1,41 +1,38 @@
 {
-  "name": "@dattn/dnd-grid",
-  "version": "0.0.14",
-  "description": "A vuejs grid with draggable and resizable boxes",
-  "author": "Daniel Duton <daniel@duton.lu>",
-  "contributors": ["Jeffrey Ernst <ernst.j.c@gmail.com>"],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dattn/dnd-grid.git"
-  },
-  "main": "dist/dnd-grid.js",
-  "scripts": {
-    "dist": "poi build ./src/index.js --dist ./dist/ --prod --library",
-    "dist:demo": "poi build ./src/demo/index.js --dist ./demo/ --prod",
-    "build": "npm run dist -- --minimize 0",
-    "build:demo": "npm run dist:demo -- --minimize 0",
-    "start": "npm run dev",
-    "dev": "poi ./src/demo/index.js",
-    "lint": "eslint --ext .js,.vue src",
-    "prepublishOnly": "npm run build"
-  },
-  "files": [
-    "dist/"
-  ],
-  "keywords": [
-    "vue",
-    "component"
-  ],
-  "devDependencies": {
-    "babel-eslint": "^8.2.2",
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-html": "^4.0.2",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "poi": "^9.6.13"
-  }
+    "name": "@dattn/dnd-grid",
+    "version": "0.2.0",
+    "description": "A vuejs grid with draggable and resizable boxes",
+    "author": "Daniel Duton <daniel@duton.lu>",
+    "contributors": [
+        "Jeffrey Ernst <ernst.j.c@gmail.com>"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dattn/dnd-grid.git"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^2.2.0",
+        "vite": "^2.8.0",
+        "vue": "^3.2.25"
+    },
+    "peerDependencies": {
+        "vue": "^3.2.25"
+    },
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/dnd-grid.umd.js",
+    "module": "./dist/dnd-grid.es.js",
+    "exports": {
+        ".": {
+            "import": "./dist/dnd-grid.es.js",
+            "require": "./dist/dnd-grid.umd.js"
+        }
+    }
 }
