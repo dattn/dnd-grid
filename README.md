@@ -101,7 +101,7 @@
 // import Container and Box components
 import { Container, Box } from '@dattn/dnd-grid'
 // minimal css for the components to work properly
-import '@dattn/dnd-grid/dist/dnd-grid.css'
+import '@dattn/dnd-grid/dist/style.css'
 ```
 
 ### Setup component
