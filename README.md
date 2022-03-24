@@ -89,11 +89,11 @@
 
 ### Using pnpm, npm or yarn
 
-`pnpm i @dattn/dnd-grid`
+`pnpm i @dattn/dnd-grid@next`
 
-`npm i --save @dattn/dnd-grid`
+`npm i --save @dattn/dnd-grid@next`
 
-`yarn install @dattn/dnd-grid`
+`yarn install @dattn/dnd-grid@next`
 
 ### How to import (using ES6 import)
 
