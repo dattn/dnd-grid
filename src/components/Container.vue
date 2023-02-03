@@ -79,7 +79,9 @@ provide(ContainerSymbol, $$({
     layout: readonly(layout),
     mode: readonly(mode),
     computedCellSize: readonly(computedCellSize),
-    getBoxLayout
+    getBoxLayout,
+    startLayouting,
+    stopLayouting
 }))
 
 function getBoxLayout (id) {
@@ -96,6 +98,15 @@ function updateComputedCellSize () {
         }
     }
     return computedCellSize
+}
+
+function startLayouting () {
+    updateComputedCellSize()
+    mode = 'layouting'
+}
+
+function stopLayouting () {
+    mode = 'grid'
 }
 </script>
 
