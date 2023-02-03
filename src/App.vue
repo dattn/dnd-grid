@@ -170,19 +170,6 @@ let boxCount = $ref(4)
                                 >
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label
-                                for="settings-bubble-up-input"
-                                class="col-sm-4 col-form-label"
-                            >Bubble Up</label>
-                            <div class="col-sm-8">
-                                <input
-                                    id="settings-bubble-up-input"
-                                    v-model="bubbleUp"
-                                    type="checkbox"
-                                >
-                            </div>
-                        </div>
                         <button
                             class="btn btn-success"
                             @click="boxCount++"

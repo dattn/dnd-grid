@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup>
-import { provide, readonly } from 'vue'
+import { provide, readonly, onMounted } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
 
 const props = defineProps({
@@ -42,10 +42,9 @@ const props = defineProps({
 
 const { layout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing } = $(props)
 
-provide(ContainerSymbol, $$({
-    layout: readonly(layout),
-    getBoxLayout
-}))
+const containerEl = $ref()
+let computedCellSize = $ref()
+let mode = $ref('grid')
 
 const layoutMap = $computed(() => {
     let map = new Map()
@@ -76,13 +75,33 @@ const cssCellSpacing = $computed(() => {
     return isNaN(cellSpacing) ? cellSpacing : `${cellSpacing}px`
 })
 
+provide(ContainerSymbol, $$({
+    layout: readonly(layout),
+    mode: readonly(mode),
+    computedCellSize: readonly(computedCellSize),
+    getBoxLayout
+}))
+
 function getBoxLayout (id) {
     return layoutMap.get(id)
+}
+
+function updateComputedCellSize () {
+    if (containerEl) {
+        const style = getComputedStyle(containerEl)
+        computedCellSize = {
+            width: parseFloat(style.gridTemplateColumns),
+            height: parseFloat(style.gridTemplateRows),
+            spacing: parseFloat(style.gap)
+        }
+    }
+    return computedCellSize
 }
 </script>
 
 <template>
     <div
+        ref="containerEl"
         class="dnd-grid__container"
         :style="{
             '--dnd-grid-prop-cell-width': cssCellWidth,
@@ -100,6 +119,7 @@ function getBoxLayout (id) {
 .dnd-grid__container {
     all: unset;
     display: grid;
+    position: relative;
     grid-auto-columns: minmax(
         var(--dnd-grid-prop-cell-width, var(--dnd-grid-cell-width, 8em)),
         var(--dnd-grid-prop-cell-max-width, var(--dnd-grid-cell-max-width, 0))
