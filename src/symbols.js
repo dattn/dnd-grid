@@ -1,1 +1,1 @@
-export const ContainerSymbol = Symbol()
+export const ContainerSymbol = Symbol('DndGridContainer')

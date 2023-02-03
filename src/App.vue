@@ -1,38 +1,135 @@
-<template>
-    <div class="container-fluid">
-        <link
-            rel="stylesheet"
-            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-            integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-            crossorigin="anonymous"
-        />
-        <h1>DEMO dnd-grid Vue.js Component</h1>
+<script setup>
+import GridContainer from './components/Container.vue'
+import GridBox from './components/Box.vue'
 
-        <dnd-grid-container
+let cellWidth = $ref()
+let cellMaxWidth = $ref()
+let cellHeight = $ref()
+let cellMaxHeight = $ref()
+let cellSpacing = $ref()
+
+const cellWidthInput = $computed(createInputComputed($$(cellWidth)))
+const cellMaxWidthInput = $computed(createInputComputed($$(cellMaxWidth)))
+const cellHeightInput = $computed(createInputComputed($$(cellHeight)))
+const cellMaxHeightInput = $computed(createInputComputed($$(cellMaxHeight)))
+const cellSpacingInput = $computed(createInputComputed($$(cellSpacing)))
+
+function createInputComputed (targetRef) {
+    return {
+        get: () => targetRef.value,
+        set: value => {
+            targetRef.value = value === ''
+                ? undefined
+                : value
+        }
+    }
+}
+
+let layout = $ref([
+    {
+        id: 'settings',
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 0,
+            y: 0,
+            w: 4,
+            h: 3
+        }
+    },
+    {
+        id: 1,
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 4,
+            y: 0,
+            w: 2,
+            h: 1
+        }
+    },
+    {
+        id: 2,
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 6,
+            y: 0,
+            w: 1,
+            h: 2
+        }
+    },
+    {
+        id: 3,
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 4,
+            y: 1,
+            w: 2,
+            h: 3
+        }
+    },
+    {
+        id: 4,
+        hidden: false,
+        pinned: false,
+        position: {
+            x: 6,
+            y: 2,
+            w: 3,
+            h: 1
+        }
+    }
+])
+
+let boxCount = $ref(4)
+</script>
+
+<template>
+    <h1>DEMO dnd-grid Vue.js Component</h1>
+    <div class="card demo-container">
+        <GridContainer
             :layout="layout"
-            :cellSize="cellSize"
-            :maxColumnCount="maxColumnCount"
-            :maxRowCount="maxRowCount"
-            :margin="margin"
-            :bubbleUp="bubbleUp"
-            @update:layout="layout = $event"
+            :cell-width="cellWidth"
+            :cell-max-width="cellMaxWidth"
+            :cell-height="cellHeight"
+            :cell-max-height="cellMaxHeight"
+            :cell-spacing="cellSpacing"
         >
-            <dnd-grid-box boxId="settings" dragSelector="div.card-header">
+            <GridBox
+                v-for="num in boxCount"
+                :key="num"
+                :box-id="num"
+                drag-selector="div.card-header"
+            >
                 <div class="card demo-box">
-                    <div class="card-header">Settings</div>
+                    <div class="card-header">
+                        Box {{ num }}
+                    </div>
+                </div>
+            </GridBox>
+
+            <GridBox
+                box-id="settings"
+                drag-selector="div.card-header"
+            >
+                <div class="card demo-box">
+                    <div class="card-header">
+                        Settings
+                    </div>
                     <div class="card-body">
                         <div class="form-group row">
                             <label
                                 for="settings-margin-input"
                                 class="col-sm-4 col-form-label"
-                            >Margin</label>
+                            >Cell Spacing</label>
                             <div class="col-sm-8">
                                 <input
-                                    class="form-control"
-                                    type="number"
-                                    v-model.number="margin"
                                     id="settings-margin-input"
-                                />
+                                    v-model="cellSpacingInput"
+                                    class="form-control"
+                                >
                             </div>
                         </div>
                         <div class="form-group row">
@@ -42,18 +139,35 @@
                             >Cell Size</label>
                             <div class="col-sm-4">
                                 <input
-                                    class="form-control"
-                                    type="number"
-                                    v-model.number="cellSize.w"
                                     id="settings-grid-size-w-input"
-                                />
+                                    v-model="cellWidthInput"
+                                    class="form-control"
+                                >
                             </div>
                             <div class="col-sm-4">
                                 <input
+                                    v-model="cellHeightInput"
                                     class="form-control"
-                                    type="number"
-                                    v-model.number="cellSize.h"
-                                />
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label
+                                for="settings-grid-size-w-input"
+                                class="col-sm-4 col-form-label"
+                            >Max Cell Size</label>
+                            <div class="col-sm-4">
+                                <input
+                                    id="settings-grid-size-w-input"
+                                    v-model="cellMaxWidthInput"
+                                    class="form-control"
+                                >
+                            </div>
+                            <div class="col-sm-4">
+                                <input
+                                    v-model="cellMaxHeightInput"
+                                    class="form-control"
+                                >
                             </div>
                         </div>
                         <div class="form-group row">
@@ -63,134 +177,46 @@
                             >Bubble Up</label>
                             <div class="col-sm-8">
                                 <input
-                                    type="checkbox"
-                                    v-model="bubbleUp"
                                     id="settings-bubble-up-input"
-                                />
+                                    v-model="bubbleUp"
+                                    type="checkbox"
+                                >
                             </div>
                         </div>
-                        <button class="btn btn-success" @click="boxCount++">Add Box</button>
+                        <button
+                            class="btn btn-success"
+                            @click="boxCount++"
+                        >
+                            Add Box
+                        </button>
                         <button
                             class="btn btn-danger"
                             @click="boxCount = Math.max(0, boxCount - 1)"
-                        >Remove Box</button>
+                        >
+                            Remove Box
+                        </button>
                     </div>
                 </div>
-            </dnd-grid-box>
-            <dnd-grid-box
-                v-for="number in boxCount"
-                :boxId="number"
-                :key="number"
-                dragSelector="div.card-header"
-            >
-                <div class="card demo-box">
-                    <div class="card-header">Box {{ number }}</div>
-                </div>
-            </dnd-grid-box>
-        </dnd-grid-container>
+            </GridBox>
+        </GridContainer>
     </div>
 </template>
 
 <style>
+.demo-container {
+    margin: 1em;
+    padding: 1em;
+    min-width: min-content;
+    min-height: min-content;
+}
+
+.dnd-grid__container {
+    display: flex;
+}
+
 .demo-box {
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 </style>
-
-<script>
-import Container from './components/Container.vue'
-import Box from './components/Box.vue'
-
-export default {
-    components: {
-        DndGridContainer: Container,
-        DndGridBox: Box
-    },
-
-    data () {
-        return {
-            cellSize: {
-                w: 100,
-                h: 100
-            },
-            maxColumnCount: 10,
-            maxRowCount: Infinity,
-            bubbleUp: false,
-            margin: 5,
-            boxCount: 4,
-            layout: [
-                {
-                    id: 'settings',
-                    hidden: false,
-                    pinned: false,
-                    position: {
-                        x: 0,
-                        y: 0,
-                        w: 4,
-                        h: 3
-                    }
-                },
-                {
-                    id: 1,
-                    hidden: false,
-                    pinned: false,
-                    position: {
-                        x: 4,
-                        y: 0,
-                        w: 2,
-                        h: 1
-                    }
-                },
-                {
-                    id: 2,
-                    hidden: false,
-                    pinned: false,
-                    position: {
-                        x: 6,
-                        y: 0,
-                        w: 1,
-                        h: 2
-                    }
-                },
-                {
-                    id: 3,
-                    hidden: false,
-                    pinned: false,
-                    position: {
-                        x: 4,
-                        y: 1,
-                        w: 2,
-                        h: 3
-                    }
-                },
-                {
-                    id: 4,
-                    hidden: false,
-                    pinned: false,
-                    position: {
-                        x: 6,
-                        y: 2,
-                        w: 3,
-                        h: 1
-                    }
-                }
-            ]
-        }
-    },
-
-    computed: {
-        layoutWithoutSettings () {
-            return this.layout.filter((box) => {
-                return box.id !== 'settings'
-            })
-        }
-    },
-
-    methods: {
-        onLayoutUpdate (evt) {
-            this.layout = evt.layout
-        }
-    }
-}
-</script>

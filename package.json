@@ -1,38 +1,27 @@
 {
-    "name": "@dattn/dnd-grid",
-    "version": "0.2.0",
-    "description": "A vuejs grid with draggable and resizable boxes",
-    "author": "Daniel Duton <daniel@duton.lu>",
-    "contributors": [
-        "Jeffrey Ernst <ernst.j.c@gmail.com>"
-    ],
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/dattn/dnd-grid.git"
-    },
+    "name": "dnd-grid",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+        "preinstall": "npx only-allow pnpm"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^2.2.0",
-        "vite": "^2.8.0",
-        "vue": "^3.2.25"
+        "eslint": "^8.27.0",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-vue": "^9.7.0",
+        "@vitejs/plugin-vue": "^4.0.0",
+        "vite": "^4.0.0",
+        "vue": "^3.2.45"
     },
     "peerDependencies": {
-        "vue": "^3.2.25"
+        "vue": "^3.2.45"
     },
-    "files": [
-        "dist"
-    ],
-    "main": "./dist/dnd-grid.umd.js",
-    "module": "./dist/dnd-grid.es.js",
-    "exports": {
-        ".": {
-            "import": "./dist/dnd-grid.es.js",
-            "require": "./dist/dnd-grid.umd.js"
-        }
+    "volta": {
+        "node": "18.12.0"
     }
 }
