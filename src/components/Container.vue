@@ -5,13 +5,16 @@ export default {
 </script>
 
 <script setup>
-import { provide, readonly, onMounted } from 'vue'
+import { provide, readonly, useCssModule } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
+import * as Layout from '../utils/Layout.js'
+import * as Box from '../utils/Box.js'
+import * as Position from '../utils/Position.js'
 
 const props = defineProps({
     layout: {
-        type: Object,
-        default: () => ({})
+        type: Array,
+        default: () => []
     },
 
     cellWidth: {
@@ -37,22 +40,26 @@ const props = defineProps({
     cellSpacing: {
         type: [Number, String],
         default: null
+    },
+
+    bubbleUp: {
+        type: Boolean,
+        default: false
     }
 })
 
-const { layout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing } = $(props)
+const emit = defineEmits('update:layout')
+
+const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp } = $(props)
+
+const $style = useCssModule()
 
 const containerEl = $ref()
 let computedCellSize = $ref()
 let mode = $ref('grid')
+let layout = $ref([])
 
-const layoutMap = $computed(() => {
-    let map = new Map()
-    layout.forEach(boxLayout => {
-        map.set(boxLayout.id, boxLayout)
-    })
-    return map
-})
+const activeLayout = $computed(() => mode === 'layouting' ? layout : externalLayout)
 
 const cssCellWidth = $computed(() => {
     if (cellWidth == undefined) return
@@ -76,17 +83,14 @@ const cssCellSpacing = $computed(() => {
 })
 
 provide(ContainerSymbol, $$({
-    layout: readonly(layout),
+    layout: readonly(activeLayout),
     mode: readonly(mode),
     computedCellSize: readonly(computedCellSize),
-    getBoxLayout,
     startLayouting,
-    stopLayouting
+    stopLayouting,
+    getBox,
+    updateBox
 }))
-
-function getBoxLayout (id) {
-    return layoutMap.get(id)
-}
 
 function updateComputedCellSize () {
     if (containerEl) {
@@ -102,18 +106,45 @@ function updateComputedCellSize () {
 
 function startLayouting () {
     updateComputedCellSize()
+    layout = externalLayout
     mode = 'layouting'
 }
 
 function stopLayouting () {
+    emit('update:layout', layout)
     mode = 'grid'
+}
+
+function getBox (id) {
+    const box = Layout.getBox(activeLayout, id)
+    if (box) return box
+    const newBox = Box.moveToFreePlace(activeLayout, Box.create(id))
+    layout = Layout.addOrReplaceBox(activeLayout, newBox)
+    return newBox
+}
+
+function updateBox (box) {
+    if (!Position.isFree(externalLayout, box.position, box => box.static)) return // cannot overlap static boxes
+
+    let newLayout = [box]
+    externalLayout.forEach(_box => {
+        if (_box.id === box.id) return
+        newLayout.push(Box.moveToFreePlace(newLayout, _box))
+    })
+    if (bubbleUp) {
+        newLayout = Layout.bubbleUp(newLayout)
+    }
+    layout = newLayout
 }
 </script>
 
 <template>
     <div
         ref="containerEl"
-        class="dnd-grid__container"
+        :class="{
+            [$style.container]: true,
+            [$style['mode-' + mode]]: true,
+        }"
         :style="{
             '--dnd-grid-prop-cell-width': cssCellWidth,
             '--dnd-grid-prop-cell-max-width': cssCellMaxWidth,
@@ -126,9 +157,12 @@ function stopLayouting () {
     </div>
 </template>
 
-<style scoped>
-.dnd-grid__container {
+<style module>
+:where(.container) {
     all: unset;
+}
+
+.container {
     display: grid;
     position: relative;
     grid-auto-columns: minmax(
@@ -143,5 +177,12 @@ function stopLayouting () {
     min-width: min-content;
     min-height: min-content;
     transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
+}
+
+.mode-grid {
+
+}
+.mode-layouting {
+
 }
 </style>

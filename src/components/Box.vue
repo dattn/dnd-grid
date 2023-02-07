@@ -6,7 +6,8 @@ export default {
 
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
-import { inject, onBeforeUnmount } from 'vue'
+import { inject, onBeforeUnmount, useCssModule } from 'vue'
+import { updatePosition } from '../utils/Box.js'
 
 const props = defineProps({
     boxId: {
@@ -17,29 +18,34 @@ const props = defineProps({
 
 const { boxId } = $(props)
 
-const { getBoxLayout, computedCellSize, mode, startLayouting, stopLayouting } = $(inject(ContainerSymbol))
+const $style = useCssModule()
+
+const { getBox, updateBox, computedCellSize, startLayouting, stopLayouting } = $(inject(ContainerSymbol))
 
 const absoluteWrapperEl = $ref()
 const boxEl = $ref()
 let isMoving = $ref(false)
 
-const layout = $computed(() => getBoxLayout(boxId))
-const visible = $computed(() => layout && !layout.hidden)
+const box = $computed(() => getBox(boxId))
+const visible = $computed(() => box && !box.hidden)
 
 // grid mode
-const cssColumn = $computed(() => (layout?.position?.x ?? 0) + 1)
-const cssColumnSpan = $computed(() => layout?.position?.w ?? 1)
-const cssRow = $computed(() => (layout?.position?.y ?? 0) + 1)
-const cssRowSpan = $computed(() => layout?.position?.h ?? 1)
+const cssColumn = $computed(() => (box?.position?.x ?? 0) + 1)
+const cssColumnSpan = $computed(() => box?.position?.w ?? 1)
+const cssRow = $computed(() => (box?.position?.y ?? 0) + 1)
+const cssRowSpan = $computed(() => box?.position?.h ?? 1)
 
 // layouting mode
-const cssX = $computed(() => `${layout?.position?.x * (computedCellSize?.width + computedCellSize?.spacing)}px`)
-const cssY = $computed(() => `${layout?.position?.y * (computedCellSize?.height + computedCellSize?.spacing)}px`)
-const cssWidth = $computed(() => `${(layout?.position?.w * (computedCellSize?.width + computedCellSize?.spacing)) - computedCellSize?.spacing}px`)
-const cssHeight = $computed(() => `${(layout?.position?.h * (computedCellSize?.height + computedCellSize?.spacing)) - computedCellSize?.spacing}px`)
+const cssX = $computed(() => `${box?.position?.x * (computedCellSize?.width + computedCellSize?.spacing)}px`)
+const cssY = $computed(() => `${box?.position?.y * (computedCellSize?.height + computedCellSize?.spacing)}px`)
+const cssWidth = $computed(() => `${(box?.position?.w * (computedCellSize?.width + computedCellSize?.spacing)) - computedCellSize?.spacing}px`)
+const cssHeight = $computed(() => `${(box?.position?.h * (computedCellSize?.height + computedCellSize?.spacing)) - computedCellSize?.spacing}px`)
 
 let moveStartX
 let moveStartY
+let cssMovingX
+let cssMovingY
+let startBox
 
 function startMoving (evt) {
     if (isMoving) return
@@ -49,6 +55,9 @@ function startMoving (evt) {
 
     moveStartX = evt.clientX
     moveStartY = evt.clientY
+    cssMovingX = cssX
+    cssMovingY = cssY
+    startBox = box
 
     window.addEventListener('mouseup', stopMoving, { capture: true, passive: true, once: true })
     window.addEventListener('mousemove', onMove, { capture: true, passive: true })
@@ -68,8 +77,21 @@ function stopMoving () {
 }
 
 function onMove (evt) {
-    absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-x', `${evt.clientX - moveStartX}px`)
-    absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-y', `${evt.clientY - moveStartY}px`)
+    const offsetX = evt.clientX - moveStartX
+    const offsetY = evt.clientY - moveStartY
+
+    absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
+    absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
+
+    const targetX = startBox.position.x + Math.round(offsetX / (computedCellSize?.width + computedCellSize?.spacing))
+    const targetY = startBox.position.y + Math.round(offsetY / (computedCellSize?.height + computedCellSize?.spacing))
+
+    if (box.position.x !== targetX || box.position.y !== targetY) {
+        updateBox(updatePosition(box, {
+            x: targetX,
+            y: targetY
+        }))
+    }
 }
 
 onBeforeUnmount(() => {
@@ -81,39 +103,40 @@ onBeforeUnmount(() => {
     <div
         v-if="visible"
         ref="boxEl"
-        class="dnd-grid__box"
         :class="{
-            [`dnd-grid__box__mode-${mode}`]: true,
-            'dnd-grid__box__moving': isMoving
+            [$style.box]: true,
+            [$style.moving]: isMoving
         }"
         @mousedown.capture.passive="startMoving"
     >
         <div
             ref="absoluteWrapperEl"
-            class="dnd-grid__box__absolute-wrapper"
+            :class="$style.absoluteWrapper"
         >
             <slot />
         </div>
         <div
             v-if="isMoving"
-            class="dnd-grid__box__layouting-result"
+            :class="$style.layoutingResult"
         />
     </div>
 </template>
 
-<style scoped>
-.dnd-grid__box {
+<style module>
+:where(.box) {
     all: unset;
+}
+
+.box {
     grid-column: v-bind(cssColumn) / span v-bind(cssColumnSpan);
     grid-row: v-bind(cssRow) / span v-bind(cssRowSpan);
 }
 
-.dnd-grid__box.dnd-grid__box__mode-grid > .dnd-grid__box__absolute-wrapper {
+.mode-grid .box > .absoluteWrapper {
     display: contents;
 }
 
-.dnd-grid__box.dnd-grid__box__mode-layouting > .dnd-grid__box__absolute-wrapper,
-.dnd-grid__box.dnd-grid__box__mode-layouting > .dnd-grid__box__layouting-result {
+.mode-layouting .box > :is(.absoluteWrapper, .layoutingResult) {
     position: absolute;
     left: v-bind(cssX);
     top: v-bind(cssY);
@@ -121,16 +144,23 @@ onBeforeUnmount(() => {
     height: v-bind(cssHeight);
 }
 
-.dnd-grid__box.dnd-grid__box__mode-layouting > .dnd-grid__box__absolute-wrapper {
+.mode-layouting .box.moving  > .absoluteWrapper {
+    left: v-bind(cssMovingX);
+    top: v-bind(cssMovingY);
     transform: translate(var(--dnd-grid-box-offset-x, 0), var(--dnd-grid-box-offset-y, 0));
 }
 
-.dnd-grid__box.dnd-grid__box__mode-layouting > .dnd-grid__box__layouting-result {
-    background-color: #F003;
+.mode-layouting .box > .layoutingResult {
+    background-color: #F001;
 }
 
-.dnd-grid__box.dnd-grid__box__moving > .dnd-grid__box__absolute-wrapper {
+.mode-layouting .box > .absoluteWrapper {
     user-select: none;
     z-index: 9999;
+}
+
+.mode-layouting .box:not(.moving) > .absoluteWrapper,
+.mode-layouting .box > .layoutingResult {
+    transition: left ease-out 0.1s, top ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
 }
 </style>

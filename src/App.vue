@@ -90,7 +90,7 @@ let boxCount = $ref(4)
     <h1>DEMO dnd-grid Vue.js Component</h1>
     <div class="card demo-container">
         <GridContainer
-            :layout="layout"
+            v-model:layout="layout"
             :cell-width="cellWidth"
             :cell-max-width="cellMaxWidth"
             :cell-height="cellHeight"
@@ -195,10 +195,6 @@ let boxCount = $ref(4)
     padding: 1em;
     min-width: min-content;
     min-height: min-content;
-}
-
-.dnd-grid__container {
-    display: flex;
 }
 
 .demo-box {
