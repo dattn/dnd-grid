@@ -8,6 +8,7 @@ export default {
 import { ContainerSymbol } from '../symbols.js'
 import { inject, onBeforeUnmount, useCssModule } from 'vue'
 import { updatePosition } from '../utils/Box.js'
+import { toPixels as positionToPixels } from '../utils/Position.js'
 
 const props = defineProps({
     boxId: {
@@ -30,22 +31,31 @@ const box = $computed(() => getBox(boxId))
 const visible = $computed(() => box && !box.hidden)
 
 // grid mode
-const cssColumn = $computed(() => (box?.position?.x ?? 0) + 1)
-const cssColumnSpan = $computed(() => box?.position?.w ?? 1)
-const cssRow = $computed(() => (box?.position?.y ?? 0) + 1)
-const cssRowSpan = $computed(() => box?.position?.h ?? 1)
+const position = $computed(() => box?.position)
+const cssColumn = $computed(() => position == undefined ? undefined : position.x + 1)
+const cssColumnSpan = $computed(() => position == undefined ? undefined : position.w)
+const cssRow = $computed(() => position == undefined ? undefined : position.y + 1)
+const cssRowSpan = $computed(() => position == undefined ? undefined : position.h)
 
 // layouting mode
-const cssX = $computed(() => `${box?.position?.x * (computedCellSize?.width + computedCellSize?.spacing)}px`)
-const cssY = $computed(() => `${box?.position?.y * (computedCellSize?.height + computedCellSize?.spacing)}px`)
-const cssWidth = $computed(() => `${(box?.position?.w * (computedCellSize?.width + computedCellSize?.spacing)) - computedCellSize?.spacing}px`)
-const cssHeight = $computed(() => `${(box?.position?.h * (computedCellSize?.height + computedCellSize?.spacing)) - computedCellSize?.spacing}px`)
+const pixels = $computed(() => {
+    if (!position || !computedCellSize) return
+    return positionToPixels(
+        box.position,
+        computedCellSize.width,
+        computedCellSize.height,
+        computedCellSize.spacing
+    )
+})
+const cssX = $computed(() => pixels == undefined ? undefined : `${pixels.x}px`)
+const cssY = $computed(() => pixels == undefined ? undefined : `${pixels.y}px`)
+const cssWidth = $computed(() => pixels == undefined ? undefined : `${pixels.w}px`)
+const cssHeight = $computed(() => pixels == undefined ? undefined : `${pixels.h}px`)
 
-let moveStartX
-let moveStartY
 let cssMovingX
 let cssMovingY
-let startBox
+let startEvent
+let startPosition
 
 function startMoving (evt) {
     if (isMoving) return
@@ -53,11 +63,10 @@ function startMoving (evt) {
 
     startLayouting()
 
-    moveStartX = evt.clientX
-    moveStartY = evt.clientY
     cssMovingX = cssX
     cssMovingY = cssY
-    startBox = box
+    startEvent = evt
+    startPosition = position
 
     window.addEventListener('mouseup', stopMoving, { capture: true, passive: true, once: true })
     window.addEventListener('mousemove', onMove, { capture: true, passive: true })
@@ -77,14 +86,14 @@ function stopMoving () {
 }
 
 function onMove (evt) {
-    const offsetX = evt.clientX - moveStartX
-    const offsetY = evt.clientY - moveStartY
+    const offsetX = evt.clientX - startEvent.clientX
+    const offsetY = evt.clientY - startEvent.clientY
 
     absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
     absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
 
-    const targetX = startBox.position.x + Math.round(offsetX / (computedCellSize?.width + computedCellSize?.spacing))
-    const targetY = startBox.position.y + Math.round(offsetY / (computedCellSize?.height + computedCellSize?.spacing))
+    const targetX = startPosition.x + Math.round(offsetX / (computedCellSize?.width + computedCellSize?.spacing))
+    const targetY = startPosition.y + Math.round(offsetY / (computedCellSize?.height + computedCellSize?.spacing))
 
     if (box.position.x !== targetX || box.position.y !== targetY) {
         updateBox(updatePosition(box, {
@@ -107,7 +116,7 @@ onBeforeUnmount(() => {
             [$style.box]: true,
             [$style.moving]: isMoving
         }"
-        @mousedown.capture.passive="startMoving"
+        @mousedown.passive="startMoving"
     >
         <div
             ref="absoluteWrapperEl"

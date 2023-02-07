@@ -19,10 +19,24 @@ export function isFree (layout, position, filter = () => true) {
 
 // get box position in pixels
 export function toPixels (position, cellWidth, cellHeight, spacing = 0) {
+    const cellWidthWithSpacing = cellWidth + spacing
+    const cellHeightWithSpacing = cellHeight + spacing
     return {
-        x: (position.x * cellWidth) + ((position.x) * spacing),
-        y: (position.y * cellHeight) + ((position.y) * spacing),
-        w: (position.w * cellWidth) + ((position.w - 1) * spacing),
-        h: (position.h * cellHeight) + ((position.h - 1) * spacing)
+        x: position.x * cellWidthWithSpacing,
+        y: position.y * cellHeightWithSpacing,
+        w: (position.w * cellWidthWithSpacing) - spacing,
+        h: (position.h * cellHeightWithSpacing) - spacing
+    }
+}
+
+// get box position from pixels
+export function fromPixels (pixels, cellWidth, cellHeight, spacing = 0) {
+    const cellWidthWithSpacing = cellWidth + spacing
+    const cellHeightWithSpacing = cellHeight + spacing
+    return {
+        x: Math.floor(pixels.x / cellWidthWithSpacing),
+        y: Math.floor(pixels.y / cellHeightWithSpacing),
+        w: Math.floor((pixels.w + spacing) / cellWidthWithSpacing),
+        h: Math.floor((pixels.h + spacing) / cellHeightWithSpacing)
     }
 }
