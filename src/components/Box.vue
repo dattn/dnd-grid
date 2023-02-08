@@ -120,11 +120,15 @@ const onDragStart = useMouseHandler({
     grid-row: v-bind(cssRow) / span v-bind(cssRowSpan);
 }
 
-.mode-grid .box > .absoluteWrapper {
+.mode-grid .absoluteWrapper {
     display: contents;
 }
 
-.mode-layouting .box > :is(.absoluteWrapper, .layoutingResult) {
+.mode-layouting .box {
+    user-select: none;
+}
+
+.mode-layouting :is(.absoluteWrapper, .layoutingResult) {
     position: absolute;
     left: v-bind(cssX);
     top: v-bind(cssY);
@@ -132,23 +136,22 @@ const onDragStart = useMouseHandler({
     height: v-bind(cssHeight);
 }
 
-.mode-layouting .box.dragging  > .absoluteWrapper {
+.mode-layouting .dragging  > .absoluteWrapper {
     left: v-bind(cssDragX);
     top: v-bind(cssDragY);
     transform: translate(var(--dnd-grid-box-offset-x, 0), var(--dnd-grid-box-offset-y, 0));
 }
 
-.mode-layouting .box > .layoutingResult {
+.mode-layouting .layoutingResult {
     background-color: #F001;
 }
 
-.mode-layouting .box > .absoluteWrapper {
-    user-select: none;
+.mode-layouting .dragging .absoluteWrapper {
     z-index: 9999;
 }
 
 .mode-layouting .box:not(.dragging) > .absoluteWrapper,
-.mode-layouting .box > .layoutingResult {
+.mode-layouting .layoutingResult {
     transition: left ease-out 0.1s, top ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
 }
 </style>
