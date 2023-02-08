@@ -116,27 +116,25 @@ const onResizeStart = useMouseHandler({
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
     },
     update: function onResizeUpdate ({ offsetX, offsetY }) {
-        switch (resizeMode?.[0] || 'b') {
+        switch (resizeMode?.[0]) {
             case 't': // top
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${-offsetY}px`)
                 break
 
             case 'b': // bottom
-            default:
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', '0px')
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetY}px`)
                 break
         }
 
-        switch (resizeMode?.[1] || 'r') {
+        switch (resizeMode?.[1]) {
             case 'l': // left
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${-offsetX}px`)
                 break
 
             case 'r': // right
-            default:
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', '0px')
                 slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetX}px`)
                 break
@@ -154,26 +152,24 @@ const onResizeStart = useMouseHandler({
             h: targetH
         } = startResizePosition
 
-        switch (resizeMode?.[0] || 'b') {
+        switch (resizeMode?.[0]) {
             case 't': // top
                 targetY += h
                 targetH -= h
                 break
 
             case 'b': // bottom
-            default:
                 targetH += h
                 break
         }
 
-        switch (resizeMode?.[1] || 'r') {
+        switch (resizeMode?.[1]) {
             case 'l': // left
                 targetX += w
                 targetW -= w
                 break
 
             case 'r': // right
-            default:
                 targetW += w
                 break
         }
@@ -213,6 +209,22 @@ const onResizeStart = useMouseHandler({
             <slot />
         </div>
         <div :class="$style.resizeHandleContainer">
+            <div
+                data-resize="t-"
+                @mousedown.self.stop="onResizeStart"
+            />
+            <div
+                data-resize="-r"
+                @mousedown.self.stop="onResizeStart"
+            />
+            <div
+                data-resize="b-"
+                @mousedown.self.stop="onResizeStart"
+            />
+            <div
+                data-resize="-l"
+                @mousedown.self.stop="onResizeStart"
+            />
             <div
                 data-resize="tl"
                 @mousedown.self.stop="onResizeStart"
@@ -309,6 +321,34 @@ const onResizeStart = useMouseHandler({
     width: var(--dnd-grid-resize-handler-size);
     height: var(--dnd-grid-resize-handler-size);
     z-index: 9999;
+}
+
+.resizeHandleContainer > [data-resize=t-] {
+    top: var(--dnd-grid-resize-handler-offset);
+    left: 0px;
+    width: 100%;
+    cursor: ns-resize;
+}
+
+.resizeHandleContainer > [data-resize=-r] {
+    top: 0px;
+    right: var(--dnd-grid-resize-handler-offset);
+    height: 100%;
+    cursor: ew-resize;
+}
+
+.resizeHandleContainer > [data-resize=b-] {
+    bottom: var(--dnd-grid-resize-handler-offset);
+    left: 0px;
+    width: 100%;
+    cursor: ns-resize;
+}
+
+.resizeHandleContainer > [data-resize=-l] {
+    top: 0px;
+    left: var(--dnd-grid-resize-handler-offset);
+    height: 100%;
+    cursor: ew-resize;
 }
 
 .resizeHandleContainer > [data-resize=tl] {
