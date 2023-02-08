@@ -91,13 +91,19 @@ const onDragStart = useMouseHandler({
     }
 })
 
+let cssResizeX = $ref()
+let cssResizeY = $ref()
 let cssResizeWidth = $ref()
 let cssResizeHeight = $ref()
 let startResizePosition
 let isResizing = $ref(false)
+let resizeMode
 const onResizeStart = useMouseHandler({
-    start: function onResizeStart () {
+    start: function onResizeStart (_, evt) {
         startLayouting()
+        resizeMode = evt?.target?.dataset?.resize || 'br'
+        cssResizeX = cssX
+        cssResizeY = cssY
         cssResizeWidth = cssWidth
         cssResizeHeight = cssHeight
         startResizePosition = position
@@ -110,19 +116,77 @@ const onResizeStart = useMouseHandler({
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
     },
     update: function onResizeUpdate ({ offsetX, offsetY }) {
-        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetX}px`)
-        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetY}px`)
+        switch (resizeMode?.[0] || 'b') {
+            case 't': // top
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${-offsetY}px`)
+                break
+
+            case 'b': // bottom
+            default:
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', '0px')
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetY}px`)
+                break
+        }
+
+        switch (resizeMode?.[1] || 'r') {
+            case 'l': // left
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${-offsetX}px`)
+                break
+
+            case 'r': // right
+            default:
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', '0px')
+                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetX}px`)
+                break
+        }
 
         const { w, h } = positionFromPixels({
             w: offsetX + (computedCellSize.width / 2), // add half cell width for better box placement
             h: offsetY + (computedCellSize.height / 2) // add half cell height for better box placement
         }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
 
-        const targetW = startResizePosition.w + w
-        const targetH = startResizePosition.h + h
+        let {
+            x: targetX,
+            y: targetY,
+            w: targetW,
+            h: targetH
+        } = startResizePosition
 
-        if (box.position.w !== targetW || box.position.h !== targetH) {
+        switch (resizeMode?.[0] || 'b') {
+            case 't': // top
+                targetY += h
+                targetH -= h
+                break
+
+            case 'b': // bottom
+            default:
+                targetH += h
+                break
+        }
+
+        switch (resizeMode?.[1] || 'r') {
+            case 'l': // left
+                targetX += w
+                targetW -= w
+                break
+
+            case 'r': // right
+            default:
+                targetW += w
+                break
+        }
+
+        if (
+            box.position.w !== targetW ||
+            box.position.h !== targetH ||
+            box.position.w !== targetW ||
+            box.position.h !== targetH
+        ) {
             updateBox(updatePosition(box, {
+                x: targetX,
+                y: targetY,
                 w: targetW,
                 h: targetH
             }))
@@ -150,19 +214,19 @@ const onResizeStart = useMouseHandler({
         </div>
         <div :class="$style.resizeHandleContainer">
             <div
-                :class="$style['resize-tl']"
+                data-resize="tl"
                 @mousedown.self.stop="onResizeStart"
             />
             <div
-                :class="$style['resize-tr']"
+                data-resize="tr"
                 @mousedown.self.stop="onResizeStart"
             />
             <div
-                :class="$style['resize-br']"
+                data-resize="br"
                 @mousedown.self.stop="onResizeStart"
             />
             <div
-                :class="$style['resize-bl']"
+                data-resize="bl"
                 @mousedown.self.stop="onResizeStart"
             />
         </div>
@@ -201,22 +265,24 @@ const onResizeStart = useMouseHandler({
 }
 
 .mode-layouting .dragging  > .slotContainer {
-    left: v-bind(cssDragX);
-    top: v-bind(cssDragY);
-    transform: translate(var(--dnd-grid-box-offset-x, 0px), var(--dnd-grid-box-offset-y, 0px));
+    left: calc(v-bind(cssDragX) + var(--dnd-grid-box-offset-x, 0px));
+    top: calc(v-bind(cssDragY) + var(--dnd-grid-box-offset-y, 0px));
 }
 
 .mode-layouting .resizing  > .slotContainer {
+    left: calc(v-bind(cssResizeX) + var(--dnd-grid-box-offset-x, 0px));
+    top: calc(v-bind(cssResizeY) + var(--dnd-grid-box-offset-y, 0px));
     width: calc(v-bind(cssResizeWidth) + var(--dnd-grid-box-offset-width, 0px));
     height: calc(v-bind(cssResizeHeight) + var(--dnd-grid-box-offset-height, 0px));
 }
 
 .mode-layouting .placeholder {
-    background-color: #F001;
+    background-color: #F002;
 }
 
 .mode-layouting :is(.dragging, .resizing) .slotContainer {
     z-index: 9999;
+    opacity: 0.6;
 }
 
 .mode-layouting .box:not(.dragging):not(.resizing) > .slotContainer,
@@ -234,36 +300,38 @@ const onResizeStart = useMouseHandler({
     width: 100%;
     height: 100%;
     position: relative;
+    --dnd-grid-resize-handler-size: 10px;
+    --dnd-grid-resize-handler-offset: calc(var(--dnd-grid-resize-handler-size) / -2);
 }
 
 .resizeHandleContainer > * {
     position: absolute;
-    width: 10px;
-    height: 10px;
-    z-index: 999999;
+    width: var(--dnd-grid-resize-handler-size);
+    height: var(--dnd-grid-resize-handler-size);
+    z-index: 9999;
 }
 
-.resize-tl {
-    top: -5px;
-    left: -5px;
+.resizeHandleContainer > [data-resize=tl] {
+    top: var(--dnd-grid-resize-handler-offset);
+    left: var(--dnd-grid-resize-handler-offset);
     cursor: nwse-resize;
 }
 
-.resize-tr {
-    top: -5px;
-    right: -5px;
+.resizeHandleContainer > [data-resize=tr] {
+    top: var(--dnd-grid-resize-handler-offset);
+    right: var(--dnd-grid-resize-handler-offset);
     cursor: nesw-resize;
 }
 
-.resize-br {
-    bottom: -5px;
-    right: -5px;
+.resizeHandleContainer > [data-resize=br] {
+    bottom: var(--dnd-grid-resize-handler-offset);
+    right: var(--dnd-grid-resize-handler-offset);
     cursor: nwse-resize;
 }
 
-.resize-bl {
-    bottom: -5px;
-    left: -5px;
+.resizeHandleContainer > [data-resize=bl] {
+    bottom: var(--dnd-grid-resize-handler-offset);
+    left: var(--dnd-grid-resize-handler-offset);
     cursor: nesw-resize;
 }
 </style>

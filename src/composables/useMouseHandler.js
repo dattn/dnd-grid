@@ -13,7 +13,7 @@ export default function useMouseHandler (callbacks = {}) {
             offsetY = evt.clientY - startY
         }
 
-        callbacks[type]?.({ startX, startY, offsetX, offsetY })
+        callbacks[type]?.({ startX, startY, offsetX, offsetY }, evt)
     }
 
     function onStart (evt) {
