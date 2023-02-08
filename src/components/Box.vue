@@ -8,7 +8,7 @@ export default {
 import { ContainerSymbol } from '../symbols.js'
 import { inject, useCssModule } from 'vue'
 import { updatePosition } from '../utils/Box.js'
-import { toPixels as positionToPixels } from '../utils/Position.js'
+import { toPixels as positionToPixels, fromPixels as positionFromPixels } from '../utils/Position.js'
 import useMouseHandler from '../composables/useMouseHandler.js'
 
 const props = defineProps({
@@ -24,7 +24,7 @@ const $style = useCssModule()
 
 const { getBox, updateBox, computedCellSize, startLayouting, stopLayouting } = $(inject(ContainerSymbol))
 
-const absoluteWrapperEl = $ref()
+const slotContainerEl = $ref()
 const boxEl = $ref()
 
 const box = $computed(() => getBox(boxId))
@@ -67,20 +67,64 @@ const onDragStart = useMouseHandler({
     stop: function onDragStop () {
         stopLayouting()
         isDragging = false
-        absoluteWrapperEl?.style?.removeProperty('--dnd-grid-box-offset-x')
-        absoluteWrapperEl?.style?.removeProperty('--dnd-grid-box-offset-y')
+        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-x')
+        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-y')
     },
     update: function onDragUpdate ({ offsetX, offsetY }) {
-        absoluteWrapperEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
-        absoluteWrapperEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
+        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
+        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
 
-        const targetX = startDragPosition.x + Math.round(offsetX / (computedCellSize?.width + computedCellSize?.spacing))
-        const targetY = startDragPosition.y + Math.round(offsetY / (computedCellSize?.height + computedCellSize?.spacing))
+        const { x, y } = positionFromPixels({
+            x: offsetX + (computedCellSize.width / 2), // add half cell width for better box placement
+            y: offsetY + (computedCellSize.height / 2) // add half cell height for better box placement
+        }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
+
+        const targetX = startDragPosition.x + x
+        const targetY = startDragPosition.y + y
 
         if (box.position.x !== targetX || box.position.y !== targetY) {
             updateBox(updatePosition(box, {
                 x: targetX,
                 y: targetY
+            }))
+        }
+    }
+})
+
+let cssResizeWidth = $ref()
+let cssResizeHeight = $ref()
+let startResizePosition
+let isResizing = $ref(false)
+const onResizeStart = useMouseHandler({
+    start: function onResizeStart () {
+        startLayouting()
+        cssResizeWidth = cssWidth
+        cssResizeHeight = cssHeight
+        startResizePosition = position
+        isResizing = true
+    },
+    stop: function onResizeStop () {
+        stopLayouting()
+        isResizing = false
+        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-width')
+        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
+    },
+    update: function onResizeUpdate ({ offsetX, offsetY }) {
+        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetX}px`)
+        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetY}px`)
+
+        const { w, h } = positionFromPixels({
+            w: offsetX + (computedCellSize.width / 2), // add half cell width for better box placement
+            h: offsetY + (computedCellSize.height / 2) // add half cell height for better box placement
+        }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
+
+        const targetW = startResizePosition.w + w
+        const targetH = startResizePosition.h + h
+
+        if (box.position.w !== targetW || box.position.h !== targetH) {
+            updateBox(updatePosition(box, {
+                w: targetW,
+                h: targetH
             }))
         }
     }
@@ -93,19 +137,38 @@ const onDragStart = useMouseHandler({
         ref="boxEl"
         :class="{
             [$style.box]: true,
-            [$style.dragging]: isDragging
+            [$style.dragging]: isDragging,
+            [$style.resizing]: isResizing
         }"
-        @mousedown.passive="onDragStart"
+        @mousedown.stop="onDragStart"
     >
         <div
-            ref="absoluteWrapperEl"
-            :class="$style.absoluteWrapper"
+            ref="slotContainerEl"
+            :class="$style.slotContainer"
         >
             <slot />
         </div>
+        <div :class="$style.resizeHandleContainer">
+            <div
+                :class="$style['resize-tl']"
+                @mousedown.self.stop="onResizeStart"
+            />
+            <div
+                :class="$style['resize-tr']"
+                @mousedown.self.stop="onResizeStart"
+            />
+            <div
+                :class="$style['resize-br']"
+                @mousedown.self.stop="onResizeStart"
+            />
+            <div
+                :class="$style['resize-bl']"
+                @mousedown.self.stop="onResizeStart"
+            />
+        </div>
         <div
-            v-if="isDragging"
-            :class="$style.layoutingResult"
+            v-if="isDragging || isResizing"
+            :class="$style.placeholder"
         />
     </div>
 </template>
@@ -118,17 +181,18 @@ const onDragStart = useMouseHandler({
 .box {
     grid-column: v-bind(cssColumn) / span v-bind(cssColumnSpan);
     grid-row: v-bind(cssRow) / span v-bind(cssRowSpan);
+    display: grid;
 }
 
-.mode-grid .absoluteWrapper {
-    display: contents;
+.box > * {
+    grid-column: 1;
+    grid-row: 1;
 }
-
 .mode-layouting .box {
     user-select: none;
 }
 
-.mode-layouting :is(.absoluteWrapper, .layoutingResult) {
+.mode-layouting :is(.slotContainer, .placeholder) {
     position: absolute;
     left: v-bind(cssX);
     top: v-bind(cssY);
@@ -136,22 +200,70 @@ const onDragStart = useMouseHandler({
     height: v-bind(cssHeight);
 }
 
-.mode-layouting .dragging  > .absoluteWrapper {
+.mode-layouting .dragging  > .slotContainer {
     left: v-bind(cssDragX);
     top: v-bind(cssDragY);
-    transform: translate(var(--dnd-grid-box-offset-x, 0), var(--dnd-grid-box-offset-y, 0));
+    transform: translate(var(--dnd-grid-box-offset-x, 0px), var(--dnd-grid-box-offset-y, 0px));
 }
 
-.mode-layouting .layoutingResult {
+.mode-layouting .resizing  > .slotContainer {
+    width: calc(v-bind(cssResizeWidth) + var(--dnd-grid-box-offset-width, 0px));
+    height: calc(v-bind(cssResizeHeight) + var(--dnd-grid-box-offset-height, 0px));
+}
+
+.mode-layouting .placeholder {
     background-color: #F001;
 }
 
-.mode-layouting .dragging .absoluteWrapper {
+.mode-layouting :is(.dragging, .resizing) .slotContainer {
     z-index: 9999;
 }
 
-.mode-layouting .box:not(.dragging) > .absoluteWrapper,
-.mode-layouting .layoutingResult {
-    transition: left ease-out 0.1s, top ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
+.mode-layouting .box:not(.dragging):not(.resizing) > .slotContainer,
+.mode-layouting .placeholder {
+    transition-property: left, top, width, height;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out;
+}
+
+.slotContainer {
+    z-index: 1;
+}
+
+.resizeHandleContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.resizeHandleContainer > * {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    z-index: 999999;
+}
+
+.resize-tl {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+.resize-tr {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+.resize-br {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
+}
+
+.resize-bl {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
 }
 </style>

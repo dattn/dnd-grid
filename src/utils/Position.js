@@ -19,24 +19,44 @@ export function isFree (layout, position, filter = () => true) {
 
 // get box position in pixels
 export function toPixels (position, cellWidth, cellHeight, spacing = 0) {
-    const cellWidthWithSpacing = cellWidth + spacing
-    const cellHeightWithSpacing = cellHeight + spacing
-    return {
-        x: position.x * cellWidthWithSpacing,
-        y: position.y * cellHeightWithSpacing,
-        w: (position.w * cellWidthWithSpacing) - spacing,
-        h: (position.h * cellHeightWithSpacing) - spacing
+    const pixels = {}
+    for (let key in position || {}) {
+        switch (key) {
+            case 'x':
+                pixels[key] = position.x * (cellWidth + spacing)
+                break
+            case 'y':
+                pixels[key] = position.y * (cellHeight + spacing)
+                break
+            case 'w':
+                pixels[key] = (position.w * (cellWidth + spacing)) - spacing
+                break
+            case 'h':
+                pixels[key] = (position.h * (cellHeight + spacing)) - spacing
+                break
+        }
     }
+    return pixels
 }
 
 // get box position from pixels
 export function fromPixels (pixels, cellWidth, cellHeight, spacing = 0) {
-    const cellWidthWithSpacing = cellWidth + spacing
-    const cellHeightWithSpacing = cellHeight + spacing
-    return {
-        x: Math.floor(pixels.x / cellWidthWithSpacing),
-        y: Math.floor(pixels.y / cellHeightWithSpacing),
-        w: Math.floor((pixels.w + spacing) / cellWidthWithSpacing),
-        h: Math.floor((pixels.h + spacing) / cellHeightWithSpacing)
+    const position = {}
+    for (let key in pixels || {}) {
+        switch (key) {
+            case 'x':
+                position[key] = Math.floor(pixels.x / (cellWidth + spacing))
+                break
+            case 'y':
+                position[key] = Math.floor(pixels.y / (cellHeight + spacing))
+                break
+            case 'w':
+                position[key] = Math.floor((pixels.w + spacing) / (cellWidth + spacing))
+                break
+            case 'h':
+                position[key] = Math.floor((pixels.h + spacing) / (cellHeight + spacing))
+                break
+        }
     }
+    return position
 }
