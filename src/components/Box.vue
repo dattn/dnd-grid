@@ -6,9 +6,10 @@ export default {
 
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
-import { inject, onBeforeUnmount, useCssModule } from 'vue'
+import { inject, useCssModule } from 'vue'
 import { updatePosition } from '../utils/Box.js'
 import { toPixels as positionToPixels } from '../utils/Position.js'
+import useMouseHandler from '../composables/useMouseHandler.js'
 
 const props = defineProps({
     boxId: {
@@ -25,7 +26,6 @@ const { getBox, updateBox, computedCellSize, startLayouting, stopLayouting } = $
 
 const absoluteWrapperEl = $ref()
 const boxEl = $ref()
-let isMoving = $ref(false)
 
 const box = $computed(() => getBox(boxId))
 const visible = $computed(() => box && !box.hidden)
@@ -52,59 +52,38 @@ const cssY = $computed(() => pixels == undefined ? undefined : `${pixels.y}px`)
 const cssWidth = $computed(() => pixels == undefined ? undefined : `${pixels.w}px`)
 const cssHeight = $computed(() => pixels == undefined ? undefined : `${pixels.h}px`)
 
-let cssMovingX
-let cssMovingY
-let startEvent
-let startPosition
+let cssDragX = $ref()
+let cssDragY = $ref()
+let startDragPosition
+let isDragging = $ref(false)
+const onDragStart = useMouseHandler({
+    start: function onDragStart () {
+        startLayouting()
+        cssDragX = cssX
+        cssDragY = cssY
+        startDragPosition = position
+        isDragging = true
+    },
+    stop: function onDragStop () {
+        stopLayouting()
+        isDragging = false
+        absoluteWrapperEl?.style?.removeProperty('--dnd-grid-box-offset-x')
+        absoluteWrapperEl?.style?.removeProperty('--dnd-grid-box-offset-y')
+    },
+    update: function onDragUpdate ({ offsetX, offsetY }) {
+        absoluteWrapperEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
+        absoluteWrapperEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
 
-function startMoving (evt) {
-    if (isMoving) return
-    isMoving = true
+        const targetX = startDragPosition.x + Math.round(offsetX / (computedCellSize?.width + computedCellSize?.spacing))
+        const targetY = startDragPosition.y + Math.round(offsetY / (computedCellSize?.height + computedCellSize?.spacing))
 
-    startLayouting()
-
-    cssMovingX = cssX
-    cssMovingY = cssY
-    startEvent = evt
-    startPosition = position
-
-    window.addEventListener('mouseup', stopMoving, { capture: true, passive: true, once: true })
-    window.addEventListener('mousemove', onMove, { capture: true, passive: true })
-}
-
-function stopMoving () {
-    if (!isMoving) return
-    isMoving = false
-
-    stopLayouting()
-
-    window.removeEventListener('mouseup', stopMoving, { capture: true, passive: true, once: true })
-    window.removeEventListener('mousemove', onMove, { capture: true, passive: true })
-
-    absoluteWrapperEl?.style.removeProperty('--dnd-grid-box-offset-x')
-    absoluteWrapperEl?.style.removeProperty('--dnd-grid-box-offset-y')
-}
-
-function onMove (evt) {
-    const offsetX = evt.clientX - startEvent.clientX
-    const offsetY = evt.clientY - startEvent.clientY
-
-    absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
-    absoluteWrapperEl.style.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
-
-    const targetX = startPosition.x + Math.round(offsetX / (computedCellSize?.width + computedCellSize?.spacing))
-    const targetY = startPosition.y + Math.round(offsetY / (computedCellSize?.height + computedCellSize?.spacing))
-
-    if (box.position.x !== targetX || box.position.y !== targetY) {
-        updateBox(updatePosition(box, {
-            x: targetX,
-            y: targetY
-        }))
+        if (box.position.x !== targetX || box.position.y !== targetY) {
+            updateBox(updatePosition(box, {
+                x: targetX,
+                y: targetY
+            }))
+        }
     }
-}
-
-onBeforeUnmount(() => {
-    stopMoving()
 })
 </script>
 
@@ -114,9 +93,9 @@ onBeforeUnmount(() => {
         ref="boxEl"
         :class="{
             [$style.box]: true,
-            [$style.moving]: isMoving
+            [$style.dragging]: isDragging
         }"
-        @mousedown.passive="startMoving"
+        @mousedown.passive="onDragStart"
     >
         <div
             ref="absoluteWrapperEl"
@@ -125,7 +104,7 @@ onBeforeUnmount(() => {
             <slot />
         </div>
         <div
-            v-if="isMoving"
+            v-if="isDragging"
             :class="$style.layoutingResult"
         />
     </div>
@@ -153,9 +132,9 @@ onBeforeUnmount(() => {
     height: v-bind(cssHeight);
 }
 
-.mode-layouting .box.moving  > .absoluteWrapper {
-    left: v-bind(cssMovingX);
-    top: v-bind(cssMovingY);
+.mode-layouting .box.dragging  > .absoluteWrapper {
+    left: v-bind(cssDragX);
+    top: v-bind(cssDragY);
     transform: translate(var(--dnd-grid-box-offset-x, 0), var(--dnd-grid-box-offset-y, 0));
 }
 
@@ -168,7 +147,7 @@ onBeforeUnmount(() => {
     z-index: 9999;
 }
 
-.mode-layouting .box:not(.moving) > .absoluteWrapper,
+.mode-layouting .box:not(.dragging) > .absoluteWrapper,
 .mode-layouting .box > .layoutingResult {
     transition: left ease-out 0.1s, top ease-out 0.1s, width ease-out 0.1s, height ease-out 0.1s;
 }
