@@ -22,7 +22,7 @@ const { boxId } = $(props)
 
 const $style = useCssModule()
 
-const { getBox, updateBox, computedCellSize, startLayout, stopLayout } = $(inject(ContainerSymbol))
+const { getBox, updateBox, computedCellSize, startLayout, stopLayout, enableLayout } = $(inject(ContainerSymbol))
 
 const overlayEl = document.createElement('div')
 overlayEl.classList.add($style.overlay)
@@ -32,6 +32,9 @@ const boxEl = $ref()
 
 const box = $computed(() => getBox(boxId))
 const visible = $computed(() => box && !box.hidden)
+
+const dragEventName = $computed(() => enableLayout ? 'mousedown' : null)
+const resizeEventName = $computed(() => enableLayout ? 'mousedown' : null)
 
 // grid mode
 const position = $computed(() => box?.position)
@@ -148,6 +151,7 @@ function applyOffsetPixels (basePosition, offsetPixels) {
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-top', `${offsetPixels.y}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetPixels.w}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetPixels.h}px`)
+
     slotContainerEl?.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
@@ -192,7 +196,8 @@ function updatePosition (targetPosition) {
             [$style.dragging]: isDragging,
             [$style.resizing]: isResizing
         }"
-        @mousedown.stop="onDragStart"
+        v-on="enableLayout"
+        @[dragEventName].stop="onDragStart"
     >
         <div
             ref="slotContainerEl"
@@ -202,7 +207,7 @@ function updatePosition (targetPosition) {
         </div>
         <div
             :class="$style.resizeHandleContainer"
-            @mousedown.stop="onResizeStart"
+            @[resizeEventName].stop="onResizeStart"
         >
             <div data-resize="t-" />
             <div data-resize="-r" />

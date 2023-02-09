@@ -7,6 +7,8 @@ let cellMaxWidth = $ref()
 let cellHeight = $ref()
 let cellMaxHeight = $ref()
 let cellSpacing = $ref()
+let enableLayout = $ref(true)
+let bubbleUp = $ref(true)
 
 const cellWidthInput = $computed(createInputComputed($$(cellWidth)))
 const cellMaxWidthInput = $computed(createInputComputed($$(cellMaxWidth)))
@@ -96,6 +98,8 @@ let boxCount = $ref(4)
             :cell-height="cellHeight"
             :cell-max-height="cellMaxHeight"
             :cell-spacing="cellSpacing"
+            :enable-layout="enableLayout"
+            :bubble-up="bubbleUp"
         >
             <GridBox
                 v-for="num in boxCount"
@@ -119,6 +123,34 @@ let boxCount = $ref(4)
                         Settings
                     </div>
                     <div class="card-body">
+                        <div class="form-group row">
+                            <label
+                                for="settings-margin-input"
+                                class="col-sm-4 col-form-label"
+                            >Enable Layout</label>
+                            <div class="col-sm-8">
+                                <input
+                                    id="settings-margin-input"
+                                    v-model="enableLayout"
+                                    class="form-control"
+                                    type="checkbox"
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label
+                                for="settings-margin-input"
+                                class="col-sm-4 col-form-label"
+                            >Bubble Up</label>
+                            <div class="col-sm-8">
+                                <input
+                                    id="settings-margin-input"
+                                    v-model="bubbleUp"
+                                    class="form-control"
+                                    type="checkbox"
+                                >
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label
                                 for="settings-margin-input"
