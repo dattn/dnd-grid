@@ -196,7 +196,6 @@ function updatePosition (targetPosition) {
             [$style.dragging]: isDragging,
             [$style.resizing]: isResizing
         }"
-        v-on="enableLayout"
         @[dragEventName].stop="onDragStart"
     >
         <div
@@ -206,6 +205,7 @@ function updatePosition (targetPosition) {
             <slot />
         </div>
         <div
+            v-if="enableLayout"
             :class="$style.resizeHandleContainer"
             @[resizeEventName].stop="onResizeStart"
         >
