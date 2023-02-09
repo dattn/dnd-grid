@@ -156,7 +156,7 @@ function updateBox (box) {
         ref="containerEl"
         :class="{
             [$style.container]: true,
-            [$style['mode-' + mode]]: true
+            [$style['mode-' + mode]]: true,
         }"
         :style="{
             '--dnd-grid-cell-width': cssCellWidth,

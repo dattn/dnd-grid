@@ -18,7 +18,7 @@ export default function useMouseHandler (callbacks = {}) {
     }
 
     function onStart (evt) {
-        if (isActive) return
+        if (isActive || !callbacks?.['allow']?.(evt)) return
 
         startEvent = evt
         startX = evt.pageX

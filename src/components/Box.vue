@@ -71,6 +71,9 @@ let basePosition
 
 let isDragging = $ref(false)
 const onDragStart = useMouseHandler({
+    allow: function allowDrag (evt) {
+        return canStartlayout(evt)
+    },
     start: function onDragStart () {
         startLayout()
         baseCssPixels = cssPixels
@@ -98,6 +101,9 @@ const onDragStart = useMouseHandler({
 let isResizing = $ref(false)
 let resizeMode
 const onResizeStart = useMouseHandler({
+    allow: function allowResize (evt) {
+        return canStartlayout(evt)
+    },
     start: function onResizeStart (_, evt) {
         startLayout()
         resizeMode = evt?.target?.dataset?.resize
@@ -184,6 +190,10 @@ function updatePosition (targetPosition) {
     ) {
         updateBox(updateBoxPosition(box, targetPosition))
     }
+}
+
+function canStartlayout (evt) {
+    return !evt.target.matches(':is(input, button, select, a[href])')
 }
 </script>
 
