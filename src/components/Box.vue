@@ -142,10 +142,11 @@ function applyOffsetPixels (basePosition, offsetPixels) {
         w: offsetPixels.w + halfCellSizeWidth,
         h: offsetPixels.h + halfCellSizeHeight
     }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
-    targetPosition.x += basePosition.x
-    targetPosition.y += basePosition.y
-    targetPosition.w += basePosition.w
-    targetPosition.h += basePosition.h
+
+    targetPosition.x = Math.max(0, targetPosition.x + basePosition.x)
+    targetPosition.y = Math.max(0, targetPosition.y + basePosition.y)
+    targetPosition.w = Math.max(1, targetPosition.w + basePosition.w)
+    targetPosition.h = Math.max(1, targetPosition.h + basePosition.h)
 
     updatePosition(targetPosition)
 }
