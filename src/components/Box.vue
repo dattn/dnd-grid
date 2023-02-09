@@ -32,10 +32,14 @@ const visible = $computed(() => box && !box.hidden)
 
 // grid mode
 const position = $computed(() => box?.position)
-const cssColumn = $computed(() => position == undefined ? undefined : position.x + 1)
-const cssColumnSpan = $computed(() => position == undefined ? undefined : position.w)
-const cssRow = $computed(() => position == undefined ? undefined : position.y + 1)
-const cssRowSpan = $computed(() => position == undefined ? undefined : position.h)
+const cssPosition = $computed(() => {
+    return {
+        x: (position?.x ?? 0) + 1,
+        y: (position?.y ?? 0) + 1,
+        w: position?.w ?? 0,
+        h: position?.h ?? 0
+    }
+})
 
 // layouting mode
 const pixels = $computed(() => {
@@ -47,51 +51,46 @@ const pixels = $computed(() => {
         computedCellSize.spacing
     )
 })
-const cssX = $computed(() => pixels == undefined ? undefined : `${pixels.x}px`)
-const cssY = $computed(() => pixels == undefined ? undefined : `${pixels.y}px`)
-const cssWidth = $computed(() => pixels == undefined ? undefined : `${pixels.w}px`)
-const cssHeight = $computed(() => pixels == undefined ? undefined : `${pixels.h}px`)
+const cssPixels = $computed(() => {
+    return {
+        x: `${pixels?.x ?? 0}px`,
+        y: `${pixels?.y ?? 0}px`,
+        w: `${pixels?.w ?? 0}px`,
+        h: `${pixels?.h ?? 0}px`
+    }
+})
 
-let cssDragX = $ref()
-let cssDragY = $ref()
-let startDragPosition
+let baseCssPixels = $ref({})
+let basePosition
+
 let isDragging = $ref(false)
 const onDragStart = useMouseHandler({
     start: function onDragStart () {
         startLayouting()
-        cssDragX = cssX
-        cssDragY = cssY
-        startDragPosition = position
+        baseCssPixels = cssPixels
+        basePosition = position
         isDragging = true
     },
     stop: function onDragStop () {
         stopLayouting()
         isDragging = false
-        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-x')
-        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-y')
+        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-left')
+        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-top')
     },
     update: function onDragUpdate ({ offsetX, offsetY }) {
         let offsetPixels = { x: offsetX, y: offsetY, w: 0, h: 0 }
-        applyOffsetPixels(startDragPosition, offsetPixels)
+        applyOffsetPixels(basePosition, offsetPixels)
     }
 })
 
-let cssResizeX = $ref()
-let cssResizeY = $ref()
-let cssResizeWidth = $ref()
-let cssResizeHeight = $ref()
-let startResizePosition
 let isResizing = $ref(false)
 let resizeMode
 const onResizeStart = useMouseHandler({
     start: function onResizeStart (_, evt) {
         startLayouting()
         resizeMode = evt?.target?.dataset?.resize || 'br'
-        cssResizeX = cssX
-        cssResizeY = cssY
-        cssResizeWidth = cssWidth
-        cssResizeHeight = cssHeight
-        startResizePosition = position
+        baseCssPixels = cssPixels
+        basePosition = position
         isResizing = true
     },
     stop: function onResizeStop () {
@@ -125,13 +124,13 @@ const onResizeStart = useMouseHandler({
                 break
         }
 
-        applyOffsetPixels(startResizePosition, offsetPixels)
+        applyOffsetPixels(basePosition, offsetPixels)
     }
 })
 
 function applyOffsetPixels (basePosition, offsetPixels) {
-    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetPixels.x}px`)
-    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetPixels.y}px`)
+    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-left', `${offsetPixels.x}px`)
+    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-top', `${offsetPixels.y}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetPixels.w}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetPixels.h}px`)
 
@@ -206,8 +205,8 @@ function updatePosition (targetPosition) {
 }
 
 .box {
-    grid-column: v-bind(cssColumn) / span v-bind(cssColumnSpan);
-    grid-row: v-bind(cssRow) / span v-bind(cssRowSpan);
+    grid-column: v-bind('cssPosition.x') / span v-bind('cssPosition.w');
+    grid-row: v-bind('cssPosition.y') / span v-bind('cssPosition.h');
     display: grid;
 }
 
@@ -221,22 +220,17 @@ function updatePosition (targetPosition) {
 
 .mode-layouting :is(.slotContainer, .placeholder) {
     position: absolute;
-    left: v-bind(cssX);
-    top: v-bind(cssY);
-    width: v-bind(cssWidth);
-    height: v-bind(cssHeight);
+    left: v-bind('cssPixels.x');
+    top: v-bind('cssPixels.y');
+    width: v-bind('cssPixels.w');
+    height: v-bind('cssPixels.h');
 }
 
-.mode-layouting .dragging  > .slotContainer {
-    left: calc(v-bind(cssDragX) + var(--dnd-grid-box-offset-x, 0px));
-    top: calc(v-bind(cssDragY) + var(--dnd-grid-box-offset-y, 0px));
-}
-
-.mode-layouting .resizing  > .slotContainer {
-    left: calc(v-bind(cssResizeX) + var(--dnd-grid-box-offset-x, 0px));
-    top: calc(v-bind(cssResizeY) + var(--dnd-grid-box-offset-y, 0px));
-    width: calc(v-bind(cssResizeWidth) + var(--dnd-grid-box-offset-width, 0px));
-    height: calc(v-bind(cssResizeHeight) + var(--dnd-grid-box-offset-height, 0px));
+.mode-layouting :is(.dragging, .resizing)  > .slotContainer {
+    left: calc(v-bind('baseCssPixels.x') + var(--dnd-grid-box-offset-left, 0px));
+    top: calc(v-bind('baseCssPixels.y') + var(--dnd-grid-box-offset-top, 0px));
+    width: calc(v-bind('baseCssPixels.w') + var(--dnd-grid-box-offset-width, 0px));
+    height: calc(v-bind('baseCssPixels.h') + var(--dnd-grid-box-offset-height, 0px));
 }
 
 .mode-layouting .placeholder {
@@ -257,6 +251,7 @@ function updatePosition (targetPosition) {
 
 .slotContainer {
     z-index: 1;
+    overflow: hidden;
 }
 
 .resizeHandleContainer {

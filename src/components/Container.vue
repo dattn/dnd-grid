@@ -95,11 +95,11 @@ provide(ContainerSymbol, $$({
 function updateComputedCellSize () {
     if (containerEl) {
         const style = getComputedStyle(containerEl)
-        computedCellSize = {
-            width: parseFloat(style.gridTemplateColumns),
-            height: parseFloat(style.gridTemplateRows),
-            spacing: parseFloat(style.gap)
-        }
+        const width = parseFloat(style.gridTemplateColumns)
+        const height = parseFloat(style.gridTemplateRows)
+        const spacing = parseFloat(style.gap)
+
+        computedCellSize = { width, height, spacing }
     }
     return computedCellSize
 }
