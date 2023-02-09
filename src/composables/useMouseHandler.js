@@ -2,6 +2,7 @@ import { onScopeDispose } from 'vue'
 
 export default function useMouseHandler (callbacks = {}) {
     let isActive = false
+    let startEvent
     let startX
     let startY
     let offsetX
@@ -18,27 +19,32 @@ export default function useMouseHandler (callbacks = {}) {
 
     function onStart (evt) {
         if (isActive) return
-        isActive = true
 
+        startEvent = evt
         startX = evt.clientX
         startY = evt.clientY
 
         window.addEventListener('mouseup', onStop, { capture: true, passive: true, once: true })
         window.addEventListener('mousemove', onMove, { capture: true, passive: true })
-
-        doUpdate('start', evt)
     }
 
     function onStop (evt) {
-        if (!isActive) return
-        isActive = false
         window.removeEventListener('mouseup', onStop, { capture: true, passive: true, once: true })
         window.removeEventListener('mousemove', onMove, { capture: true, passive: true })
 
-        doUpdate('stop', evt)
+        if (isActive) {
+            isActive = false
+            startEvent = undefined
+            doUpdate('stop', evt)
+        }
     }
 
     function onMove (evt) {
+        if (!isActive) {
+            isActive = true
+            doUpdate('start', startEvent)
+        }
+
         doUpdate('update', evt)
     }
 

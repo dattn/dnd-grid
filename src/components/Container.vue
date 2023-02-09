@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup>
-import { provide, readonly, useCssModule } from 'vue'
+import { provide, readonly, useCssModule, watch } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
 import * as Layout from '../utils/Layout.js'
 import * as Box from '../utils/Box.js'
@@ -59,8 +59,6 @@ let computedCellSize = $ref()
 let mode = $ref('grid')
 let layout = $ref([])
 
-const activeLayout = $computed(() => mode === 'layouting' ? layout : externalLayout)
-
 const cssCellWidth = $computed(() => {
     if (cellWidth == undefined) return
     return isNaN(cellWidth) ? cellWidth : `${cellWidth}px`
@@ -83,7 +81,7 @@ const cssCellSpacing = $computed(() => {
 })
 
 provide(ContainerSymbol, $$({
-    layout: readonly(activeLayout),
+    layout: readonly(layout),
     mode: readonly(mode),
     computedCellSize: readonly(computedCellSize),
     startLayouting,
@@ -91,6 +89,14 @@ provide(ContainerSymbol, $$({
     getBox,
     updateBox
 }))
+
+watch($$(externalLayout), () => {
+    if (mode === 'grid') {
+        layout = externalLayout
+    }
+}, {
+    immediate: true
+})
 
 function updateComputedCellSize () {
     if (containerEl) {
@@ -112,14 +118,15 @@ function startLayouting () {
 
 function stopLayouting () {
     emit('update:layout', layout)
+    layout = externalLayout
     mode = 'grid'
 }
 
 function getBox (id) {
-    const box = Layout.getBox(activeLayout, id)
+    const box = Layout.getBox(layout, id)
     if (box) return box
-    const newBox = Box.moveToFreePlace(activeLayout, Box.create(id))
-    layout = Layout.addOrReplaceBox(activeLayout, newBox)
+    const newBox = Box.moveToFreePlace(layout, Box.create(id))
+    layout = Layout.addOrReplaceBox(layout, newBox)
     return newBox
 }
 
