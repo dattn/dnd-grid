@@ -7,7 +7,7 @@ export default {
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
 import { inject, useCssModule } from 'vue'
-import { updatePosition } from '../utils/Box.js'
+import { updatePosition as updateBoxPosition } from '../utils/Box.js'
 import { toPixels as positionToPixels, fromPixels as positionFromPixels } from '../utils/Position.js'
 import useMouseHandler from '../composables/useMouseHandler.js'
 
@@ -71,23 +71,8 @@ const onDragStart = useMouseHandler({
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-y')
     },
     update: function onDragUpdate ({ offsetX, offsetY }) {
-        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
-        slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
-
-        const { x, y } = positionFromPixels({
-            x: offsetX + (computedCellSize.width / 2), // add half cell width for better box placement
-            y: offsetY + (computedCellSize.height / 2) // add half cell height for better box placement
-        }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
-
-        const targetX = startDragPosition.x + x
-        const targetY = startDragPosition.y + y
-
-        if (box.position.x !== targetX || box.position.y !== targetY) {
-            updateBox(updatePosition(box, {
-                x: targetX,
-                y: targetY
-            }))
-        }
+        let offsetPixels = { x: offsetX, y: offsetY, w: 0, h: 0 }
+        applyOffsetPixels(startDragPosition, offsetPixels)
     }
 })
 
@@ -116,79 +101,66 @@ const onResizeStart = useMouseHandler({
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
     },
     update: function onResizeUpdate ({ offsetX, offsetY }) {
+        let offsetPixels = { x: 0, y: 0, w: 0, h: 0 }
+
         switch (resizeMode?.[0]) {
             case 't': // top
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetY}px`)
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${-offsetY}px`)
+                offsetPixels.y = offsetY
+                offsetPixels.h = -offsetY
                 break
 
             case 'b': // bottom
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', '0px')
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetY}px`)
+                offsetPixels.h = offsetY
                 break
         }
 
         switch (resizeMode?.[1]) {
             case 'l': // left
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetX}px`)
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${-offsetX}px`)
+                offsetPixels.x = offsetX
+                offsetPixels.w = -offsetX
                 break
 
             case 'r': // right
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', '0px')
-                slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetX}px`)
+                offsetPixels.w = offsetX
                 break
         }
 
-        const { w, h } = positionFromPixels({
-            w: offsetX + (computedCellSize.width / 2), // add half cell width for better box placement
-            h: offsetY + (computedCellSize.height / 2) // add half cell height for better box placement
-        }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
-
-        let {
-            x: targetX,
-            y: targetY,
-            w: targetW,
-            h: targetH
-        } = startResizePosition
-
-        switch (resizeMode?.[0]) {
-            case 't': // top
-                targetY += h
-                targetH -= h
-                break
-
-            case 'b': // bottom
-                targetH += h
-                break
-        }
-
-        switch (resizeMode?.[1]) {
-            case 'l': // left
-                targetX += w
-                targetW -= w
-                break
-
-            case 'r': // right
-                targetW += w
-                break
-        }
-
-        if (
-            box.position.w !== targetW ||
-            box.position.h !== targetH ||
-            box.position.w !== targetW ||
-            box.position.h !== targetH
-        ) {
-            updateBox(updatePosition(box, {
-                x: targetX,
-                y: targetY,
-                w: targetW,
-                h: targetH
-            }))
-        }
+        applyOffsetPixels(startResizePosition, offsetPixels)
     }
 })
+
+function applyOffsetPixels (basePosition, offsetPixels) {
+    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-x', `${offsetPixels.x}px`)
+    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-y', `${offsetPixels.y}px`)
+    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetPixels.w}px`)
+    slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetPixels.h}px`)
+
+    const halfCellSizeWidth = computedCellSize.width / 2
+    const halfCellSizeHeight = computedCellSize.height / 2
+    const targetPosition = positionFromPixels({
+        x: offsetPixels.x + halfCellSizeWidth, // add half cellsize for better box placement
+        y: offsetPixels.y + halfCellSizeHeight,
+        w: offsetPixels.w + halfCellSizeWidth,
+        h: offsetPixels.h + halfCellSizeHeight
+    }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
+    targetPosition.x += basePosition.x
+    targetPosition.y += basePosition.y
+    targetPosition.w += basePosition.w
+    targetPosition.h += basePosition.h
+
+    updatePosition(targetPosition)
+}
+
+function updatePosition (targetPosition) {
+    if (
+        position.x !== targetPosition.x ||
+        position.y !== targetPosition.y ||
+        position.w !== targetPosition.w ||
+        position.h !== targetPosition.h
+    ) {
+        updateBox(updateBoxPosition(box, targetPosition))
+    }
+}
 </script>
 
 <template>
