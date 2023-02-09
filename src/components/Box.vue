@@ -22,7 +22,7 @@ const { boxId } = $(props)
 
 const $style = useCssModule()
 
-const { getBox, updateBox, computedCellSize, startLayouting, stopLayouting } = $(inject(ContainerSymbol))
+const { getBox, updateBox, computedCellSize, startLayout, stopLayout } = $(inject(ContainerSymbol))
 
 const slotContainerEl = $ref()
 const boxEl = $ref()
@@ -66,13 +66,13 @@ let basePosition
 let isDragging = $ref(false)
 const onDragStart = useMouseHandler({
     start: function onDragStart () {
-        startLayouting()
+        startLayout()
         baseCssPixels = cssPixels
         basePosition = position
         isDragging = true
     },
     stop: function onDragStop () {
-        stopLayouting()
+        stopLayout()
         isDragging = false
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-left')
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-top')
@@ -87,14 +87,14 @@ let isResizing = $ref(false)
 let resizeMode
 const onResizeStart = useMouseHandler({
     start: function onResizeStart (_, evt) {
-        startLayouting()
+        startLayout()
         resizeMode = evt?.target?.dataset?.resize || 'br'
         baseCssPixels = cssPixels
         basePosition = position
         isResizing = true
     },
     stop: function onResizeStop () {
-        stopLayouting()
+        stopLayout()
         isResizing = false
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-width')
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
@@ -215,11 +215,11 @@ function updatePosition (targetPosition) {
     grid-column: 1;
     grid-row: 1;
 }
-.mode-layouting .box {
+.mode-layout .box {
     user-select: none;
 }
 
-.mode-layouting :is(.slotContainer, .placeholder) {
+.mode-layout :is(.slotContainer, .placeholder) {
     position: absolute;
     left: v-bind('cssPixels.x');
     top: v-bind('cssPixels.y');
@@ -227,24 +227,24 @@ function updatePosition (targetPosition) {
     height: v-bind('cssPixels.h');
 }
 
-.mode-layouting :is(.dragging, .resizing)  > .slotContainer {
+.mode-layout :is(.dragging, .resizing)  > .slotContainer {
     left: calc(v-bind('baseCssPixels.x') + var(--dnd-grid-box-offset-left, 0px));
     top: calc(v-bind('baseCssPixels.y') + var(--dnd-grid-box-offset-top, 0px));
     width: calc(v-bind('baseCssPixels.w') + var(--dnd-grid-box-offset-width, 0px));
     height: calc(v-bind('baseCssPixels.h') + var(--dnd-grid-box-offset-height, 0px));
 }
 
-.mode-layouting .placeholder {
+.mode-layout .placeholder {
     background: #F002;
 }
 
-.mode-layouting :is(.dragging, .resizing) .slotContainer {
+.mode-layout :is(.dragging, .resizing) .slotContainer {
     z-index: 9999;
     opacity: 0.6;
 }
 
-.mode-layouting .box:not(.dragging):not(.resizing) > .slotContainer,
-.mode-layouting .placeholder {
+.mode-layout .box:not(.dragging):not(.resizing) > .slotContainer,
+.mode-layout .placeholder {
     transition-property: left, top, width, height;
     transition-duration: 0.1s;
     transition-timing-function: ease-out;

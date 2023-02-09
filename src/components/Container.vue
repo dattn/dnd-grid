@@ -84,8 +84,8 @@ provide(ContainerSymbol, $$({
     layout: readonly(layout),
     mode: readonly(mode),
     computedCellSize: readonly(computedCellSize),
-    startLayouting,
-    stopLayouting,
+    startLayout,
+    stopLayout,
     getBox,
     updateBox
 }))
@@ -110,13 +110,13 @@ function updateComputedCellSize () {
     return computedCellSize
 }
 
-function startLayouting () {
+function startLayout () {
     updateComputedCellSize()
     layout = externalLayout
-    mode = 'layouting'
+    mode = 'layout'
 }
 
-function stopLayouting () {
+function stopLayout () {
     emit('update:layout', layout)
     layout = externalLayout
     mode = 'grid'
@@ -153,11 +153,11 @@ function updateBox (box) {
             [$style['mode-' + mode]]: true,
         }"
         :style="{
-            '--dnd-grid-prop-cell-width': cssCellWidth,
-            '--dnd-grid-prop-cell-max-width': cssCellMaxWidth,
-            '--dnd-grid-prop-cell-height': cssCellHeight,
-            '--dnd-grid-prop-cell-max-height': cssCellMaxHeight,
-            '--dnd-grid-prop-cell-spacing': cssCellSpacing
+            '--dnd-grid-cell-width': cssCellWidth,
+            '--dnd-grid-cell-max-width': cssCellMaxWidth,
+            '--dnd-grid-cell-height': cssCellHeight,
+            '--dnd-grid-cell-max-height': cssCellMaxHeight,
+            '--dnd-grid-cell-spacing': cssCellSpacing
         }"
     >
         <slot />
@@ -173,14 +173,14 @@ function updateBox (box) {
     display: grid;
     position: relative;
     grid-auto-columns: minmax(
-        var(--dnd-grid-prop-cell-width, var(--dnd-grid-cell-width, 8em)),
-        var(--dnd-grid-prop-cell-max-width, var(--dnd-grid-cell-max-width, 0))
+        var(--dnd-grid-cell-width, 8em),
+        var(--dnd-grid-cell-max-width, 0)
     );
     grid-auto-rows: minmax(
-        var(--dnd-grid-prop-cell-height, var(--dnd-grid-cell-height, 8em)),
-        var(--dnd-grid-prop-cell-max-height, var(--dnd-grid-cell-max-height, 0))
+        var(--dnd-grid-cell-height, 8em),
+        var(--dnd-grid-cell-max-height, 0)
     );
-    gap: var(--dnd-grid-prop-cell-spacing, var(--dnd-grid-cell-spacing, 0.5em));
+    gap: var(--dnd-grid-cell-spacing, 0.5em);
     min-width: min-content;
     min-height: min-content;
     transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
@@ -189,7 +189,7 @@ function updateBox (box) {
 .mode-grid {
 
 }
-.mode-layouting {
+.mode-layout {
 
 }
 </style>
