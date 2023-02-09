@@ -10,8 +10,8 @@ export default function useMouseHandler (callbacks = {}) {
 
     function doUpdate (type, evt) {
         if (evt) {
-            offsetX = evt.clientX - startX
-            offsetY = evt.clientY - startY
+            offsetX = evt.pageX - startX
+            offsetY = evt.pageY - startY
         }
 
         callbacks[type]?.({ startX, startY, offsetX, offsetY }, evt)
@@ -21,8 +21,8 @@ export default function useMouseHandler (callbacks = {}) {
         if (isActive) return
 
         startEvent = evt
-        startX = evt.clientX
-        startY = evt.clientY
+        startX = evt.pageX
+        startY = evt.pageY
 
         window.addEventListener('mouseup', onStop, { capture: true, passive: true, once: true })
         window.addEventListener('mousemove', onMove, { capture: true, passive: true })

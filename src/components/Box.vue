@@ -24,6 +24,9 @@ const $style = useCssModule()
 
 const { getBox, updateBox, computedCellSize, startLayout, stopLayout } = $(inject(ContainerSymbol))
 
+const overlayEl = document.createElement('div')
+overlayEl.classList.add($style.overlay)
+
 const slotContainerEl = $ref()
 const boxEl = $ref()
 
@@ -70,12 +73,18 @@ const onDragStart = useMouseHandler({
         baseCssPixels = cssPixels
         basePosition = position
         isDragging = true
+
+        document.body.appendChild(overlayEl)
+        document.body.classList.add($style['cursor-grabbing'])
     },
     stop: function onDragStop () {
         stopLayout()
         isDragging = false
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-left')
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-top')
+
+        overlayEl.remove()
+        document.body.classList.remove($style['cursor-grabbing'])
     },
     update: function onDragUpdate ({ offsetX, offsetY }) {
         let offsetPixels = { x: offsetX, y: offsetY, w: 0, h: 0 }
@@ -88,16 +97,22 @@ let resizeMode
 const onResizeStart = useMouseHandler({
     start: function onResizeStart (_, evt) {
         startLayout()
-        resizeMode = evt?.target?.dataset?.resize || 'br'
+        resizeMode = evt?.target?.dataset?.resize
         baseCssPixels = cssPixels
         basePosition = position
         isResizing = true
+
+        document.body.appendChild(overlayEl)
+        document.body.dataset.resize = resizeMode
     },
     stop: function onResizeStop () {
         stopLayout()
         isResizing = false
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-width')
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
+
+        overlayEl.remove()
+        delete document.body.dataset.resize
     },
     update: function onResizeUpdate ({ offsetX, offsetY }) {
         let offsetPixels = { x: 0, y: 0, w: 0, h: 0 }
@@ -133,6 +148,11 @@ function applyOffsetPixels (basePosition, offsetPixels) {
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-top', `${offsetPixels.y}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetPixels.w}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-height', `${offsetPixels.h}px`)
+    slotContainerEl?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+    })
 
     const halfCellSizeWidth = computedCellSize.width / 2
     const halfCellSizeHeight = computedCellSize.height / 2
@@ -296,19 +316,32 @@ function updatePosition (targetPosition) {
     width: 100%;
 }
 
-.resizeHandleContainer > :is([data-resize=t-], [data-resize=b-]) {
+:is([data-resize=t-], [data-resize=b-]) {
     cursor: ns-resize;
 }
 
-.resizeHandleContainer > :is([data-resize=-r], [data-resize=-l]) {
+:is([data-resize=-r], [data-resize=-l]) {
     cursor: ew-resize;
 }
 
-.resizeHandleContainer > :is([data-resize=tl], [data-resize=br]) {
+:is([data-resize=tl], [data-resize=br]) {
     cursor: nwse-resize;
 }
 
-.resizeHandleContainer > :is([data-resize=tr], [data-resize=bl]) {
+:is([data-resize=tr], [data-resize=bl]) {
     cursor: nesw-resize;
+}
+
+.cursor-grabbing {
+    cursor: grabbing;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999;
 }
 </style>
