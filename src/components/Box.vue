@@ -208,39 +208,18 @@ const onResizeStart = useMouseHandler({
         >
             <slot />
         </div>
-        <div :class="$style.resizeHandleContainer">
-            <div
-                data-resize="t-"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="-r"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="b-"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="-l"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="tl"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="tr"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="br"
-                @mousedown.self.stop="onResizeStart"
-            />
-            <div
-                data-resize="bl"
-                @mousedown.self.stop="onResizeStart"
-            />
+        <div
+            :class="$style.resizeHandleContainer"
+            @mousedown.stop="onResizeStart"
+        >
+            <div data-resize="t-" />
+            <div data-resize="-r" />
+            <div data-resize="b-" />
+            <div data-resize="-l" />
+            <div data-resize="tl" />
+            <div data-resize="tr" />
+            <div data-resize="br" />
+            <div data-resize="bl" />
         </div>
         <div
             v-if="isDragging || isResizing"
@@ -289,7 +268,7 @@ const onResizeStart = useMouseHandler({
 }
 
 .mode-layouting .placeholder {
-    background-color: #F002;
+    background: #F002;
 }
 
 .mode-layouting :is(.dragging, .resizing) .slotContainer {
@@ -323,55 +302,45 @@ const onResizeStart = useMouseHandler({
     z-index: 9999;
 }
 
-.resizeHandleContainer > [data-resize=t-] {
+.resizeHandleContainer > [data-resize^=t] {
     top: var(--dnd-grid-resize-handler-offset);
+}
+
+.resizeHandleContainer > [data-resize^=b] {
+    bottom: var(--dnd-grid-resize-handler-offset);
+}
+
+.resizeHandleContainer > [data-resize^='-'] {
+    top: 0px;
+    height: 100%;
+}
+
+.resizeHandleContainer > [data-resize$=l] {
+    left: var(--dnd-grid-resize-handler-offset);
+}
+
+.resizeHandleContainer > [data-resize$=r] {
+    right: var(--dnd-grid-resize-handler-offset);
+}
+
+.resizeHandleContainer > [data-resize$='-'] {
     left: 0px;
     width: 100%;
+}
+
+.resizeHandleContainer > :is([data-resize=t-], [data-resize=b-]) {
     cursor: ns-resize;
 }
 
-.resizeHandleContainer > [data-resize=-r] {
-    top: 0px;
-    right: var(--dnd-grid-resize-handler-offset);
-    height: 100%;
+.resizeHandleContainer > :is([data-resize=-r], [data-resize=-l]) {
     cursor: ew-resize;
 }
 
-.resizeHandleContainer > [data-resize=b-] {
-    bottom: var(--dnd-grid-resize-handler-offset);
-    left: 0px;
-    width: 100%;
-    cursor: ns-resize;
-}
-
-.resizeHandleContainer > [data-resize=-l] {
-    top: 0px;
-    left: var(--dnd-grid-resize-handler-offset);
-    height: 100%;
-    cursor: ew-resize;
-}
-
-.resizeHandleContainer > [data-resize=tl] {
-    top: var(--dnd-grid-resize-handler-offset);
-    left: var(--dnd-grid-resize-handler-offset);
+.resizeHandleContainer > :is([data-resize=tl], [data-resize=br]) {
     cursor: nwse-resize;
 }
 
-.resizeHandleContainer > [data-resize=tr] {
-    top: var(--dnd-grid-resize-handler-offset);
-    right: var(--dnd-grid-resize-handler-offset);
-    cursor: nesw-resize;
-}
-
-.resizeHandleContainer > [data-resize=br] {
-    bottom: var(--dnd-grid-resize-handler-offset);
-    right: var(--dnd-grid-resize-handler-offset);
-    cursor: nwse-resize;
-}
-
-.resizeHandleContainer > [data-resize=bl] {
-    bottom: var(--dnd-grid-resize-handler-offset);
-    left: var(--dnd-grid-resize-handler-offset);
+.resizeHandleContainer > :is([data-resize=tr], [data-resize=bl]) {
     cursor: nesw-resize;
 }
 </style>
