@@ -46,7 +46,7 @@ export function create (id) {
     return {
         id,
         hidden: false,
-        static: false,
+        pinned: false,
         position: {
             x: 1,
             y: 1,

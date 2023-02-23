@@ -14,7 +14,7 @@
         "id": 1,
         "hidden": false,
         "pinned": false,
-        "static": true,
+        "pinned": true,
         "position": {
             "x": 4,
             "y": 0,

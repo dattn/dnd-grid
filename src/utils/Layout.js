@@ -7,7 +7,7 @@ Layout json
     { // each box has his own object in the layout array
         id: 1, // box identifier (can be of any type)
         hidden: false, // is box hidden ?
-        static: false, // should box stay fixed on its position
+        pinned: false, // should box stay fixed on its position
         position: { // box position in the layout grid
             x: 1, // horizontal position starting with 1
             y: 1, // vertical position starting with 1
@@ -28,10 +28,10 @@ export function sort (layout) {
         if (!a.hidden && b.hidden) {
             return -1
         }
-        if (a.static && !b.static) {
+        if (a.pinned && !b.pinned) {
             return -1
         }
-        if (!a.static && b.static) {
+        if (!a.pinned && b.pinned) {
             return 1
         }
         if (a.position.y < b.position.y) {

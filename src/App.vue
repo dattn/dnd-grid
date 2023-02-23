@@ -56,8 +56,8 @@ let boxCount = $ref(4)
                 <div class="card demo-box">
                     <div class="card-header">
                         Box id:{{ box.id }}
-                        <template v-if="box.static">
-                            (static)
+                        <template v-if="box.pinned">
+                            (pinned)
                         </template>
                     </div>
                 </div>
@@ -71,8 +71,8 @@ let boxCount = $ref(4)
                 <div class="card demo-box">
                     <div class="card-header">
                         Settings id:{{ box.id }}
-                        <template v-if="box.static">
-                            (static)
+                        <template v-if="box.pinned">
+                            (pinned)
                         </template>
                     </div>
                     <div class="card-body">

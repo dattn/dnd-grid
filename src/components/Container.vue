@@ -137,7 +137,7 @@ function getBox (id) {
 }
 
 function updateBox (box) {
-    if (!Position.isFree(externalLayout, box.position, box => box.static)) return // cannot overlap static boxes
+    if (!Position.isFree(externalLayout, box.position, box => box.pinned)) return // cannot overlap pinned boxes
 
     let newLayout = [box]
     externalLayout.forEach(_box => {

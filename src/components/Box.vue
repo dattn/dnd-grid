@@ -190,7 +190,7 @@ function updatePosition (targetPosition) {
 }
 
 function canStartlayout (evt) {
-    return enableLayout && !box.static && !evt.target.matches(':is(input, button, select, a[href])')
+    return enableLayout && !box.pinned && !evt.target.matches(':is(input, button, select, a[href])')
 }
 </script>
 
