@@ -227,8 +227,12 @@ function canStartlayout (evt) {
         </div>
         <div
             v-if="isDragging || isResizing"
-            :class="$style.placeholder"
-        />
+            :class="$style.placeholderContainer"
+        >
+            <slot name="placeholder">
+                <div :class="$style.placeholder"></div>
+            </slot>
+        </div>
     </div>
 </template>
 
@@ -251,7 +255,7 @@ function canStartlayout (evt) {
     user-select: none;
 }
 
-.mode-layout :is(.slotContainer, .placeholder) {
+.mode-layout :is(.slotContainer, .placeholderContainer) {
     position: absolute;
     left: v-bind('cssPixels.x');
     top: v-bind('cssPixels.y');
@@ -265,8 +269,9 @@ function canStartlayout (evt) {
     width: calc(v-bind('baseCssPixels.w') + var(--dnd-grid-box-offset-width, 0px));
     height: calc(v-bind('baseCssPixels.h') + var(--dnd-grid-box-offset-height, 0px));
 }
-
-.mode-layout .placeholder {
+.placeholder {
+    width: 100%;
+    height: 100%;
     background: #F002;
 }
 
@@ -276,7 +281,7 @@ function canStartlayout (evt) {
 }
 
 .mode-layout .box:not(.dragging):not(.resizing) > .slotContainer,
-.mode-layout .placeholder {
+.placeholderContainer {
     transition-property: left, top, width, height;
     transition-duration: 0.1s;
     transition-timing-function: ease-out;
