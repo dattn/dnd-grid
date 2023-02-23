@@ -283,8 +283,8 @@ function canStartlayout (evt) {
 .mode-layout .box:not(.dragging):not(.resizing) > .slotContainer,
 .placeholderContainer {
     transition-property: left, top, width, height;
-    transition-duration: 0.1s;
-    transition-timing-function: ease-out;
+    transition-duration: var(--dnd-grid-transition-duration, 0.1s);
+    transition-timing-function: var(--dnd-grid-transition-timing-function, ease-out);
 }
 
 .slotContainer {

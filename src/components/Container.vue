@@ -187,9 +187,9 @@ function updateBox (box) {
         var(--dnd-grid-cell-max-height, 0)
     );
     gap: var(--dnd-grid-cell-spacing, 0.5em);
+    width: 0;
     min-width: min-content;
     min-height: min-content;
-    transition: min-width ease-out 0.1s, min-height ease-out 0.1s;
 }
 
 .mode-grid {
