@@ -1,8 +1,6 @@
 [
     {
         "id": "settings",
-        "hidden": false,
-        "pinned": false,
         "position": {
             "x": 0,
             "y": 0,
@@ -12,7 +10,6 @@
     },
     {
         "id": 1,
-        "hidden": false,
         "pinned": true,
         "position": {
             "x": 4,
@@ -23,8 +20,6 @@
     },
     {
         "id": 2,
-        "hidden": false,
-        "pinned": false,
         "position": {
             "x": 6,
             "y": 0,
@@ -34,8 +29,6 @@
     },
     {
         "id": 3,
-        "hidden": false,
-        "pinned": false,
         "position": {
             "x": 4,
             "y": 1,
@@ -45,8 +38,6 @@
     },
     {
         "id": 4,
-        "hidden": false,
-        "pinned": false,
         "position": {
             "x": 6,
             "y": 2,
