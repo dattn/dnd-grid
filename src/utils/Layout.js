@@ -8,6 +8,8 @@ Layout json
         id: 1, // box identifier (can be of any type)
         hidden: false, // is box hidden ?
         pinned: false, // should box stay fixed on its position
+        isResizable: true, // box can be resized
+        isDraggable: true, // box can be dragged
         position: { // box position in the layout grid
             x: 1, // horizontal position starting with 1
             y: 1, // vertical position starting with 1
@@ -19,21 +21,9 @@ Layout json
 ]
 */
 
-// sort layout based on position and visibility
+// sort layout based on box positions
 export function sort (layout) {
     return [...layout].sort((a, b) => {
-        if (a.hidden && !b.hidden) {
-            return 1
-        }
-        if (!a.hidden && b.hidden) {
-            return -1
-        }
-        if (a.pinned && !b.pinned) {
-            return -1
-        }
-        if (!a.pinned && b.pinned) {
-            return 1
-        }
         if (a.position.y < b.position.y) {
             return -1
         }

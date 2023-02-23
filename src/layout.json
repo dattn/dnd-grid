@@ -13,7 +13,6 @@
     {
         "id": 1,
         "hidden": false,
-        "pinned": false,
         "pinned": true,
         "position": {
             "x": 4,

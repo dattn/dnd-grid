@@ -50,12 +50,22 @@ const props = defineProps({
     disabled: {
         type: Boolean,
         default: false
+    },
+
+    isResizable: {
+        type: Boolean,
+        default: true,
+    },
+
+    isDraggable: {
+        type: Boolean,
+        default: true
     }
 })
 
 const emit = defineEmits(['update:layout'])
 
-const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp, disabled } = $(props)
+const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp, disabled, isDraggable, isResizable } = $(props)
 
 const $style = useCssModule()
 
@@ -89,6 +99,8 @@ provide(ContainerSymbol, $$({
     layout: readonly(layout),
     mode: readonly(mode),
     disabled: readonly(disabled),
+    isResizable: readonly(isResizable),
+    isDraggable: readonly(isDraggable),
     computedCellSize: readonly(computedCellSize),
     startLayout,
     stopLayout,
@@ -137,7 +149,7 @@ function getBox (id) {
 }
 
 function updateBox (box) {
-    if (!Position.isFree(externalLayout, box.position, box => box.pinned)) return // cannot overlap pinned boxes
+    if (!Position.isFree(externalLayout, box.position, _box => _box.pinned && _box.id !== box.id)) return // cannot overlap pinned boxes
 
     let newLayout = [box]
     externalLayout.forEach(_box => {

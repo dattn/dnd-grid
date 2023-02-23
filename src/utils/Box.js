@@ -45,8 +45,6 @@ export function moveToFreePlace (layout, box, doBubbleUp) {
 export function create (id) {
     return {
         id,
-        hidden: false,
-        pinned: false,
         position: {
             x: 1,
             y: 1,

@@ -22,7 +22,7 @@ const { boxId } = $(props)
 
 const $style = useCssModule()
 
-const { getBox, updateBox, computedCellSize, startLayout, stopLayout, disabled } = $(inject(ContainerSymbol))
+const { getBox, updateBox, computedCellSize, startLayout, stopLayout, disabled, isResizable, isDraggable } = $(inject(ContainerSymbol))
 
 const overlayEl = document.createElement('div')
 overlayEl.classList.add($style.overlay)
@@ -63,13 +63,27 @@ const cssPixels = $computed(() => {
     }
 })
 
+const isBoxResizable = $computed(() => {
+    return !disabled // dnd is enabled
+        && isResizable // resizing is enabled
+        && (box.isResizable ?? true) // box resizing is enabled (defaults to enabled)
+        && (!box.pinned || box.isResizable) // pinned boxes can only be dragged when resizing is explicitly enabled
+})
+
+const isBoxDraggable = $computed(() => {
+    return !disabled // dnd is enabled
+        && isDraggable // dragging is enabled
+        && (box.isDraggable ?? true) // box dragging is enabled (defaults to enabled)
+        && (!box.pinned || box.isDraggable) // pinned boxes can only be dragged when dragging is explicitly enabled
+})
+
 let baseCssPixels = $ref({})
 let basePosition
 
 let isDragging = $ref(false)
 const dragEvents = useDndHandler({
     allow: function allowDrag (evt) {
-        return canStartlayout(evt)
+        return isBoxDraggable && canEventStartDnd(evt) // check if evt is allowed to start dragging
     },
     start: function onDragStart () {
         startLayout()
@@ -99,7 +113,7 @@ let isResizing = $ref(false)
 let resizeMode
 const resizeEvents = useDndHandler({
     allow: function allowResize (evt) {
-        return canStartlayout(evt)
+        return isBoxResizable && canEventStartDnd(evt)
     },
     start: function onResizeStart (_, evt) {
         startLayout()
@@ -189,8 +203,8 @@ function updatePosition (targetPosition) {
     }
 }
 
-function canStartlayout (evt) {
-    return !disabled && !box.pinned && !evt.target.matches(':is(input, button, select, a[href])')
+function canEventStartDnd (evt) {
+    return !evt.target.matches(':is(input, button, select, a[href])')
 }
 </script>
 
@@ -212,7 +226,7 @@ function canStartlayout (evt) {
             <slot v-bind="box" />
         </div>
         <div
-            v-if="!disabled"
+            v-if="isBoxResizable"
             :class="$style.resizeHandleContainer"
             v-on="resizeEvents"
         >
