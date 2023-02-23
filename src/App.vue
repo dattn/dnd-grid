@@ -1,6 +1,7 @@
 <script setup>
 import GridContainer from './components/Container.vue'
 import GridBox from './components/Box.vue'
+import initialLayout from './layout.json'
 
 let cellWidth = $ref()
 let cellMaxWidth = $ref()
@@ -27,64 +28,7 @@ function createInputComputed (targetRef) {
     }
 }
 
-let layout = $ref([
-    {
-        id: 'settings',
-        hidden: false,
-        pinned: false,
-        position: {
-            x: 0,
-            y: 0,
-            w: 4,
-            h: 3
-        }
-    },
-    {
-        id: 1,
-        hidden: false,
-        pinned: false,
-        static: true,
-        position: {
-            x: 4,
-            y: 0,
-            w: 2,
-            h: 1
-        }
-    },
-    {
-        id: 2,
-        hidden: false,
-        pinned: false,
-        position: {
-            x: 6,
-            y: 0,
-            w: 1,
-            h: 2
-        }
-    },
-    {
-        id: 3,
-        hidden: false,
-        pinned: false,
-        position: {
-            x: 4,
-            y: 1,
-            w: 2,
-            h: 3
-        }
-    },
-    {
-        id: 4,
-        hidden: false,
-        pinned: false,
-        position: {
-            x: 6,
-            y: 2,
-            w: 3,
-            h: 1
-        }
-    }
-])
+let layout = $ref(initialLayout)
 
 let boxCount = $ref(4)
 </script>
@@ -111,7 +55,7 @@ let boxCount = $ref(4)
             >
                 <div class="card demo-box">
                     <div class="card-header">
-                        Box {{ box.id }}
+                        Box id:{{ box.id }}
                         <template v-if="box.static">
                             (static)
                         </template>
@@ -126,7 +70,7 @@ let boxCount = $ref(4)
             >
                 <div class="card demo-box">
                     <div class="card-header">
-                        Settings {{ box.id }}
+                        Settings id:{{ box.id }}
                         <template v-if="box.static">
                             (static)
                         </template>
