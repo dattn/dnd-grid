@@ -61,8 +61,8 @@ export default function useMouseHandler (callbacks = {}) {
     }
 
     function onCancel (evt) {
-        evt.stopPropagation()
-        evt.preventDefault()
+        evt?.stopPropagation()
+        evt?.preventDefault()
 
         return onStop(startEvent)
     }
@@ -79,7 +79,7 @@ export default function useMouseHandler (callbacks = {}) {
         doUpdate('update', evt)
     }
 
-    onScopeDispose(() => onStop())
+    onScopeDispose(() => onCancel())
 
     return {
         touchstart: onStart,
