@@ -190,7 +190,7 @@ function updatePosition (targetPosition) {
 }
 
 function canStartlayout (evt) {
-    return enableLayout && !evt.target.matches(':is(input, button, select, a[href])')
+    return enableLayout && !box.static && !evt.target.matches(':is(input, button, select, a[href])')
 }
 </script>
 
@@ -209,7 +209,7 @@ function canStartlayout (evt) {
             ref="slotContainerEl"
             :class="$style.slotContainer"
         >
-            <slot />
+            <slot v-bind="box" />
         </div>
         <div
             v-if="enableLayout"

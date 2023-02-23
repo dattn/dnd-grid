@@ -43,6 +43,7 @@ let layout = $ref([
         id: 1,
         hidden: false,
         pinned: false,
+        static: true,
         position: {
             x: 4,
             y: 0,
@@ -106,10 +107,14 @@ let boxCount = $ref(4)
                 :key="num"
                 :box-id="num"
                 drag-selector="div.card-header"
+                v-slot="box"
             >
                 <div class="card demo-box">
                     <div class="card-header">
-                        Box {{ num }}
+                        Box {{ box.id }}
+                        <template v-if="box.static">
+                            (static)
+                        </template>
                     </div>
                 </div>
             </GridBox>
@@ -117,10 +122,14 @@ let boxCount = $ref(4)
             <GridBox
                 box-id="settings"
                 drag-selector="div.card-header"
+                v-slot="box"
             >
                 <div class="card demo-box">
                     <div class="card-header">
-                        Settings
+                        Settings {{ box.id }}
+                        <template v-if="box.static">
+                            (static)
+                        </template>
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
