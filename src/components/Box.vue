@@ -272,7 +272,9 @@ function canStartlayout (evt) {
 .placeholder {
     width: 100%;
     height: 100%;
-    background: #F002;
+    box-sizing: border-box;
+    background: var(--dnd-grid-placeholder-background, #F002);
+    border: var(--dnd-grid-placeholder-border, none);
 }
 
 .mode-layout :is(.dragging, .resizing) .slotContainer {
