@@ -229,7 +229,7 @@ function canStartlayout (evt) {
             v-if="isDragging || isResizing"
             :class="$style.placeholderContainer"
         >
-            <slot name="placeholder">
+            <slot name="placeholder" v-bind="box">
                 <div :class="$style.placeholder"></div>
             </slot>
         </div>
