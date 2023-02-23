@@ -22,7 +22,7 @@ const { boxId } = $(props)
 
 const $style = useCssModule()
 
-const { getBox, updateBox, computedCellSize, startLayout, stopLayout, enableLayout } = $(inject(ContainerSymbol))
+const { getBox, updateBox, computedCellSize, startLayout, stopLayout, disabled } = $(inject(ContainerSymbol))
 
 const overlayEl = document.createElement('div')
 overlayEl.classList.add($style.overlay)
@@ -190,7 +190,7 @@ function updatePosition (targetPosition) {
 }
 
 function canStartlayout (evt) {
-    return enableLayout && !box.pinned && !evt.target.matches(':is(input, button, select, a[href])')
+    return !disabled && !box.pinned && !evt.target.matches(':is(input, button, select, a[href])')
 }
 </script>
 
@@ -212,7 +212,7 @@ function canStartlayout (evt) {
             <slot v-bind="box" />
         </div>
         <div
-            v-if="enableLayout"
+            v-if="!disabled"
             :class="$style.resizeHandleContainer"
             v-on="resizeEvents"
         >

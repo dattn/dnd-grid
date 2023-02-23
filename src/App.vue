@@ -8,7 +8,7 @@ let cellMaxWidth = $ref()
 let cellHeight = $ref()
 let cellMaxHeight = $ref()
 let cellSpacing = $ref()
-let enableLayout = $ref(true)
+let disabled = $ref(false)
 let bubbleUp = $ref(true)
 
 const cellWidthInput = $computed(createInputComputed($$(cellWidth)))
@@ -43,7 +43,7 @@ let boxCount = $ref(4)
             :cell-height="cellHeight"
             :cell-max-height="cellMaxHeight"
             :cell-spacing="cellSpacing"
-            :enable-layout="enableLayout"
+            :disabled="disabled"
             :bubble-up="bubbleUp"
         >
             <GridBox
@@ -80,11 +80,11 @@ let boxCount = $ref(4)
                             <label
                                 for="settings-margin-input"
                                 class="col-sm-4 col-form-label"
-                            >Enable Layout</label>
+                            >Disabled</label>
                             <div class="col-sm-8">
                                 <input
                                     id="settings-margin-input"
-                                    v-model="enableLayout"
+                                    v-model="disabled"
                                     class="form-control"
                                     type="checkbox"
                                 >

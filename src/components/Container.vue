@@ -47,15 +47,15 @@ const props = defineProps({
         default: false
     },
 
-    enableLayout: {
+    disabled: {
         type: Boolean,
-        default: true
+        default: false
     }
 })
 
 const emit = defineEmits(['update:layout'])
 
-const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp, enableLayout } = $(props)
+const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp, disabled } = $(props)
 
 const $style = useCssModule()
 
@@ -88,7 +88,7 @@ const cssCellSpacing = $computed(() => {
 provide(ContainerSymbol, $$({
     layout: readonly(layout),
     mode: readonly(mode),
-    enableLayout: readonly(enableLayout),
+    disabled: readonly(disabled),
     computedCellSize: readonly(computedCellSize),
     startLayout,
     stopLayout,
