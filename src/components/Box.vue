@@ -9,7 +9,7 @@ import { ContainerSymbol } from '../symbols.js'
 import { inject, useCssModule } from 'vue'
 import { updatePosition as updateBoxPosition } from '../utils/Box.js'
 import { toPixels as positionToPixels, fromPixels as positionFromPixels } from '../utils/Position.js'
-import useMouseHandler from '../composables/useMouseHandler.js'
+import useDndHandler from '../composables/useDndHandler.js'
 
 const props = defineProps({
     boxId: {
@@ -32,9 +32,6 @@ const boxEl = $ref()
 
 const box = $computed(() => getBox(boxId))
 const visible = $computed(() => box && !box.hidden)
-
-const dragEventName = $computed(() => enableLayout ? 'mousedown' : null)
-const resizeEventName = $computed(() => enableLayout ? 'mousedown' : null)
 
 // grid mode
 const position = $computed(() => box?.position)
@@ -70,7 +67,7 @@ let baseCssPixels = $ref({})
 let basePosition
 
 let isDragging = $ref(false)
-const onDragStart = useMouseHandler({
+const dragEvents = useDndHandler({
     allow: function allowDrag (evt) {
         return canStartlayout(evt)
     },
@@ -100,7 +97,7 @@ const onDragStart = useMouseHandler({
 
 let isResizing = $ref(false)
 let resizeMode
-const onResizeStart = useMouseHandler({
+const resizeEvents = useDndHandler({
     allow: function allowResize (evt) {
         return canStartlayout(evt)
     },
@@ -193,7 +190,7 @@ function updatePosition (targetPosition) {
 }
 
 function canStartlayout (evt) {
-    return !evt.target.matches(':is(input, button, select, a[href])')
+    return enableLayout && !evt.target.matches(':is(input, button, select, a[href])')
 }
 </script>
 
@@ -206,7 +203,7 @@ function canStartlayout (evt) {
             [$style.dragging]: isDragging,
             [$style.resizing]: isResizing
         }"
-        @[dragEventName].stop="onDragStart"
+        v-on="dragEvents"
     >
         <div
             ref="slotContainerEl"
@@ -217,7 +214,7 @@ function canStartlayout (evt) {
         <div
             v-if="enableLayout"
             :class="$style.resizeHandleContainer"
-            @[resizeEventName].stop="onResizeStart"
+            v-on="resizeEvents"
         >
             <div data-resize="t-" />
             <div data-resize="-r" />

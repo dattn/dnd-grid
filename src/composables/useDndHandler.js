@@ -19,6 +19,7 @@ export default function useMouseHandler (callbacks = {}) {
 
     function onStart (evt) {
         if (isActive || !callbacks?.['allow']?.(evt)) return
+        evt.stopPropagation()
 
         startEvent = evt
         startX = evt.pageX
@@ -50,5 +51,7 @@ export default function useMouseHandler (callbacks = {}) {
 
     onScopeDispose(() => onStop())
 
-    return onStart
+    return {
+        mousedown: onStart
+    }
 }
