@@ -53,7 +53,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits('update:layout')
+const emit = defineEmits(['update:layout'])
 
 const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp, enableLayout } = $(props)
 
