@@ -30,12 +30,12 @@ export default function useMouseHandler (callbacks = {}) {
         startY = isTouch ? evt.changedTouches[0].pageY : evt.pageY
 
         if (isTouch) {
-            window.addEventListener('touchcancel', onCancel, { capture: true, passive: true, once: true })
-            window.addEventListener('touchend', onStop, { capture: true, passive: true, once: true })
-            window.addEventListener('touchmove', onMove, { capture: true, passive: true })
+            window.addEventListener('touchcancel', onCancel, { once: true })
+            window.addEventListener('touchend', onStop, { once: true })
+            window.addEventListener('touchmove', onMove, { passive: false })
         } else {
-            window.addEventListener('mouseup', onStop, { capture: true, passive: true, once: true })
-            window.addEventListener('mousemove', onMove, { capture: true, passive: true })
+            window.addEventListener('mouseup', onStop, { once: true })
+            window.addEventListener('mousemove', onMove, { passive: false })
         }
     }
 
@@ -44,12 +44,12 @@ export default function useMouseHandler (callbacks = {}) {
         evt?.preventDefault()
 
         if (isTouch) {
-            window.removeEventListener('touchcancel', onCancel, { capture: true, passive: true, once: true })
-            window.removeEventListener('touchend', onStop, { capture: true, passive: true, once: true })
-            window.removeEventListener('touchmove', onMove, { capture: true, passive: true })
+            window.removeEventListener('touchcancel', onCancel, { once: true })
+            window.removeEventListener('touchend', onStop, { once: true })
+            window.removeEventListener('touchmove', onMove, { passive: false })
         } else {
-            window.removeEventListener('mouseup', onStop, { capture: true, passive: true, once: true })
-            window.removeEventListener('mousemove', onMove, { capture: true, passive: true })
+            window.removeEventListener('mouseup', onStop, { once: true })
+            window.removeEventListener('mousemove', onMove, { passive: false })
         }
 
         if (isActive) {
