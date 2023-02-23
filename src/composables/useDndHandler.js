@@ -40,8 +40,8 @@ export default function useMouseHandler (callbacks = {}) {
     }
 
     function onStop (evt) {
-        evt.stopPropagation()
-        evt.preventDefault()
+        evt?.stopPropagation()
+        evt?.preventDefault()
 
         if (isTouch) {
             window.removeEventListener('touchcancel', onCancel, { capture: true, passive: true, once: true })
