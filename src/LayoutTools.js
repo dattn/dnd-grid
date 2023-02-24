@@ -76,7 +76,7 @@ export function moveToFreePlace (layout, box, layoutOptions) {
     const initialY = newPosition.y
 
     if (layoutOptions?.bubbleUp && newPosition.y > 0) {
-        if (layoutOptions?.bubbleMode === 'jump-over') {
+        if (layoutOptions?.bubbleUp === 'jump-over') {
             newPosition.y = 0
         }
 
