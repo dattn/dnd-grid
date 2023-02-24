@@ -140,13 +140,7 @@ export function createBox (layout, id, data, layoutOptions) {
     return moveToFreePlace(layout, box, layoutOptions)
 }
 
-// add box
-export function addBox (layout, box, layoutOptions) {
-    const { index, box: _box } = _getBox(layout, box.id)
-    if (box === _box || index > -1) {
-        return layout
-    }
-
+function placeBox (layout, box, layoutOptions) {
     let newLayout = layout.filter(_box => _box.id !== box.id && _box.pinned)
     box = moveToFreePlace(newLayout, box)
     newLayout.push(box)
@@ -159,15 +153,24 @@ export function addBox (layout, box, layoutOptions) {
     return fix(newLayout, layoutOptions)
 }
 
+// add box
+export function addBox (layout, box, layoutOptions) {
+    const { index, box: _box } = _getBox(layout, box.id)
+    if (box === _box || index > -1) {
+        return layout
+    }
+
+    return placeBox(layout, box, layoutOptions)
+}
+
 // update box
 export function updateBox (layout, id, data, layoutOptions) {
     const { box } = _getBox(layout, id)
-
-    if (box) {
-        return addBox(layout, updateBoxData(box, data), layoutOptions)
+    if (!box) {
+        return layout
     }
 
-    return layout
+    return placeBox(layout, updateBoxData(box, data), layoutOptions)
 }
 
 // remove box
