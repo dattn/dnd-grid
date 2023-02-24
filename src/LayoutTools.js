@@ -75,11 +75,11 @@ export function moveToFreePlace (layout, box, layoutOptions) {
     const newPosition = { ...box.position }
     const initialY = newPosition.y
 
-    if (layoutOptions?.startOnTop) {
-        newPosition.y = 0
-    }
-
     if (layoutOptions?.bubbleUp && newPosition.y > 0) {
+        if (layoutOptions?.bubbleMode === 'jump-over') {
+            newPosition.y = 0
+        }
+
         do {
             newPosition.y--
         } while (

@@ -45,6 +45,11 @@ const props = defineProps({
         default: false
     },
 
+    bubbleMode: {
+        type: String,
+        default: 'colliding'
+    },
+
     disabled: {
         type: Boolean,
         default: false
@@ -113,7 +118,7 @@ watch($$(externalLayout), newLayout => {
 const layoutOptions = $computed(() => {
     return {
         bubbleUp: props.bubbleUp,
-        startOnTop: false,
+        bubbleMode: props.bubbleMode,
     }
 })
 
