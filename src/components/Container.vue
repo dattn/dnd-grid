@@ -149,11 +149,13 @@ function getBox (id) {
 }
 
 function updateBox (box) {
-    if (!Position.isFree(externalLayout, box.position, _box => _box.pinned && _box.id !== box.id)) return // cannot overlap pinned boxes
-
-    let newLayout = [box]
+    // create new layout and copy pinned boxes
+    let newLayout = layout.filter(_box => _box.id !== box.id && _box.pinned)
+    // add updated box
+    newLayout.push(Box.moveToFreePlace(newLayout, box))
+    // add rest of the boxes
     externalLayout.forEach(_box => {
-        if (_box.id === box.id) return
+        if (_box.id === box.id || _box.pinned) return
         newLayout.push(Box.moveToFreePlace(newLayout, _box))
     })
     if (bubbleUp) {

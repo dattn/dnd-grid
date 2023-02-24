@@ -21,9 +21,15 @@ Layout json
 ]
 */
 
-// sort layout based on box positions
+// sort layout based on position and visibility
 export function sort (layout) {
     return [...layout].sort((a, b) => {
+        if (a.hidden && !b.hidden) {
+            return 1
+        }
+        if (!a.hidden && b.hidden) {
+            return -1
+        }
         if (a.position.y < b.position.y) {
             return -1
         }
