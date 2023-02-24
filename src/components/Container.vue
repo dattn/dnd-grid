@@ -7,9 +7,7 @@ export default {
 <script setup>
 import { provide, readonly, useCssModule, watch } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
-import * as Layout from '../utils/Layout.js'
-import * as Box from '../utils/Box.js'
-import * as Position from '../utils/Position.js'
+import { getBox as _getBox, updateBox as _updateBox } from '../LayoutTools.js'
 
 const props = defineProps({
     layout: {
@@ -72,7 +70,7 @@ const $style = useCssModule()
 const containerEl = $ref()
 let computedCellSize = $ref()
 let mode = $ref('grid')
-let layout = $ref([])
+let layout = $ref(externalLayout)
 
 const cssCellWidth = $computed(() => {
     if (cellWidth == undefined) return
@@ -108,13 +106,26 @@ provide(ContainerSymbol, $$({
     updateBox
 }))
 
-watch($$(externalLayout), () => {
-    if (mode === 'grid') {
-        layout = externalLayout
-    }
-}, {
-    immediate: true
+watch($$(externalLayout), newLayout => {
+    layout = newLayout
 })
+
+const layoutOptions = $computed(() => {
+    return {
+        bubbleUp,
+        startOnTop: false,
+        autoCreate: true,
+        replaceExisting: true
+    }
+})
+
+function getBox (id) {
+    return _getBox(layout, id, layoutOptions)
+}
+
+function updateBox (id, data) {
+    return layout = _updateBox(externalLayout, id, data, layoutOptions)
+}
 
 function updateComputedCellSize () {
     if (containerEl) {
@@ -130,38 +141,12 @@ function updateComputedCellSize () {
 
 function startLayout () {
     updateComputedCellSize()
-    layout = externalLayout
     mode = 'layout'
 }
 
 function stopLayout () {
     emit('update:layout', layout)
-    layout = externalLayout
     mode = 'grid'
-}
-
-function getBox (id) {
-    const box = Layout.getBox(layout, id)
-    if (box) return box
-    const newBox = Box.moveToFreePlace(layout, Box.create(id))
-    layout = Layout.addOrReplaceBox(layout, newBox)
-    return newBox
-}
-
-function updateBox (box) {
-    // create new layout and copy pinned boxes
-    let newLayout = layout.filter(_box => _box.id !== box.id && _box.pinned)
-    // add updated box
-    newLayout.push(Box.moveToFreePlace(newLayout, box))
-    // add rest of the boxes
-    externalLayout.forEach(_box => {
-        if (_box.id === box.id || _box.pinned) return
-        newLayout.push(Box.moveToFreePlace(newLayout, _box))
-    })
-    if (bubbleUp) {
-        newLayout = Layout.bubbleUp(newLayout)
-    }
-    layout = newLayout
 }
 </script>
 

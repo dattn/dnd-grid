@@ -2,6 +2,7 @@
 import GridContainer from './components/Container.vue'
 import GridBox from './components/Box.vue'
 import initialLayout from './layout.json'
+import * as LayoutTools from './LayoutTools.js'
 
 let cellWidth = $ref()
 let cellMaxWidth = $ref()
@@ -31,6 +32,18 @@ function createInputComputed (targetRef) {
 let layout = $ref(initialLayout)
 
 let boxCount = $ref(4)
+
+function addBox () {
+    boxCount++
+    layout = LayoutTools.addBox(layout, LayoutTools.createBox(layout, boxCount))
+}
+
+function removeBox () {
+    if (boxCount > 0) {
+        layout = LayoutTools.removeBox(layout, boxCount)
+        boxCount--
+    }
+}
 </script>
 
 <template>
@@ -49,9 +62,9 @@ let boxCount = $ref(4)
             <GridBox
                 v-for="num in boxCount"
                 :key="num"
+                v-slot="box"
                 :box-id="num"
                 drag-selector="div.card-header"
-                v-slot="box"
             >
                 <div class="card demo-box">
                     <div class="card-header">
@@ -64,9 +77,9 @@ let boxCount = $ref(4)
             </GridBox>
 
             <GridBox
+                v-slot="box"
                 box-id="settings"
                 drag-selector="div.card-header"
-                v-slot="box"
             >
                 <div class="card demo-box">
                     <div class="card-header">
@@ -157,13 +170,13 @@ let boxCount = $ref(4)
                         </div>
                         <button
                             class="btn btn-success"
-                            @click="boxCount++"
+                            @click="addBox"
                         >
                             Add Box
                         </button>
                         <button
                             class="btn btn-danger"
-                            @click="boxCount = Math.max(0, boxCount - 1)"
+                            @click="removeBox"
                         >
                             Remove Box
                         </button>

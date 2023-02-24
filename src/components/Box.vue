@@ -7,8 +7,7 @@ export default {
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
 import { inject, useCssModule } from 'vue'
-import { updatePosition as updateBoxPosition } from '../utils/Box.js'
-import { toPixels as positionToPixels, fromPixels as positionFromPixels } from '../utils/Position.js'
+import { toPixels, fromPixels } from '../LayoutTools.js'
 import useDndHandler from '../composables/useDndHandler.js'
 
 const props = defineProps({
@@ -30,7 +29,7 @@ overlayEl.classList.add($style.overlay)
 const slotContainerEl = $ref()
 const boxEl = $ref()
 
-const box = $computed(() => getBox(boxId))
+const box = $computed(() => getBox(boxId, true))
 const visible = $computed(() => box && !box.hidden)
 
 // grid mode
@@ -47,7 +46,7 @@ const cssPosition = $computed(() => {
 // layouting mode
 const pixels = $computed(() => {
     if (!position || !computedCellSize) return
-    return positionToPixels(
+    return toPixels(
         box.position,
         computedCellSize.width,
         computedCellSize.height,
@@ -66,15 +65,15 @@ const cssPixels = $computed(() => {
 const isBoxResizable = $computed(() => {
     return !disabled // dnd is enabled
         && isResizable // resizing is enabled
-        && (box.isResizable ?? true) // box resizing is enabled (defaults to enabled)
-        && (!box.pinned || box.isResizable) // pinned boxes can only be dragged when resizing is explicitly enabled
+        && (box?.isResizable ?? true) // box resizing is enabled (defaults to enabled)
+        && (!box?.pinned || box?.isResizable) // pinned boxes can only be dragged when resizing is explicitly enabled
 })
 
 const isBoxDraggable = $computed(() => {
     return !disabled // dnd is enabled
         && isDraggable // dragging is enabled
-        && (box.isDraggable ?? true) // box dragging is enabled (defaults to enabled)
-        && (!box.pinned || box.isDraggable) // pinned boxes can only be dragged when dragging is explicitly enabled
+        && (box?.isDraggable ?? true) // box dragging is enabled (defaults to enabled)
+        && (!box?.pinned || box?.isDraggable) // pinned boxes can only be dragged when dragging is explicitly enabled
 })
 
 let baseCssPixels = $ref({})
@@ -177,7 +176,7 @@ function applyOffsetPixels (basePosition, offsetPixels) {
 
     const halfCellSizeWidth = computedCellSize.width / 2
     const halfCellSizeHeight = computedCellSize.height / 2
-    const targetPosition = positionFromPixels({
+    const targetPosition = fromPixels({
         x: offsetPixels.x + halfCellSizeWidth, // add half cellsize for better box placement
         y: offsetPixels.y + halfCellSizeHeight,
         w: offsetPixels.w + halfCellSizeWidth,
@@ -199,7 +198,7 @@ function updatePosition (targetPosition) {
         position.w !== targetPosition.w ||
         position.h !== targetPosition.h
     ) {
-        updateBox(updateBoxPosition(box, targetPosition))
+        updateBox(box.id, { position: targetPosition })
     }
 }
 
@@ -243,8 +242,11 @@ function canEventStartDnd (evt) {
             v-if="isDragging || isResizing"
             :class="$style.placeholderContainer"
         >
-            <slot name="placeholder" v-bind="box">
-                <div :class="$style.placeholder"></div>
+            <slot
+                name="placeholder"
+                v-bind="box"
+            >
+                <div :class="$style.placeholder" />
             </slot>
         </div>
     </div>
