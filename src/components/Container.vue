@@ -63,7 +63,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:layout'])
 
-const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, bubbleUp, disabled, isDraggable, isResizable } = $(props)
+const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, disabled, isDraggable, isResizable } = $(props)
 
 const $style = useCssModule()
 
@@ -112,10 +112,8 @@ watch($$(externalLayout), newLayout => {
 
 const layoutOptions = $computed(() => {
     return {
-        bubbleUp,
+        bubbleUp: props.bubbleUp,
         startOnTop: false,
-        autoCreate: true,
-        replaceExisting: true
     }
 })
 

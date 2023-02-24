@@ -143,7 +143,7 @@ export function createBox (layout, id, data, layoutOptions) {
 // add box
 export function addBox (layout, box, layoutOptions) {
     const { index, box: _box } = _getBox(layout, box.id)
-    if (box === _box || (index > -1 && !layoutOptions?.replaceExisting)) {
+    if (box === _box || index > -1) {
         return layout
     }
 
