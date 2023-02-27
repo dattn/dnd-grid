@@ -219,6 +219,17 @@ function canEventStartDnd (evt) {
         v-on="dragEvents"
     >
         <div
+            v-if="isDragging || isResizing"
+            :class="$style.placeholderContainer"
+        >
+            <slot
+                name="placeholder"
+                v-bind="box"
+            >
+                <div :class="$style.placeholder" />
+            </slot>
+        </div>
+        <div
             ref="slotContainerEl"
             :class="$style.slotContainer"
         >
@@ -237,17 +248,6 @@ function canEventStartDnd (evt) {
             <div data-resize="tr" />
             <div data-resize="br" />
             <div data-resize="bl" />
-        </div>
-        <div
-            v-if="isDragging || isResizing"
-            :class="$style.placeholderContainer"
-        >
-            <slot
-                name="placeholder"
-                v-bind="box"
-            >
-                <div :class="$style.placeholder" />
-            </slot>
         </div>
     </div>
 </template>
