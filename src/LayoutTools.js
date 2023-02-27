@@ -117,7 +117,7 @@ export function updateBoxData (box, data = {}) {
 // fix layout based on layoutOptions
 export function fix (layout, layoutOptions) {
     let newLayout = sort(layout)
-    if (layoutOptions?.bubbleUp || layoutOptions?.startOnTop) {
+    if (layoutOptions?.bubbleUp) {
         newLayout.forEach((box, index) => {
             newLayout[index] = moveToFreePlace(newLayout, box, layoutOptions)
         })
