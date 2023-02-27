@@ -1,6 +1,6 @@
 {
     "name": "@dattn/dnd-grid",
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0-beta.2",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -33,7 +33,8 @@
         ".": {
             "import": "./dist/dnd-grid.js",
             "require": "./dist/dnd-grid.umd.cjs"
-        }
+        },
+        "./style.css": "./dist/style.css"
     },
     "volta": {
         "node": "18.12.0"
