@@ -1,5 +1,5 @@
 {
-    "name": "dnd-grid",
+    "name": "@dattn/dnd-grid",
     "private": true,
     "version": "1.0.0-beta.1",
     "type": "module",
