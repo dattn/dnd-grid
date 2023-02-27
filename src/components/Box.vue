@@ -314,23 +314,23 @@ function canEventStartDnd (evt) {
     width: 100%;
     height: 100%;
     position: relative;
-    --dnd-grid-resize-handler-size: 10px;
-    --dnd-grid-resize-handler-offset: calc(var(--dnd-grid-resize-handler-size) / -2);
+    --dnd-grid-resize-handler-default-size: 10px;
+    --dnd-grid-resize-handler-default-offset: calc(var(--dnd-grid-resize-handler-size, var(--dnd-grid-resize-handler-default-size)) / -2);
 }
 
 .resizeHandleContainer > * {
     position: absolute;
-    width: var(--dnd-grid-resize-handler-size);
-    height: var(--dnd-grid-resize-handler-size);
+    width: var(--dnd-grid-resize-handler-size, var(--dnd-grid-resize-handler-default-size));
+    height: var(--dnd-grid-resize-handler-size, var(--dnd-grid-resize-handler-default-size));
     z-index: 9999;
 }
 
 .resizeHandleContainer > [data-resize^=t] {
-    top: var(--dnd-grid-resize-handler-offset);
+    top: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
 .resizeHandleContainer > [data-resize^=b] {
-    bottom: var(--dnd-grid-resize-handler-offset);
+    bottom: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
 .resizeHandleContainer > [data-resize^='-'] {
@@ -339,11 +339,11 @@ function canEventStartDnd (evt) {
 }
 
 .resizeHandleContainer > [data-resize$=l] {
-    left: var(--dnd-grid-resize-handler-offset);
+    left: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
 .resizeHandleContainer > [data-resize$=r] {
-    right: var(--dnd-grid-resize-handler-offset);
+    right: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
 .resizeHandleContainer > [data-resize$='-'] {

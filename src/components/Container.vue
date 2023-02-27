@@ -15,6 +15,27 @@ const props = defineProps({
         default: () => []
     },
 
+    bubbleUp: {
+        type: [Boolean, String],
+        default: false
+    },
+
+    disabled: {
+        type: Boolean,
+        default: false
+    },
+
+    isResizable: {
+        type: Boolean,
+        default: true,
+    },
+
+    isDraggable: {
+        type: Boolean,
+        default: true
+    },
+
+    // styling (mapped to css props)
     cellWidth: {
         type: [Number, String],
         default: null
@@ -40,30 +61,40 @@ const props = defineProps({
         default: null
     },
 
-    bubbleUp: {
-        type: [Boolean, String],
-        default: false
+    resizeHandlerSize: {
+        type: [Number, String],
+        default: null
     },
 
-    disabled: {
-        type: Boolean,
-        default: false
+    resizeHandlerOffset: {
+        type: [Number, String],
+        default: null
     },
 
-    isResizable: {
-        type: Boolean,
-        default: true,
+    placeholderBackground: {
+        type: String,
+        default: null
     },
 
-    isDraggable: {
-        type: Boolean,
-        default: true
+    placeholderBorder: {
+        type: String,
+        default: null
+    },
+
+    transitionTimingFunction: {
+        type: String,
+        default: null
+    },
+
+    transitionDuration: {
+        type: String,
+        default: null
     }
 })
 
 const emit = defineEmits(['update:layout'])
 
-const { layout: externalLayout, cellWidth, cellMaxWidth, cellHeight, cellMaxHeight, cellSpacing, disabled, isDraggable, isResizable } = $(props)
+const { layout: externalLayout, disabled, isDraggable, isResizable } = $(props)
 
 const $style = useCssModule()
 
@@ -71,27 +102,6 @@ const containerEl = $ref()
 let computedCellSize = $ref()
 let mode = $ref('grid')
 let layout = $ref(externalLayout)
-
-const cssCellWidth = $computed(() => {
-    if (cellWidth == undefined) return
-    return isNaN(cellWidth) ? cellWidth : `${cellWidth}px`
-})
-const cssCellMaxWidth = $computed(() => {
-    if (cellMaxWidth == undefined) return
-    return isNaN(cellMaxWidth) ? cellMaxWidth : `${cellMaxWidth}px`
-})
-const cssCellHeight = $computed(() => {
-    if (cellHeight == undefined) return
-    return isNaN(cellHeight) ? cellHeight : `${cellHeight}px`
-})
-const cssCellMaxHeight = $computed(() => {
-    if (cellMaxHeight == undefined) return
-    return isNaN(cellMaxHeight) ? cellMaxHeight : `${cellMaxHeight}px`
-})
-const cssCellSpacing = $computed(() => {
-    if (cellSpacing == undefined) return
-    return isNaN(cellSpacing) ? cellSpacing : `${cellSpacing}px`
-})
 
 provide(ContainerSymbol, $$({
     layout: readonly(layout),
@@ -122,6 +132,11 @@ function getBox (id) {
 
 function updateBox (id, data) {
     return layout = _updateBox(externalLayout, id, data, layoutOptions)
+}
+
+function toCssSize (value) {
+    if (value == undefined) return
+    return isNaN(value) ? value : `${value}px`
 }
 
 function updateComputedCellSize () {
@@ -155,11 +170,17 @@ function stopLayout () {
             [$style['mode-' + mode]]: true,
         }"
         :style="{
-            '--dnd-grid-cell-width': cssCellWidth,
-            '--dnd-grid-cell-max-width': cssCellMaxWidth,
-            '--dnd-grid-cell-height': cssCellHeight,
-            '--dnd-grid-cell-max-height': cssCellMaxHeight,
-            '--dnd-grid-cell-spacing': cssCellSpacing
+            '--dnd-grid-cell-width': toCssSize(props.cellWidth),
+            '--dnd-grid-cell-max-width': toCssSize(props.cellMaxWidth),
+            '--dnd-grid-cell-height': toCssSize(props.cellHeight),
+            '--dnd-grid-cell-max-height': toCssSize(props.cellMaxHeight),
+            '--dnd-grid-cell-spacing': toCssSize(props.cellSpacing),
+            '--dnd-grid-resize-handler-size': toCssSize(props.resizeHandlerSize),
+            '--dnd-grid-resize-handler-offset': toCssSize(props.resizeHandlerOffset),
+            '--dnd-grid-placeholder-background': props.placeholderBackground,
+            '--dnd-grid-placeholder-border': props.placeholderBorder,
+            '--dnd-grid-transition-timing-function': props.transitionTimingFunction,
+            '--dnd-grid-transition-duration': props.transitionDuration,
         }"
     >
         <slot />
