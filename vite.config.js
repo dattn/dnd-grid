@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 import crypto from 'node:crypto'
+import { resolve } from 'node:path'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -24,5 +25,20 @@ export default defineConfig({
                 return `dnd-grid-${cssModulesHash}__${name}`
             }
         }
-    }
+    },
+    build: {
+        lib: {
+            entry: resolve('./src/lib.js'),
+            name: 'DndGrid',
+            fileName: 'dnd-grid',
+        },
+        rollupOptions: {
+            external: ['vue'],
+            output: {
+                globals: {
+                    vue: 'Vue',
+                },
+            },
+        },
+    },
 })
