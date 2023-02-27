@@ -145,7 +145,7 @@ function placeBox (layout, box, layoutOptions) {
     box = moveToFreePlace(newLayout, box)
     newLayout.push(box)
 
-    layout.forEach(_box => {
+    sort(layout).forEach(_box => {
         if (_box.id === box.id || _box.pinned) return
         newLayout.push(moveToFreePlace(newLayout, _box))
     })
