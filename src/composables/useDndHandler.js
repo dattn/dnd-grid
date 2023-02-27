@@ -54,10 +54,11 @@ export default function useMouseHandler (callbacks = {}) {
 
         if (isActive) {
             doUpdate('stop', evt)
-            hasStarted = false
-            isActive = false
-            startEvent = undefined
         }
+
+        hasStarted = false
+        isActive = false
+        startEvent = undefined
     }
 
     function onCancel (evt) {
