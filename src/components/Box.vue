@@ -116,13 +116,13 @@ const resizeEvents = useDndHandler({
     },
     start: function onResizeStart (_, evt) {
         startLayout()
-        resizeMode = evt?.target?.dataset?.resize
+        resizeMode = evt?.target?.getAttribute?.('dnd-grid-resize') || null
         baseCssPixels = cssPixels
         basePosition = position
         isResizing = true
 
         document.body.appendChild(overlayEl)
-        document.body.dataset.resize = resizeMode
+        document.body.setAttribute('dnd-grid-resize', resizeMode)
     },
     stop: function onResizeStop () {
         stopLayout()
@@ -131,7 +131,7 @@ const resizeEvents = useDndHandler({
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
 
         overlayEl.remove()
-        delete document.body.dataset.resize
+        document.body.removeAttribute('dnd-grid-resize')
     },
     update: function onResizeUpdate ({ offsetX, offsetY }) {
         let offsetPixels = { x: 0, y: 0, w: 0, h: 0 }
@@ -240,14 +240,14 @@ function canEventStartDnd (evt) {
             :class="$style.resizeHandleContainer"
             v-on="resizeEvents"
         >
-            <div data-resize="t-" />
-            <div data-resize="-r" />
-            <div data-resize="b-" />
-            <div data-resize="-l" />
-            <div data-resize="tl" />
-            <div data-resize="tr" />
-            <div data-resize="br" />
-            <div data-resize="bl" />
+            <div dnd-grid-resize="t-" />
+            <div dnd-grid-resize="-r" />
+            <div dnd-grid-resize="b-" />
+            <div dnd-grid-resize="-l" />
+            <div dnd-grid-resize="tl" />
+            <div dnd-grid-resize="tr" />
+            <div dnd-grid-resize="br" />
+            <div dnd-grid-resize="bl" />
         </div>
     </div>
 </template>
@@ -325,45 +325,45 @@ function canEventStartDnd (evt) {
     z-index: 9999;
 }
 
-.resizeHandleContainer > [data-resize^=t] {
+.resizeHandleContainer > [dnd-grid-resize^=t] {
     top: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
-.resizeHandleContainer > [data-resize^=b] {
+.resizeHandleContainer > [dnd-grid-resize^=b] {
     bottom: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
-.resizeHandleContainer > [data-resize^='-'] {
+.resizeHandleContainer > [dnd-grid-resize^='-'] {
     top: 0px;
     height: 100%;
 }
 
-.resizeHandleContainer > [data-resize$=l] {
+.resizeHandleContainer > [dnd-grid-resize$=l] {
     left: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
-.resizeHandleContainer > [data-resize$=r] {
+.resizeHandleContainer > [dnd-grid-resize$=r] {
     right: var(--dnd-grid-resize-handler-offset, var(--dnd-grid-resize-handler-default-offset));
 }
 
-.resizeHandleContainer > [data-resize$='-'] {
+.resizeHandleContainer > [dnd-grid-resize$='-'] {
     left: 0px;
     width: 100%;
 }
 
-:is([data-resize=t-], [data-resize=b-]) {
+:is([dnd-grid-resize=t-], [dnd-grid-resize=b-]) {
     cursor: ns-resize;
 }
 
-:is([data-resize=-r], [data-resize=-l]) {
+:is([dnd-grid-resize=-r], [dnd-grid-resize=-l]) {
     cursor: ew-resize;
 }
 
-:is([data-resize=tl], [data-resize=br]) {
+:is([dnd-grid-resize=tl], [dnd-grid-resize=br]) {
     cursor: nwse-resize;
 }
 
-:is([data-resize=tr], [data-resize=bl]) {
+:is([dnd-grid-resize=tr], [dnd-grid-resize=bl]) {
     cursor: nesw-resize;
 }
 
