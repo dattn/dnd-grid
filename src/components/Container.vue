@@ -35,6 +35,27 @@ const props = defineProps({
         default: true
     },
 
+    dragSelector: {
+        type: Object,
+        default: () => ({
+            include: '[dnd-grid-drag]',
+            exclude: ':is(input, button, select, a[href])'
+        })
+    },
+
+    resizeSelector: {
+        type: Object,
+        default: () => ({
+            include: '[dnd-grid-resize]',
+            exclude: ':is(input, button, select, a[href])'
+        })
+    },
+
+    addResizeHandles: {
+        type: Boolean,
+        default: true
+    },
+
     // styling (mapped to css props)
     cellWidth: {
         type: [Number, String],
@@ -89,28 +110,12 @@ const props = defineProps({
     transitionDuration: {
         type: String,
         default: null
-    },
-
-    dragSelector: {
-        type: Object,
-        default: () => ({
-            include: '[dnd-grid-drag]',
-            exclude: ':is(input, button, select, a[href])'
-        })
-    },
-
-    resizeSelector: {
-        type: Object,
-        default: () => ({
-            include: '[dnd-grid-resize]',
-            exclude: ':is(input, button, select, a[href])'
-        })
     }
 })
 
 const emit = defineEmits(['update:layout'])
 
-const { layout: externalLayout, disabled, isDraggable, isResizable } = $(props)
+const { layout: externalLayout, disabled, isDraggable, isResizable, addResizeHandles } = $(props)
 
 const $style = useCssModule()
 
@@ -131,7 +136,8 @@ provide(ContainerSymbol, $$({
     getBox,
     updateBox,
     canStartDrag,
-    canStartResize
+    canStartResize,
+    addResizeHandles
 }))
 
 watch($$(externalLayout), newLayout => {

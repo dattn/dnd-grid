@@ -31,7 +31,8 @@ const {
     isResizable,
     isDraggable,
     canStartDrag,
-    canStartResize
+    canStartResize,
+    addResizeHandles
 } = $(inject(ContainerSymbol))
 
 const overlayEl = document.createElement('div')
@@ -262,7 +263,7 @@ function mergeEvents (...eventObjects) {
             <slot v-bind="box" />
         </div>
         <div
-            v-if="isBoxResizable"
+            v-if="addResizeHandles && isBoxResizable"
             :class="$style.resizeHandleContainer"
         >
             <div dnd-grid-resize="t-" />
