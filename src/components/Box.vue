@@ -21,7 +21,18 @@ const { boxId } = $(props)
 
 const $style = useCssModule()
 
-const { getBox, updateBox, computedCellSize, startLayout, stopLayout, disabled, isResizable, isDraggable } = $(inject(ContainerSymbol))
+const {
+    getBox,
+    updateBox,
+    computedCellSize,
+    startLayout,
+    stopLayout,
+    disabled,
+    isResizable,
+    isDraggable,
+    canStartDrag,
+    canStartResize
+} = $(inject(ContainerSymbol))
 
 const overlayEl = document.createElement('div')
 overlayEl.classList.add($style.overlay)
@@ -82,7 +93,7 @@ let basePosition
 let isDragging = $ref(false)
 const dragEvents = useDndHandler({
     allow: function allowDrag (evt) {
-        return isBoxDraggable && canEventStartDnd(evt) // check if evt is allowed to start dragging
+        return isBoxDraggable && canStartDrag(evt) // check if evt is allowed to start dragging
     },
     start: function onDragStart () {
         startLayout()
@@ -91,7 +102,7 @@ const dragEvents = useDndHandler({
         isDragging = true
 
         document.body.appendChild(overlayEl)
-        document.body.classList.add($style['cursor-grabbing'])
+        document.body.setAttribute('dnd-grid-drag', '')
     },
     stop: function onDragStop () {
         stopLayout()
@@ -100,7 +111,7 @@ const dragEvents = useDndHandler({
         slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-top')
 
         overlayEl.remove()
-        document.body.classList.remove($style['cursor-grabbing'])
+        document.body.removeAttribute('dnd-grid-drag')
     },
     update: function onDragUpdate ({ offsetX, offsetY }) {
         let offsetPixels = { x: offsetX, y: offsetY, w: 0, h: 0 }
@@ -112,11 +123,11 @@ let isResizing = $ref(false)
 let resizeMode
 const resizeEvents = useDndHandler({
     allow: function allowResize (evt) {
-        return isBoxResizable && canEventStartDnd(evt)
+        return isBoxResizable && canStartResize(evt)
     },
     start: function onResizeStart (_, evt) {
         startLayout()
-        resizeMode = evt?.target?.getAttribute?.('dnd-grid-resize') || null
+        resizeMode = evt?.target?.getAttribute?.('dnd-grid-resize') || 'br'
         baseCssPixels = cssPixels
         basePosition = position
         isResizing = true
@@ -162,6 +173,10 @@ const resizeEvents = useDndHandler({
     }
 })
 
+const boxEvents = $computed(() => {
+    return mergeEvents(dragEvents, resizeEvents)
+})
+
 function applyOffsetPixels (basePosition, offsetPixels) {
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-left', `${offsetPixels.x}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-top', `${offsetPixels.y}px`)
@@ -202,8 +217,19 @@ function updatePosition (targetPosition) {
     }
 }
 
-function canEventStartDnd (evt) {
-    return !evt.target.matches(':is(input, button, select, a[href])')
+function mergeEvents (...eventObjects) {
+    const eventMap = new Map()
+    eventObjects.forEach(eventObject => {
+        for (const key in eventObject) {
+            const callbackList = eventMap.get(key) || eventMap.set(key, []).get(key)
+            callbackList.push(eventObject[key])
+        }
+    })
+    const mergedEvents = {}
+    eventMap.forEach((callbacks, key) => {
+        mergedEvents[key] = evt => callbacks.forEach(callback => callback(evt))
+    })
+    return mergedEvents
 }
 </script>
 
@@ -216,7 +242,7 @@ function canEventStartDnd (evt) {
             [$style.dragging]: isDragging,
             [$style.resizing]: isResizing
         }"
-        v-on="dragEvents"
+        v-on="boxEvents"
     >
         <div
             v-if="isDragging || isResizing"
@@ -238,7 +264,6 @@ function canEventStartDnd (evt) {
         <div
             v-if="isBoxResizable"
             :class="$style.resizeHandleContainer"
-            v-on="resizeEvents"
         >
             <div dnd-grid-resize="t-" />
             <div dnd-grid-resize="-r" />
@@ -349,26 +374,6 @@ function canEventStartDnd (evt) {
 .resizeHandleContainer > [dnd-grid-resize$='-'] {
     left: 0px;
     width: 100%;
-}
-
-:is([dnd-grid-resize=t-], [dnd-grid-resize=b-]) {
-    cursor: ns-resize;
-}
-
-:is([dnd-grid-resize=-r], [dnd-grid-resize=-l]) {
-    cursor: ew-resize;
-}
-
-:is([dnd-grid-resize=tl], [dnd-grid-resize=br]) {
-    cursor: nwse-resize;
-}
-
-:is([dnd-grid-resize=tr], [dnd-grid-resize=bl]) {
-    cursor: nesw-resize;
-}
-
-.cursor-grabbing {
-    cursor: grabbing;
 }
 
 .overlay {

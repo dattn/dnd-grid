@@ -64,10 +64,12 @@ function removeBox () {
                 :key="num"
                 v-slot="box"
                 :box-id="num"
-                drag-selector="div.card-header"
             >
                 <div class="card demo-box">
-                    <div class="card-header">
+                    <div
+                        class="card-header"
+                        :dnd-grid-drag="box.pinned ? null : ''"
+                    >
                         Box id:{{ box.id }}
                         <template v-if="box.pinned">
                             (pinned)
@@ -79,10 +81,12 @@ function removeBox () {
             <GridBox
                 v-slot="box"
                 box-id="settings"
-                drag-selector="div.card-header"
             >
                 <div class="card demo-box">
-                    <div class="card-header">
+                    <div
+                        class="card-header"
+                        dnd-grid-drag
+                    >
                         Settings id:{{ box.id }}
                         <template v-if="box.pinned">
                             (pinned)

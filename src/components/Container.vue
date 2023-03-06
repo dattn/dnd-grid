@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup>
-import { provide, readonly, useCssModule, watch } from 'vue'
+import { provide, readonly, useCssModule, watch, onMounted, onBeforeUnmount } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
 import { getBox as _getBox, updateBox as _updateBox } from '../LayoutTools.js'
 
@@ -89,6 +89,22 @@ const props = defineProps({
     transitionDuration: {
         type: String,
         default: null
+    },
+
+    dragSelector: {
+        type: Object,
+        default: () => ({
+            include: '[dnd-grid-drag]',
+            exclude: ':is(input, button, select, a[href])'
+        })
+    },
+
+    resizeSelector: {
+        type: Object,
+        default: () => ({
+            include: '[dnd-grid-resize]',
+            exclude: ':is(input, button, select, a[href])'
+        })
     }
 })
 
@@ -113,7 +129,9 @@ provide(ContainerSymbol, $$({
     startLayout,
     stopLayout,
     getBox,
-    updateBox
+    updateBox,
+    canStartDrag,
+    canStartResize
 }))
 
 watch($$(externalLayout), newLayout => {
@@ -123,6 +141,68 @@ watch($$(externalLayout), newLayout => {
 const layoutOptions = $computed(() => {
     return {
         bubbleUp: props.bubbleUp
+    }
+})
+
+const dragSelectors = $computed(() => {
+    return getSelectorsFromProp(props.dragSelector)
+})
+
+const resizeSelectors = $computed(() => {
+    return getSelectorsFromProp(props.resizeSelector)
+})
+
+const cursorStyleContent = $computed(() => {
+    const styleContent = []
+
+    styleContent.push(
+        ...[
+            ['', 'cursor: var(--dnd-resize-cursor-nwse, nwse-resize);'],
+            [':where([dnd-grid-resize=t-], [dnd-grid-resize=b-])', 'cursor: var(--dnd-resize-cursor-ns, ns-resize);'],
+            [':where([dnd-grid-resize=-r], [dnd-grid-resize=-l])', 'cursor: var(--dnd-resize-cursor-ew, ew-resize);'],
+            [':where([dnd-grid-resize=tl], [dnd-grid-resize=br])', 'cursor: var(--dnd-resize-cursor-nwse, nwse-resize);'],
+            [':where([dnd-grid-resize=tr], [dnd-grid-resize=bl])', 'cursor: var(--dnd-resize-cursor-nesw, nesw-resize);']
+        ].map(([ selector, rules]) => {
+            const selectors = getSelectorsFromProp(props.resizeSelector, selector)
+            return `
+                ${selectors.join(', ')} {
+                    ${rules}
+                }
+            `
+        }),
+        ...[
+            ['', 'cursor: var(--dnd-drag-cursor, move);']
+        ].map(([ selector, rules]) => {
+            const selectors = getSelectorsFromProp(props.dragSelector, selector)
+            return `
+                ${selectors.join(', ')} {
+                    ${rules}
+                }
+            `
+        })
+    )
+
+    return styleContent.join('\n')
+})
+
+const cursorStyleSheet = new CSSStyleSheet()
+watch($$(cursorStyleContent), content => {
+    cursorStyleSheet.replaceSync(content)
+}, {
+    immediate: true
+})
+
+onMounted(() => {
+    document.adoptedStyleSheets = [ ...document.adoptedStyleSheets, cursorStyleSheet ]
+})
+
+onBeforeUnmount(() => {
+    const index = document.adoptedStyleSheets.indexOf(cursorStyleSheet)
+    if (index > -1) {
+        document.adoptedStyleSheets = [
+            ...document.adoptedStyleSheets.slice(0, index),
+            ...document.adoptedStyleSheets.slice(index+1),
+        ]
     }
 })
 
@@ -159,6 +239,26 @@ function startLayout () {
 function stopLayout () {
     emit('update:layout', layout)
     mode = 'grid'
+}
+
+function canStartDrag (evt) {
+    return evt.target && dragSelectors.find(selector => evt.target.matches(selector))
+}
+
+function canStartResize (evt) {
+    return evt.target && resizeSelectors.find(selector => evt.target.matches(selector))
+}
+
+function getSelectorsFromProp (prop, additionalSelector) {
+    let selectors = [
+        (prop.include || '*') + (additionalSelector || ''),
+        (prop.include || '*') + (additionalSelector || '') + ' *'
+    ]
+    if (prop.exclude) {
+        selectors = selectors.map(selector => `${selector}:not(${prop.exclude})`)
+    }
+
+    return selectors
 }
 </script>
 

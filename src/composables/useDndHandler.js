@@ -20,8 +20,9 @@ export default function useMouseHandler (callbacks = {}) {
     }
 
     function onStart (evt) {
-        if (hasStarted || !callbacks?.['allow']?.(evt)) return
+        if (evt.defaultPrevented || hasStarted || !callbacks?.['allow']?.(evt)) return
         evt.stopPropagation()
+        evt.preventDefault()
 
         hasStarted = true
         isTouch = evt.type === 'touchstart'
