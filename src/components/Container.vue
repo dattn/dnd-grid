@@ -2,6 +2,8 @@
 export default {
     inheritAttrs: false
 }
+
+let NEXT_DND_GRID_ID = 1
 </script>
 
 <script setup>
@@ -113,6 +115,8 @@ const props = defineProps({
     }
 })
 
+const DND_GRID_ID = NEXT_DND_GRID_ID++
+
 const emit = defineEmits(['update:layout'])
 
 const { layout: externalLayout, disabled, isDraggable, isResizable, addResizeHandles } = $(props)
@@ -171,7 +175,7 @@ const cursorStyleContent = $computed(() => {
         ].map(([ selector, rules]) => {
             const selectors = getSelectorsFromProp(props.resizeSelector, selector)
             return `
-                ${selectors.join(', ')} {
+                .${$style.container}[dnd-grid-id="${DND_GRID_ID}"] :not(.${$style.container}) ${selectors.join(', ')} {
                     ${rules}
                 }
             `
@@ -181,7 +185,7 @@ const cursorStyleContent = $computed(() => {
         ].map(([ selector, rules]) => {
             const selectors = getSelectorsFromProp(props.dragSelector, selector)
             return `
-                ${selectors.join(', ')} {
+                .${$style.container}[dnd-grid-id="${DND_GRID_ID}"] :not(.${$style.container}) ${selectors.join(', ')} {
                     ${rules}
                 }
             `
@@ -271,6 +275,7 @@ function getSelectorsFromProp (prop, additionalSelector) {
 <template>
     <div
         ref="containerEl"
+        :dnd-grid-id="DND_GRID_ID"
         :class="{
             [$style.container]: true,
             [$style['mode-' + mode]]: true,
