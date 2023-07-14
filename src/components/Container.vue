@@ -265,7 +265,7 @@ function getSelectorsFromProp (prop, additionalSelector) {
         (prop.include || '*') + (additionalSelector || '') + ' *'
     ]
     if (prop.exclude) {
-        selectors = selectors.map(selector => `${selector}:not(${prop.exclude})`)
+        selectors = selectors.map(selector => `${selector}:not(${prop.exclude}, ${prop.exclude} *)`)
     }
 
     return selectors
