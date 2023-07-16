@@ -48,10 +48,10 @@ const visible = $computed(() => box && !box.hidden)
 const position = $computed(() => box?.position)
 const cssPosition = $computed(() => {
     return {
-        x: (position?.x ?? 0) + 1,
-        y: (position?.y ?? 0) + 1,
-        w: position?.w ?? 0,
-        h: position?.h ?? 0
+        '--dnd-grid-box-x': (position?.x ?? 0) + 1,
+        '--dnd-grid-box-y': (position?.y ?? 0) + 1,
+        '--dnd-grid-box-width': position?.w ?? 0,
+        '--dnd-grid-box-height': position?.h ?? 0
     }
 })
 
@@ -243,6 +243,7 @@ function mergeEvents (...eventObjects) {
             [$style.dragging]: isDragging,
             [$style.resizing]: isResizing
         }"
+        :style="cssPosition"
         v-on="boxEvents"
     >
         <div
@@ -284,8 +285,8 @@ function mergeEvents (...eventObjects) {
 }
 
 .box {
-    grid-column: v-bind('cssPosition.x') / span v-bind('cssPosition.w');
-    grid-row: v-bind('cssPosition.y') / span v-bind('cssPosition.h');
+    grid-column: var(--dnd-grid-box-x) / span var(--dnd-grid-box-width);
+    grid-row: var(--dnd-grid-box-y) / span var(--dnd-grid-box-height);
     display: grid;
 }
 
