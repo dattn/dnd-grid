@@ -298,7 +298,7 @@ function mergeEvents (...eventObjects) {
     user-select: none;
 }
 
-.mode-layout :is(.slotContainer, .placeholderContainer) {
+.mode-layout .box:not(.mode-layout .mode-grid .box) > :is(.slotContainer, .placeholderContainer) {
     position: absolute;
     left: v-bind('cssPixels.x');
     top: v-bind('cssPixels.y');
@@ -306,7 +306,7 @@ function mergeEvents (...eventObjects) {
     height: v-bind('cssPixels.h');
 }
 
-.mode-layout :is(.dragging, .resizing)  > .slotContainer {
+.mode-layout .box:is(.dragging, .resizing):not(.mode-layout .mode-grid .box)  > .slotContainer {
     left: calc(v-bind('baseCssPixels.x') + var(--dnd-grid-box-offset-left, 0px));
     top: calc(v-bind('baseCssPixels.y') + var(--dnd-grid-box-offset-top, 0px));
     width: calc(v-bind('baseCssPixels.w') + var(--dnd-grid-box-offset-width, 0px));
@@ -320,12 +320,12 @@ function mergeEvents (...eventObjects) {
     border: var(--dnd-grid-placeholder-border, none);
 }
 
-.mode-layout :is(.dragging, .resizing) .slotContainer {
+.mode-layout .box:is(.dragging, .resizing):not(.mode-layout .mode-grid .box) > .slotContainer {
     z-index: 9999;
     opacity: 0.6;
 }
 
-.mode-layout .box:not(.dragging):not(.resizing) > .slotContainer,
+.mode-layout .box:not(.dragging, .resizing):not(.mode-layout .mode-grid .box) > .slotContainer,
 .placeholderContainer {
     transition-property: left, top, width, height;
     transition-duration: var(--dnd-grid-transition-duration, 0.1s);
