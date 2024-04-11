@@ -14,6 +14,11 @@ const props = defineProps({
     boxId: {
         required: true,
         type: null
+    },
+
+    overflow: {
+        type: String,
+        default: 'hidden'
     }
 })
 
@@ -336,7 +341,7 @@ function mergeEvents (...eventObjects) {
 
 .slotContainer {
     z-index: 1;
-    overflow: hidden;
+    overflow: v-bind('overflow');
 }
 
 .resizeHandleContainer {
