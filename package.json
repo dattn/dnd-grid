@@ -14,15 +14,15 @@
         "mitt": "^3.0.1"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^4.2.3",
-        "eslint": "^8.45.0",
-        "eslint-plugin-import": "^2.27.5",
-        "eslint-plugin-vue": "^9.15.1",
-        "vite": "^4.4.4",
-        "vue": "^3.3.4"
+        "@vitejs/plugin-vue": "^4.6.2",
+        "eslint": "^8.57.0",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-plugin-vue": "^9.24.1",
+        "vite": "^4.5.3",
+        "vue": "^3.4.21"
     },
     "peerDependencies": {
-        "vue": "^3.2.45"
+        "vue": "^3.4.21"
     },
     "files": [
         "dist"
