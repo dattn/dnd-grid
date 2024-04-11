@@ -161,6 +161,10 @@ const resizeSelectorsRef = computed(() => {
 })
 
 const cursorStyleContentRef = computed(() => {
+    if (props.disabled) {
+        return ''
+    }
+
     const styleContent = []
 
     styleContent.push(
@@ -170,7 +174,7 @@ const cursorStyleContentRef = computed(() => {
             [':where([dnd-grid-resize=-r], [dnd-grid-resize=-l])', 'cursor: var(--dnd-resize-cursor-ew, ew-resize);'],
             [':where([dnd-grid-resize=tl], [dnd-grid-resize=br])', 'cursor: var(--dnd-resize-cursor-nwse, nwse-resize);'],
             [':where([dnd-grid-resize=tr], [dnd-grid-resize=bl])', 'cursor: var(--dnd-resize-cursor-nesw, nesw-resize);']
-        ].map(([ selector, rules]) => {
+        ].map(([selector, rules]) => {
             const selectors = getSelectorsFromProp(props.resizeSelector, selector)
             return `
                 .${$style.container}[dnd-grid-id="${DND_GRID_ID}"] :not(.${$style.container}) ${selectors.join(', ')} {
@@ -180,7 +184,7 @@ const cursorStyleContentRef = computed(() => {
         }),
         ...[
             ['', 'cursor: var(--dnd-drag-cursor, move);']
-        ].map(([ selector, rules]) => {
+        ].map(([selector, rules]) => {
             const selectors = getSelectorsFromProp(props.dragSelector, selector)
             return `
                 .${$style.container}[dnd-grid-id="${DND_GRID_ID}"] :not(.${$style.container}) ${selectors.join(', ')} {
