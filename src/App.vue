@@ -1,22 +1,23 @@
 <script setup>
+import { shallowRef, computed } from 'vue'
 import GridContainer from './components/Container.vue'
 import GridBox from './components/Box.vue'
 import initialLayout from './layout.json'
 import * as LayoutTools from './LayoutTools.js'
 
-let cellWidth = $ref()
-let cellMaxWidth = $ref()
-let cellHeight = $ref()
-let cellMaxHeight = $ref()
-let cellSpacing = $ref()
-let disabled = $ref(false)
-let bubbleUp = $ref(true)
+const cellWidthRef = shallowRef()
+const cellMaxWidthRef = shallowRef()
+const cellHeightRef = shallowRef()
+const cellMaxHeightRef = shallowRef()
+const cellSpacingRef = shallowRef()
+const disabledRef = shallowRef(false)
+const bubbleUpRef = shallowRef(true)
 
-const cellWidthInput = $computed(createInputComputed($$(cellWidth)))
-const cellMaxWidthInput = $computed(createInputComputed($$(cellMaxWidth)))
-const cellHeightInput = $computed(createInputComputed($$(cellHeight)))
-const cellMaxHeightInput = $computed(createInputComputed($$(cellMaxHeight)))
-const cellSpacingInput = $computed(createInputComputed($$(cellSpacing)))
+const cellWidthInputRef = computed(createInputComputed(cellWidthRef))
+const cellMaxWidthInputRef = computed(createInputComputed(cellMaxWidthRef))
+const cellHeightInputRef = computed(createInputComputed(cellHeightRef))
+const cellMaxHeightInputRef = computed(createInputComputed(cellMaxHeightRef))
+const cellSpacingInputRef = computed(createInputComputed(cellSpacingRef))
 
 function createInputComputed (targetRef) {
     return {
@@ -29,19 +30,18 @@ function createInputComputed (targetRef) {
     }
 }
 
-let layout = $ref(initialLayout)
-
-let boxCount = $ref(4)
+const layoutRef = shallowRef(initialLayout)
+const boxCountRef = shallowRef(4)
 
 function addBox () {
-    boxCount++
-    layout = LayoutTools.addBox(layout, LayoutTools.createBox(layout, boxCount))
+    boxCountRef.value++
+    layoutRef.value = LayoutTools.addBox(layoutRef.value, LayoutTools.createBox(layoutRef.value, boxCountRef.value))
 }
 
 function removeBox () {
-    if (boxCount > 0) {
-        layout = LayoutTools.removeBox(layout, boxCount)
-        boxCount--
+    if (boxCountRef.value > 0) {
+        layoutRef.value = LayoutTools.removeBox(layoutRef.value, boxCountRef.value)
+        boxCountRef.value--
     }
 }
 </script>
@@ -50,17 +50,17 @@ function removeBox () {
     <h1>DEMO dnd-grid Vue.js Component</h1>
     <div class="card demo-container">
         <GridContainer
-            v-model:layout="layout"
-            :cell-width="cellWidth"
-            :cell-max-width="cellMaxWidth"
-            :cell-height="cellHeight"
-            :cell-max-height="cellMaxHeight"
-            :cell-spacing="cellSpacing"
-            :disabled="disabled"
-            :bubble-up="bubbleUp"
+            v-model:layout="layoutRef"
+            :cell-width="cellWidthRef"
+            :cell-max-width="cellMaxWidthRef"
+            :cell-height="cellHeightRef"
+            :cell-max-height="cellMaxHeightRef"
+            :cell-spacing="cellSpacingRef"
+            :disabled="disabledRef"
+            :bubble-up="bubbleUpRef"
         >
             <GridBox
-                v-for="num in boxCount"
+                v-for="num in boxCountRef"
                 :key="num"
                 v-slot="box"
                 :box-id="num"
@@ -101,7 +101,7 @@ function removeBox () {
                             <div class="col-sm-8">
                                 <input
                                     id="settings-margin-input"
-                                    v-model="disabled"
+                                    v-model="disabledRef"
                                     class="form-control"
                                     type="checkbox"
                                 >
@@ -115,7 +115,7 @@ function removeBox () {
                             <div class="col-sm-8">
                                 <input
                                     id="settings-margin-input"
-                                    v-model="bubbleUp"
+                                    v-model="bubbleUpRef"
                                     class="form-control"
                                     type="checkbox"
                                 >
@@ -129,7 +129,7 @@ function removeBox () {
                             <div class="col-sm-8">
                                 <input
                                     id="settings-margin-input"
-                                    v-model="cellSpacingInput"
+                                    v-model="cellSpacingInputRef"
                                     class="form-control"
                                 >
                             </div>
@@ -142,13 +142,13 @@ function removeBox () {
                             <div class="col-sm-4">
                                 <input
                                     id="settings-grid-size-w-input"
-                                    v-model="cellWidthInput"
+                                    v-model="cellWidthInputRef"
                                     class="form-control"
                                 >
                             </div>
                             <div class="col-sm-4">
                                 <input
-                                    v-model="cellHeightInput"
+                                    v-model="cellHeightInputRef"
                                     class="form-control"
                                 >
                             </div>
@@ -161,13 +161,13 @@ function removeBox () {
                             <div class="col-sm-4">
                                 <input
                                     id="settings-grid-size-w-input"
-                                    v-model="cellMaxWidthInput"
+                                    v-model="cellMaxWidthInputRef"
                                     class="form-control"
                                 >
                             </div>
                             <div class="col-sm-4">
                                 <input
-                                    v-model="cellMaxHeightInput"
+                                    v-model="cellMaxHeightInputRef"
                                     class="form-control"
                                 >
                             </div>

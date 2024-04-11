@@ -6,7 +6,7 @@ export default {
 
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
-import { inject, useCssModule } from 'vue'
+import { inject, useCssModule, shallowRef, computed } from 'vue'
 import { toPixels, fromPixels } from '../LayoutTools.js'
 import useDndHandler from '../composables/useDndHandler.js'
 
@@ -17,99 +17,98 @@ const props = defineProps({
     }
 })
 
-const { boxId } = $(props)
-
 const $style = useCssModule()
 
 const {
-    getBox,
-    updateBox,
-    computedCellSize,
-    startLayout,
-    stopLayout,
-    disabled,
-    isResizable,
-    isDraggable,
+    computedCellSize: computedCellSizeRef,
+    disabled: disabledRef,
+    isResizable: isResizableRef,
+    isDraggable: isDraggableRef,
+    addResizeHandles: addResizeHandlesRef,
     canStartDrag,
     canStartResize,
-    addResizeHandles
-} = $(inject(ContainerSymbol))
+    getBox,
+    updateBox,
+    startLayout,
+    stopLayout,
+} = inject(ContainerSymbol)
 
 const overlayEl = document.createElement('div')
 overlayEl.classList.add($style.overlay)
 
-const slotContainerEl = $ref()
-const boxEl = $ref()
+const slotContainerElRef = shallowRef()
+const boxElRef = shallowRef()
 
-const box = $computed(() => getBox(boxId, true))
-const visible = $computed(() => box && !box.hidden)
+const boxRef = computed(() => getBox(props.boxId, true))
+const visibleRef = computed(() => !(boxRef.value?.hidden ?? false))
 
 // grid mode
-const position = $computed(() => box?.position)
-const cssPosition = $computed(() => {
+const positionRef = computed(() => boxRef.value?.position)
+const cssPositionRef = computed(() => {
     return {
-        '--dnd-grid-box-x': (position?.x ?? 0) + 1,
-        '--dnd-grid-box-y': (position?.y ?? 0) + 1,
-        '--dnd-grid-box-width': position?.w ?? 0,
-        '--dnd-grid-box-height': position?.h ?? 0
+        '--dnd-grid-box-x': (positionRef.value?.x ?? 0) + 1,
+        '--dnd-grid-box-y': (positionRef.value?.y ?? 0) + 1,
+        '--dnd-grid-box-width': positionRef.value?.w ?? 0,
+        '--dnd-grid-box-height': positionRef.value?.h ?? 0
     }
 })
 
 // layouting mode
-const pixels = $computed(() => {
-    if (!position || !computedCellSize) return
+const pixelsRef = computed(() => {
+    if (!positionRef.value || !computedCellSizeRef.value) return
+    const { width, height, spacing } = computedCellSizeRef.value
     return toPixels(
-        box.position,
-        computedCellSize.width,
-        computedCellSize.height,
-        computedCellSize.spacing
+        boxRef.value.position,
+        width,
+        height,
+        spacing
     )
 })
-const cssPixels = $computed(() => {
+const cssPixelsRef = computed(() => {
     return {
-        x: `${pixels?.x ?? 0}px`,
-        y: `${pixels?.y ?? 0}px`,
-        w: `${pixels?.w ?? 0}px`,
-        h: `${pixels?.h ?? 0}px`
+        x: `${pixelsRef.value?.x ?? 0}px`,
+        y: `${pixelsRef.value?.y ?? 0}px`,
+        w: `${pixelsRef.value?.w ?? 0}px`,
+        h: `${pixelsRef.value?.h ?? 0}px`
     }
 })
 
-const isBoxResizable = $computed(() => {
-    return !disabled // dnd is enabled
-        && isResizable // resizing is enabled
-        && (box?.isResizable ?? true) // box resizing is enabled (defaults to enabled)
-        && (!box?.pinned || box?.isResizable) // pinned boxes can only be dragged when resizing is explicitly enabled
+const isBoxResizableRef = computed(() => {
+    return !disabledRef.value // dnd is enabled
+        && isResizableRef.value // resizing is enabled
+        && (boxRef.value?.isResizable ?? true) // box resizing is enabled (defaults to enabled)
+        && (!boxRef.value?.pinned || boxRef.value?.isResizable) // pinned boxes can only be dragged when resizing is explicitly enabled
 })
 
-const isBoxDraggable = $computed(() => {
-    return !disabled // dnd is enabled
-        && isDraggable // dragging is enabled
-        && (box?.isDraggable ?? true) // box dragging is enabled (defaults to enabled)
-        && (!box?.pinned || box?.isDraggable) // pinned boxes can only be dragged when dragging is explicitly enabled
+const isBoxDraggableRef = computed(() => {
+    return !disabledRef.value // dnd is enabled
+        && isDraggableRef.value // dragging is enabled
+        && (boxRef.value?.isDraggable ?? true) // box dragging is enabled (defaults to enabled)
+        && (!boxRef.value?.pinned || boxRef.value?.isDraggable) // pinned boxes can only be dragged when dragging is explicitly enabled
 })
 
-let baseCssPixels = $ref({})
+const baseCssPixelsRef = shallowRef({})
 let basePosition
 
-let isDragging = $ref(false)
+const isDraggingRef = shallowRef(false)
 const dragEvents = useDndHandler({
     allow: function allowDrag (evt) {
-        return isBoxDraggable && canStartDrag(evt) // check if evt is allowed to start dragging
+        return isBoxDraggableRef.value && canStartDrag(evt) // check if evt is allowed to start dragging
     },
     start: function onDragStart () {
         startLayout()
-        baseCssPixels = cssPixels
-        basePosition = position
-        isDragging = true
+        baseCssPixelsRef.value = cssPixelsRef.value
+        basePosition = positionRef.value
+        isDraggingRef.value = true
 
         document.body.appendChild(overlayEl)
         document.body.setAttribute('dnd-grid-drag', '')
     },
     stop: function onDragStop () {
         stopLayout()
-        isDragging = false
-        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-left')
-        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-top')
+        isDraggingRef.value = false
+        slotContainerElRef.value?.style?.removeProperty('--dnd-grid-box-offset-left')
+        slotContainerElRef.value?.style?.removeProperty('--dnd-grid-box-offset-top')
 
         overlayEl.remove()
         document.body.removeAttribute('dnd-grid-drag')
@@ -120,27 +119,27 @@ const dragEvents = useDndHandler({
     }
 })
 
-let isResizing = $ref(false)
+const isResizingRef = shallowRef(false)
 let resizeMode
 const resizeEvents = useDndHandler({
     allow: function allowResize (evt) {
-        return isBoxResizable && canStartResize(evt)
+        return isBoxResizableRef.value && canStartResize(evt)
     },
     start: function onResizeStart (_, evt) {
         startLayout()
         resizeMode = evt?.target?.getAttribute?.('dnd-grid-resize') || 'br'
-        baseCssPixels = cssPixels
-        basePosition = position
-        isResizing = true
+        baseCssPixelsRef.value = cssPixelsRef.value
+        basePosition = positionRef.value
+        isResizingRef.value = true
 
         document.body.appendChild(overlayEl)
         document.body.setAttribute('dnd-grid-resize', resizeMode)
     },
     stop: function onResizeStop () {
         stopLayout()
-        isResizing = false
-        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-width')
-        slotContainerEl?.style?.removeProperty('--dnd-grid-box-offset-height')
+        isResizingRef.value = false
+        slotContainerElRef.value?.style?.removeProperty('--dnd-grid-box-offset-width')
+        slotContainerElRef.value?.style?.removeProperty('--dnd-grid-box-offset-height')
 
         overlayEl.remove()
         document.body.removeAttribute('dnd-grid-resize')
@@ -174,11 +173,12 @@ const resizeEvents = useDndHandler({
     }
 })
 
-const boxEvents = $computed(() => {
+const boxEventsRef = computed(() => {
     return mergeEvents(dragEvents, resizeEvents)
 })
 
 function applyOffsetPixels (basePosition, offsetPixels) {
+    const slotContainerEl = slotContainerElRef.value
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-left', `${offsetPixels.x}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-top', `${offsetPixels.y}px`)
     slotContainerEl?.style?.setProperty('--dnd-grid-box-offset-width', `${offsetPixels.w}px`)
@@ -190,14 +190,15 @@ function applyOffsetPixels (basePosition, offsetPixels) {
         inline: 'nearest'
     })
 
-    const halfCellSizeWidth = computedCellSize.width / 2
-    const halfCellSizeHeight = computedCellSize.height / 2
+    const cellSize = computedCellSizeRef.value
+    const halfCellSizeWidth = cellSize.width / 2
+    const halfCellSizeHeight = cellSize.height / 2
     const targetPosition = fromPixels({
         x: offsetPixels.x + halfCellSizeWidth, // add half cellsize for better box placement
         y: offsetPixels.y + halfCellSizeHeight,
         w: offsetPixels.w + halfCellSizeWidth,
         h: offsetPixels.h + halfCellSizeHeight
-    }, computedCellSize.width, computedCellSize.height, computedCellSize.spacing)
+    }, cellSize.width, cellSize.height, cellSize.spacing)
 
     targetPosition.x = Math.max(0, targetPosition.x + basePosition.x)
     targetPosition.y = Math.max(0, targetPosition.y + basePosition.y)
@@ -208,13 +209,14 @@ function applyOffsetPixels (basePosition, offsetPixels) {
 }
 
 function updatePosition (targetPosition) {
+    const position = positionRef.value
     if (
         position.x !== targetPosition.x ||
         position.y !== targetPosition.y ||
         position.w !== targetPosition.w ||
         position.h !== targetPosition.h
     ) {
-        updateBox(box.id, { position: targetPosition })
+        updateBox(boxRef.value.id, { position: targetPosition })
     }
 }
 
@@ -236,35 +238,35 @@ function mergeEvents (...eventObjects) {
 
 <template>
     <div
-        v-if="visible"
-        ref="boxEl"
+        v-if="visibleRef"
+        ref="boxElRef"
         :class="{
             [$style.box]: true,
-            [$style.dragging]: isDragging,
-            [$style.resizing]: isResizing
+            [$style.dragging]: isDraggingRef,
+            [$style.resizing]: isResizingRef
         }"
-        :style="cssPosition"
-        v-on="boxEvents"
+        :style="cssPositionRef"
+        v-on="boxEventsRef"
     >
         <div
-            v-if="isDragging || isResizing"
+            v-if="isDraggingRef || isResizingRef"
             :class="$style.placeholderContainer"
         >
             <slot
                 name="placeholder"
-                v-bind="box"
+                v-bind="boxRef"
             >
                 <div :class="$style.placeholder" />
             </slot>
         </div>
         <div
-            ref="slotContainerEl"
+            ref="slotContainerElRef"
             :class="$style.slotContainer"
         >
-            <slot v-bind="box" />
+            <slot v-bind="boxRef" />
         </div>
         <div
-            v-if="addResizeHandles && isBoxResizable"
+            v-if="addResizeHandlesRef && isBoxResizableRef"
             :class="$style.resizeHandleContainer"
         >
             <div dnd-grid-resize="t-" />
@@ -300,17 +302,17 @@ function mergeEvents (...eventObjects) {
 
 .mode-layout .box:not(.mode-layout .mode-grid .box) > :is(.slotContainer, .placeholderContainer) {
     position: absolute;
-    left: v-bind('cssPixels.x');
-    top: v-bind('cssPixels.y');
-    width: v-bind('cssPixels.w');
-    height: v-bind('cssPixels.h');
+    left: v-bind('cssPixelsRef.x');
+    top: v-bind('cssPixelsRef.y');
+    width: v-bind('cssPixelsRef.w');
+    height: v-bind('cssPixelsRef.h');
 }
 
 .mode-layout .box:is(.dragging, .resizing):not(.mode-layout .mode-grid .box)  > .slotContainer {
-    left: calc(v-bind('baseCssPixels.x') + var(--dnd-grid-box-offset-left, 0px));
-    top: calc(v-bind('baseCssPixels.y') + var(--dnd-grid-box-offset-top, 0px));
-    width: calc(v-bind('baseCssPixels.w') + var(--dnd-grid-box-offset-width, 0px));
-    height: calc(v-bind('baseCssPixels.h') + var(--dnd-grid-box-offset-height, 0px));
+    left: calc(v-bind('baseCssPixelsRef.x') + var(--dnd-grid-box-offset-left, 0px));
+    top: calc(v-bind('baseCssPixelsRef.y') + var(--dnd-grid-box-offset-top, 0px));
+    width: calc(v-bind('baseCssPixelsRef.w') + var(--dnd-grid-box-offset-width, 0px));
+    height: calc(v-bind('baseCssPixelsRef.h') + var(--dnd-grid-box-offset-height, 0px));
 }
 .placeholder {
     width: 100%;

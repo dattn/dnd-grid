@@ -7,7 +7,7 @@ let NEXT_DND_GRID_ID = 1
 </script>
 
 <script setup>
-import { provide, readonly, useCssModule, watch, onMounted, onBeforeUnmount } from 'vue'
+import { provide, readonly, useCssModule, watch, onMounted, onBeforeUnmount, toRef, shallowRef, computed } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
 import { getBox as _getBox, updateBox as _updateBox } from '../LayoutTools.js'
 
@@ -119,50 +119,48 @@ const DND_GRID_ID = NEXT_DND_GRID_ID++
 
 const emit = defineEmits(['update:layout'])
 
-const { layout: externalLayout, disabled, isDraggable, isResizable, addResizeHandles } = $(props)
-
 const $style = useCssModule()
 
-const containerEl = $ref()
-let computedCellSize = $ref()
-let mode = $ref('grid')
-let layout = $ref(externalLayout)
+const containerElRef = shallowRef()
+const computedCellSizeRef = shallowRef()
+const modeRef = shallowRef('grid')
+const layoutRef = shallowRef(props.layout)
 
-provide(ContainerSymbol, $$({
-    layout: readonly(layout),
-    mode: readonly(mode),
-    disabled: readonly(disabled),
-    isResizable: readonly(isResizable),
-    isDraggable: readonly(isDraggable),
-    computedCellSize: readonly(computedCellSize),
+provide(ContainerSymbol, {
+    layout: readonly(layoutRef),
+    mode: readonly(modeRef),
+    disabled: toRef(() => props.disabled),
+    isResizable: toRef(() => props.isResizable),
+    isDraggable: toRef(() => props.isDraggable),
+    computedCellSize: readonly(computedCellSizeRef),
     startLayout,
     stopLayout,
     getBox,
     updateBox,
     canStartDrag,
     canStartResize,
-    addResizeHandles
-}))
-
-watch($$(externalLayout), newLayout => {
-    layout = newLayout
+    addResizeHandles: toRef(() => props.addResizeHandles)
 })
 
-const layoutOptions = $computed(() => {
+watch(() => props.layout, newLayout => {
+    layoutRef.value = newLayout
+})
+
+const layoutOptionsRef = computed(() => {
     return {
         bubbleUp: props.bubbleUp
     }
 })
 
-const dragSelectors = $computed(() => {
+const dragSelectorsRef = computed(() => {
     return getSelectorsFromProp(props.dragSelector)
 })
 
-const resizeSelectors = $computed(() => {
+const resizeSelectorsRef = computed(() => {
     return getSelectorsFromProp(props.resizeSelector)
 })
 
-const cursorStyleContent = $computed(() => {
+const cursorStyleContentRef = computed(() => {
     const styleContent = []
 
     styleContent.push(
@@ -196,7 +194,7 @@ const cursorStyleContent = $computed(() => {
 })
 
 const cursorStyleSheet = new CSSStyleSheet()
-watch($$(cursorStyleContent), content => {
+watch(cursorStyleContentRef, content => {
     cursorStyleSheet.replaceSync(content)
 }, {
     immediate: true
@@ -217,11 +215,11 @@ onBeforeUnmount(() => {
 })
 
 function getBox (id) {
-    return _getBox(layout, id, layoutOptions)
+    return _getBox(layoutRef.value, id, layoutOptionsRef.value)
 }
 
 function updateBox (id, data) {
-    return layout = _updateBox(externalLayout, id, data, layoutOptions)
+    return layoutRef.value = _updateBox(props.layout, id, data, layoutOptionsRef.value)
 }
 
 function toCssSize (value) {
@@ -230,33 +228,33 @@ function toCssSize (value) {
 }
 
 function updateComputedCellSize () {
-    if (containerEl) {
-        const style = getComputedStyle(containerEl)
+    if (containerElRef.value) {
+        const style = getComputedStyle(containerElRef.value)
         const width = parseFloat(style.gridTemplateColumns)
         const height = parseFloat(style.gridTemplateRows)
         const spacing = parseFloat(style.gap)
 
-        computedCellSize = { width, height, spacing }
+        computedCellSizeRef.value = { width, height, spacing }
     }
-    return computedCellSize
+    return computedCellSizeRef.value
 }
 
 function startLayout () {
     updateComputedCellSize()
-    mode = 'layout'
+    modeRef.value = 'layout'
 }
 
 function stopLayout () {
-    emit('update:layout', layout)
-    mode = 'grid'
+    emit('update:layout', layoutRef.value)
+    modeRef.value = 'grid'
 }
 
 function canStartDrag (evt) {
-    return evt.target && dragSelectors.find(selector => evt.target.matches(selector))
+    return evt.target && dragSelectorsRef.value.find(selector => evt.target.matches(selector))
 }
 
 function canStartResize (evt) {
-    return evt.target && resizeSelectors.find(selector => evt.target.matches(selector))
+    return evt.target && resizeSelectorsRef.value.find(selector => evt.target.matches(selector))
 }
 
 function getSelectorsFromProp (prop, additionalSelector) {
@@ -274,11 +272,11 @@ function getSelectorsFromProp (prop, additionalSelector) {
 
 <template>
     <div
-        ref="containerEl"
+        ref="containerElRef"
         :dnd-grid-id="DND_GRID_ID"
         :class="{
             [$style.container]: true,
-            [$style['mode-' + mode]]: true,
+            [$style['mode-' + modeRef]]: true,
         }"
         :style="{
             '--dnd-grid-cell-width': toCssSize(props.cellWidth),
