@@ -10,9 +10,6 @@
         "prepublishOnly": "pnpm build",
         "preinstall": "npx only-allow pnpm"
     },
-    "dependencies": {
-        "mitt": "^3.0.1"
-    },
     "devDependencies": {
         "@vitejs/plugin-vue": "^4.6.2",
         "eslint": "^8.57.0",
