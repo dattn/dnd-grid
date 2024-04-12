@@ -303,11 +303,11 @@ function mergeEvents (...eventObjects) {
     grid-column: 1;
     grid-row: 1;
 }
-.mode-layout .box {
+[dnd-grid-mode='layout'] .box {
     user-select: none;
 }
 
-.mode-layout .box:not(.mode-layout .mode-grid .box) > :is(.slotContainer, .placeholderContainer) {
+[dnd-grid-mode='layout'] .box:not([dnd-grid-mode='layout'] [dnd-grid-mode='grid'] .box) > :is(.slotContainer, .placeholderContainer) {
     position: absolute;
     left: v-bind('cssPixelsRef.x');
     top: v-bind('cssPixelsRef.y');
@@ -315,7 +315,7 @@ function mergeEvents (...eventObjects) {
     height: v-bind('cssPixelsRef.h');
 }
 
-.mode-layout .box:is(.dragging, .resizing):not(.mode-layout .mode-grid .box)  > .slotContainer {
+[dnd-grid-mode='layout'] .box:is(.dragging, .resizing):not([dnd-grid-mode='layout'] [dnd-grid-mode='grid'] .box)  > .slotContainer {
     left: calc(v-bind('baseCssPixelsRef.x') + var(--dnd-grid-box-offset-left, 0px));
     top: calc(v-bind('baseCssPixelsRef.y') + var(--dnd-grid-box-offset-top, 0px));
     width: calc(v-bind('baseCssPixelsRef.w') + var(--dnd-grid-box-offset-width, 0px));
@@ -329,12 +329,12 @@ function mergeEvents (...eventObjects) {
     border: var(--dnd-grid-placeholder-border, none);
 }
 
-.mode-layout .box:is(.dragging, .resizing):not(.mode-layout .mode-grid .box) > .slotContainer {
+[dnd-grid-mode='layout'] .box:is(.dragging, .resizing):not([dnd-grid-mode='layout'] [dnd-grid-mode='grid'] .box) > .slotContainer {
     z-index: 9999;
     opacity: 0.6;
 }
 
-.mode-layout .box:not(.dragging, .resizing):not(.mode-layout .mode-grid .box) > .slotContainer,
+[dnd-grid-mode='layout'] .box:not(.dragging, .resizing):not([dnd-grid-mode='layout'] [dnd-grid-mode='grid'] .box) > .slotContainer,
 .placeholderContainer {
     transition-property: left, top, width, height;
     transition-duration: var(--dnd-grid-transition-duration, 0.1s);

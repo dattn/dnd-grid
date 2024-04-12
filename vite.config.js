@@ -22,13 +22,6 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
     },
-    css: {
-        modules: {
-            generateScopedName (name) {
-                return `dnd-grid-${cssModulesHash}__${name}`
-            }
-        }
-    },
     build: {
         lib: {
             entry: resolve('./src/lib.js'),

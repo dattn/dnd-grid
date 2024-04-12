@@ -278,10 +278,8 @@ function getSelectorsFromProp (prop, additionalSelector) {
     <div
         ref="containerElRef"
         :dnd-grid-id="DND_GRID_ID"
-        :class="{
-            [$style.container]: true,
-            [$style['mode-' + modeRef]]: true,
-        }"
+        :dnd-grid-mode="modeRef"
+        :class="$style.container"
         :style="{
             '--dnd-grid-cell-width': toCssSize(props.cellWidth),
             '--dnd-grid-cell-max-width': toCssSize(props.cellMaxWidth),
@@ -319,12 +317,5 @@ function getSelectorsFromProp (prop, additionalSelector) {
     gap: var(--dnd-grid-cell-spacing, 0.5em);
     min-width: min-content;
     min-height: min-content;
-}
-
-.mode-grid {
-
-}
-.mode-layout {
-
 }
 </style>
