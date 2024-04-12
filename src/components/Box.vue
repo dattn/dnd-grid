@@ -297,6 +297,8 @@ function mergeEvents (...eventObjects) {
     grid-column: var(--dnd-grid-box-x) / span var(--dnd-grid-box-width);
     grid-row: var(--dnd-grid-box-y) / span var(--dnd-grid-box-height);
     display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 100%;
 }
 
 .box > * {
