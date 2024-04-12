@@ -31,7 +31,8 @@
             "import": "./dist/dnd-grid.js",
             "require": "./dist/dnd-grid.umd.cjs"
         },
-        "./style.css": "./dist/style.css"
+        "./style.css": "./dist/style.css",
+        "./*": "./src/*/lib.js"
     },
     "volta": {
         "node": "18.12.0"
