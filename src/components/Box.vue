@@ -50,11 +50,12 @@ const visibleRef = computed(() => !(boxRef.value?.hidden ?? false))
 // grid mode
 const positionRef = computed(() => boxRef.value?.position)
 const cssPositionRef = computed(() => {
+    const position = positionRef.value
     return {
-        '--dnd-grid-box-x': (positionRef.value?.x ?? 0) + 1,
-        '--dnd-grid-box-y': (positionRef.value?.y ?? 0) + 1,
-        '--dnd-grid-box-width': positionRef.value?.w ?? 0,
-        '--dnd-grid-box-height': positionRef.value?.h ?? 0
+        '--dnd-grid-box-x': (position?.x ?? 0) + 1,
+        '--dnd-grid-box-y': (position?.y ?? 0) + 1,
+        '--dnd-grid-box-width': position?.w ?? 0,
+        '--dnd-grid-box-height': position?.h ?? 0
     }
 })
 
@@ -70,11 +71,12 @@ const pixelsRef = computed(() => {
     )
 })
 const cssPixelsRef = computed(() => {
+    const pixels = pixelsRef.value
     return {
-        x: `${pixelsRef.value?.x ?? 0}px`,
-        y: `${pixelsRef.value?.y ?? 0}px`,
-        w: `${pixelsRef.value?.w ?? 0}px`,
-        h: `${pixelsRef.value?.h ?? 0}px`
+        x: `${pixels?.x ?? 0}px`,
+        y: `${pixels?.y ?? 0}px`,
+        w: `${pixels?.w ?? 0}px`,
+        h: `${pixels?.h ?? 0}px`
     }
 })
 
