@@ -45,7 +45,7 @@ const slotContainerElRef = shallowRef()
 const boxElRef = shallowRef()
 
 const boxRef = computed(() => getBox(props.boxId, true))
-const visibleRef = computed(() => !(boxRef.value?.hidden ?? false))
+const visibleRef = computed(() => boxRef.value && !(boxRef.value.hidden ?? false))
 
 // grid mode
 const positionRef = computed(() => boxRef.value?.position)
