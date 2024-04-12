@@ -3,7 +3,7 @@ import { shallowRef, computed } from 'vue'
 import GridContainer from './components/Container.vue'
 import GridBox from './components/Box.vue'
 import initialLayout from './layout.json'
-import * as LayoutTools from './LayoutTools.js'
+import * as l from './tools/layout.js'
 
 const cellWidthRef = shallowRef()
 const cellMaxWidthRef = shallowRef()
@@ -35,12 +35,12 @@ const boxCountRef = shallowRef(4)
 
 function addBox () {
     boxCountRef.value++
-    layoutRef.value = LayoutTools.addBox(layoutRef.value, LayoutTools.createBox(layoutRef.value, boxCountRef.value))
+    layoutRef.value = l.addBox(layoutRef.value, l.createBox(layoutRef.value, boxCountRef.value))
 }
 
 function removeBox () {
     if (boxCountRef.value > 0) {
-        layoutRef.value = LayoutTools.removeBox(layoutRef.value, boxCountRef.value)
+        layoutRef.value = l.removeBox(layoutRef.value, boxCountRef.value)
         boxCountRef.value--
     }
 }

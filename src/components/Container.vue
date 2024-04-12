@@ -9,7 +9,7 @@ let NEXT_DND_GRID_ID = 1
 <script setup>
 import { provide, readonly, useCssModule, watch, onMounted, onBeforeUnmount, toRef, shallowRef, computed } from 'vue'
 import { ContainerSymbol } from '../symbols.js'
-import { getBox as _getBox, updateBox as _updateBox } from '../LayoutTools.js'
+import { getBox as _getBox, updateBox as _updateBox } from '../tools/layout.js'
 
 const props = defineProps({
     layout: {

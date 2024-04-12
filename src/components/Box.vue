@@ -7,7 +7,7 @@ export default {
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
 import { inject, useCssModule, shallowRef, computed } from 'vue'
-import { toPixels, fromPixels } from '../LayoutTools.js'
+import { toPixels, fromPixels } from '../tools/layout.js'
 import useDndHandler from '../composables/useDndHandler.js'
 
 const props = defineProps({
