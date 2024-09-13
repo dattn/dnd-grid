@@ -6,7 +6,7 @@ export default {
 
 <script setup>
 import { ContainerSymbol } from '../symbols.js'
-import { inject, useCssModule, shallowRef, computed } from 'vue'
+import { inject, useCssModule, shallowRef, computed, onScopeDispose } from 'vue'
 import { toPixels, fromPixels } from '../tools/layout.js'
 import useDndHandler from '../composables/useDndHandler.js'
 
@@ -241,6 +241,10 @@ function mergeEvents (...eventObjects) {
     })
     return mergedEvents
 }
+
+onScopeDispose(() => {
+    overlayEl.remove()
+})
 </script>
 
 <template>
