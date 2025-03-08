@@ -15,7 +15,9 @@
         "eslint": "^8.57.1",
         "eslint-plugin-import": "^2.30.0",
         "eslint-plugin-vue": "^9.28.0",
+        "typescript": "^5.6.3",
         "vite": "^5.4.7",
+        "vite-plugin-dts": "^4.3.0",
         "vue": "^3.5.7"
     },
     "peerDependencies": {
@@ -27,10 +29,12 @@
     ],
     "main": "./dist/dnd-grid.umd.cjs",
     "module": "./dist/dnd-grid.js",
+    "types": "./dist/dnd-grid.d.ts",
     "exports": {
         ".": {
             "import": "./dist/dnd-grid.js",
-            "require": "./dist/dnd-grid.umd.cjs"
+            "require": "./dist/dnd-grid.umd.cjs",
+            "types": "./dist/dnd-grid.d.ts"
         },
         "./style.css": "./dist/style.css",
         "./*": "./src/*/lib.js"

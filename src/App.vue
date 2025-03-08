@@ -3,7 +3,7 @@ import { shallowRef, computed } from 'vue'
 import GridContainer from './components/Container.vue'
 import GridBox from './components/Box.vue'
 import initialLayout from './layout.json'
-import * as l from './tools/layout.js'
+import * as l from './tools/layout'
 
 const cellWidthRef = shallowRef()
 const cellMaxWidthRef = shallowRef()
